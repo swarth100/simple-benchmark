@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Benchmark Results</title>
+    <!-- Add any required CSS or JS libraries here -->
+    <style>
+        .error {
+            color: red;
+        }
+
+        .success {
+            color: green;
+        }
+
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+<h1>Benchmark Results</h1>
+
+{% if "error" in result %}
+<div class="error">
+    <h2>Error</h2>
+    <p>{{ result.error }}</p>
+</div>
+{% endif %}
+
+{% if "output" in result %}
+<div class="success">
+    <h2>Benchmark Result</h2>
+    <pre>{{ result.output }}</pre>
+</div>
+{% endif %}
+
+{% if "reference" in result %}
+<div class="primary">
+    <h2>Reference Implementation</h2>
+    <pre>{{ result.reference }}</pre>
+</div>
+{% endif %}
+
+<a href="/">Run another benchmark</a>
+</body>
+</html>
