@@ -9,13 +9,20 @@ benchmarks:
   - function_name: "square"
     max_time: 0.5
     args:
-      - name: "side"
+      - name: "size"
         increment: "lambda x: x + 1"
         default: 1
 
   - function_name: "triangle"
     max_time: 0.5
     args:
-      - name: "side"
+      - name: "size"
+        increment: "lambda x: x + 1"
+        default: 1
+
+  - function_name: "rombo"
+    max_time: 0.5
+    args:
+      - name: "size"
         increment: "lambda x: x + 1"
         default: 1

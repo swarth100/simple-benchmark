@@ -1,11 +1,11 @@
-def square(side: int):
+def square(size: int):
     text = ""
-    for i in range(side):
+    for i in range(size):
         row = ""
-        for j in range(side):
-            if (i == 0) or (i == side - 1):
+        for j in range(size):
+            if (i == 0) or (i == size - 1):
                 row += "*"
-            elif (j == 0) or (j == side - 1):
+            elif (j == 0) or (j == size - 1):
                 row += "*"
             else:
                 row += "."
@@ -16,12 +16,12 @@ def square(side: int):
     print(text)
 
 
-def triangle(side: int):
+def triangle(size: int):
     text = ""
-    for i in range(side):
+    for i in range(size):
         row = ""
-        for j in range(side):
-            if (i + j + 1) >= side:
+        for j in range(size):
+            if (i + j + 1) >= size:
                 row += "*"
             else:
                 row += "."

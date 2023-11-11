@@ -2,7 +2,9 @@ import io
 import time
 import importlib
 import sys
+import click
 from typing import Dict, Tuple, Any
+
 from config_validation import Config, load_config, TArg
 
 
@@ -63,7 +65,7 @@ def run_benchmark(benchmark_config: Config):
                 print(f"Error: User module '{user_module_name}' not found.")
                 continue
             except AttributeError:
-                print(
+                errors[run_name] = (
                     f"Error: Function '{benchmark.function_name}' not found "
                     f"in user module '{user_module_name}'."
                 )
@@ -140,5 +142,25 @@ def run_benchmark(benchmark_config: Config):
 # Main benchmark running code below:
 # -------------------------------------------------------------------------------------------------------------------- #
 
-config = load_config("benchmark_config.yaml")
-run_benchmark(config)
+
+@click.command()
+@click.option(
+    "--benchmark",
+    "-b",
+    multiple=True,
+    help="Specify benchmarks to run. Can be used multiple times.",
+)
+def main(benchmark):
+    config = load_config("benchmark_config.yaml")
+
+    # Filter benchmarks if specific ones are provided
+    if benchmark:
+        config.benchmarks = [
+            b for b in config.benchmarks if b.function_name in benchmark
+        ]
+
+    run_benchmark(config)
+
+
+if __name__ == "__main__":
+    main()

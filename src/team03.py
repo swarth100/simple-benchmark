@@ -1,21 +1,21 @@
 import time
 
 
-def square(side: int):
-    for x in range(side):
-        if (x == 0) or (x == side - 1):
-            print("*" * side)
+def square(size: int):
+    for x in range(size):
+        if (x == 0) or (x == size - 1):
+            print("*" * size)
         else:
-            print("*" + ("." * (side - 2)) + "*")
+            print("*" + ("." * (size - 2)) + "*")
 
     # Artificial delay to slow down implementation
     time.sleep(0.01)
 
 
-def triangle(side: int):
-    for x in range(1, side + 1):
+def triangle(size: int):
+    for x in range(1, size + 1):
         n_stars = x
-        n_dots = side - n_stars
+        n_dots = size - n_stars
         stars = n_stars * "*"
         dots = n_dots * "."
         print(dots + stars)

@@ -20,6 +20,12 @@ To run:
 poetry run python runner.py
 ```
 
+To show all run options and flags:
+
+```shell
+poetry run python runner.py --help
+```
+
 ### Installing and running manually
 
 **NOTE**: You must be in the directory where this project was cloned/downloaded
@@ -32,4 +38,10 @@ To run:
 
 ```shell
 python runner.py
+```
+
+To show all run options and flags:
+
+```shell
+python runner.py --help
 ```

@@ -1,16 +1,16 @@
-def square(side: int):
-    if side == 1:
+def square(size: int):
+    if size == 1:
         print("*")
-    elif side == 2:
+    elif size == 2:
         print("**\n**")
     else:
         print("***\n*.*\n***")
 
 
-def triangle(side: int):
-    if side == 1:
+def triangle(size: int):
+    if size == 1:
         print("*")
-    elif side == 2:
+    elif size == 2:
         print(".*\n**")
     else:
         print("..*\n.**\n***")
