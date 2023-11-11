@@ -33,7 +33,24 @@
             color: white;
         }
 
-        /* Primary color for active tab */
+         /* Spinner styles */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #09f;
+            animation: spin 1s ease infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -46,7 +63,7 @@
 
 <div id="benchmark-tab" class="tab active-tab">
     <h2>Benchmark Mode</h2>
-    <form action="/run_benchmark" method="post">
+    <form action="/run_benchmark" method="post" id="benchmark-form">
         <label for="benchmark">Select Benchmark:</label>
         <select name="benchmark" id="benchmark">
             {% for benchmark in benchmarks %}
@@ -58,7 +75,9 @@
         <br>
         <textarea name="code" id="code" rows="10" cols="50"></textarea>
         <br><br>
-        <input type="submit" value="Run Benchmark">
+        <!-- Submit button and spinner -->
+        <input type="submit" value="Run Benchmark" id="submit-button">
+        <div class="spinner hidden" id="loading-spinner"></div>
     </form>
 </div>
 
@@ -127,6 +146,11 @@
 
     // Initialize the inputs when the page loads
     window.onload = updateSandboxInputs;
+
+    document.getElementById('benchmark-form').onsubmit = function() {
+        document.getElementById('submit-button').disabled = true;
+        document.getElementById('loading-spinner').classList.remove('hidden');
+    };
 </script>
 
 </body>
