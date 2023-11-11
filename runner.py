@@ -13,7 +13,11 @@ from webserver import app
     multiple=True,
     help="Specify benchmarks to run. Can be used multiple times.",
 )
-@click.option("--serve", is_flag=True, help="Serve the FastAPI application.")
+@click.option(
+    "--serve",
+    is_flag=True,
+    help="Serve the benchmark runner as a webserver on port 8421.",
+)
 def main(benchmark: Optional[list[str]] = None, serve: bool = False):
     if serve:
         uvicorn.run(app, host="0.0.0.0", port=8421)

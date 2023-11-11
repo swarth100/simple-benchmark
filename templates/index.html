@@ -2,7 +2,17 @@
 <html>
 <head>
     <title>Benchmark Runner</title>
-    <!-- Add any required CSS or JS libraries here -->
+    <!-- CodeMirror Library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
+    <style>
+        /* Additional styling can go here */
+        .CodeMirror {
+            height: auto;
+            border: 1px solid #ddd;
+        }
+    </style>
 </head>
 <body>
 <h1>Benchmark Runner</h1>
@@ -20,5 +30,12 @@
     <br><br>
     <input type="submit" value="Run Benchmark">
 </form>
+<script>
+    var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        mode: "python",
+        matchBrackets: true
+    });
+</script>
 </body>
 </html>
