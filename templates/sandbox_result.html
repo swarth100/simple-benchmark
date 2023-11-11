@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sandbox Result</title>
+    <!-- Add styling and scripts if needed -->
+</head>
+<body>
+<h1>Sandbox Result</h1>
+
+{% if "error" in result %}
+<div class="error">
+    <h2>Error</h2>
+    <pre>{{ result.error }}</pre>
+</div>
+{% endif %}
+
+{% if "output" in result %}
+<div class="success">
+    <h2>Function Output</h2>
+    <pre>{{ result.output }}</pre>
+</div>
+{% endif %}
+{% if "std_output" in result %}
+<div class="success">
+    <h2>Function Prints</h2>
+    <pre>{{ result.std_output }}</pre>
+</div>
+{% endif %}
+
+<a href="/">Back to Home</a>
+</body>
+</html>

@@ -7,35 +7,127 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
     <style>
-        /* Additional styling can go here */
+        /* Additional styling */
         .CodeMirror {
             height: auto;
             border: 1px solid #ddd;
         }
+
+        .tab {
+            display: none;
+        }
+
+        .active-tab {
+            display: block;
+        }
+
+        .tab-button {
+            background-color: lightgray;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .tab-button.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        /* Primary color for active tab */
     </style>
 </head>
 <body>
 <h1>Benchmark Runner</h1>
-<form action="/run_benchmark" method="post">
-    <label for="benchmark">Select Benchmark:</label>
-    <select name="benchmark" id="benchmark">
-        {% for benchmark in benchmarks %}
-        <option value="{{ benchmark }}">{{ benchmark }}</option>
-        {% endfor %}
-    </select>
-    <br><br>
-    <label for="code">Submit Your Code:</label>
-    <br>
-    <textarea name="code" id="code" rows="10" cols="50"></textarea>
-    <br><br>
-    <input type="submit" value="Run Benchmark">
-</form>
+
+<div class="tabs">
+    <button class="tab-button active" onclick="openTab('benchmark-tab', this)">Benchmark Runner</button>
+    <button class="tab-button" onclick="openTab('sandbox-tab', this); updateSandboxInputs()">Sandbox Mode</button>
+</div>
+
+<div id="benchmark-tab" class="tab active-tab">
+    <h2>Benchmark Mode</h2>
+    <form action="/run_benchmark" method="post">
+        <label for="benchmark">Select Benchmark:</label>
+        <select name="benchmark" id="benchmark">
+            {% for benchmark in benchmarks %}
+            <option value="{{ benchmark }}">{{ benchmark }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+        <label for="code">Submit Your Code:</label>
+        <br>
+        <textarea name="code" id="code" rows="10" cols="50"></textarea>
+        <br><br>
+        <input type="submit" value="Run Benchmark">
+    </form>
+</div>
+
+<div id="sandbox-tab" class="tab">
+    <h2>Sandbox Mode</h2>
+    <form action="/sandbox" method="post">
+        <label for="sandbox-benchmark">Select Benchmark for Sandbox:</label>
+        <select name="benchmark" id="sandbox-benchmark" onchange="updateSandboxInputs()">
+            {% for benchmark in benchmarks %}
+            <option value="{{ benchmark }}">{{ benchmark }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+        <label for="sandbox-inputs">Input Parameters (as JSON):</label>
+        <br>
+        <textarea name="sandbox-inputs" id="sandbox-inputs" rows="10" cols="50"></textarea>
+        <br><br>
+        <input type="submit" value="Run Sandbox">
+    </form>
+</div>
+
 <script>
+    function openTab(tabName, element) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tab");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tab-button");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(tabName).style.display = "block";
+        element.className += " active";
+    }
+
     var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         mode: "python",
         matchBrackets: true
     });
+
+    // Initialize CodeMirror for JSON editor in Sandbox
+    var sandboxEditor = CodeMirror.fromTextArea(document.getElementById("sandbox-inputs"), {
+        lineNumbers: false,
+        mode: "application/json",
+        matchBrackets: true
+    });
+
+    var benchmarksWithArgs = {{ benchmarks_with_args | tojson }};
+    function updateSandboxInputs() {
+        var selectedBenchmark = document.getElementById("sandbox-benchmark").value;
+        var defaultArgs = benchmarksWithArgs[selectedBenchmark];
+        // Update CodeMirror instance with new value
+        var jsonStr = JSON.stringify(defaultArgs, null, 2);
+
+        // Update CodeMirror instance with new value
+        sandboxEditor.setValue(jsonStr);
+
+        // Adjust the height of the editor based on the number of lines
+        var lineCount = sandboxEditor.lineCount();
+        var lineHeight = sandboxEditor.defaultTextHeight();
+        var newHeight = lineHeight * (lineCount + 1); // Number of lines plus 2
+        sandboxEditor.setSize(null, newHeight + 'px');
+    }
+
+    // Initialize the inputs when the page loads
+    window.onload = updateSandboxInputs;
 </script>
+
 </body>
 </html>

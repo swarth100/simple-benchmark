@@ -1,4 +1,5 @@
 import importlib
+import json
 from types import ModuleType
 from typing import Optional
 
@@ -12,6 +13,7 @@ from benchmark import (
     run_single_benchmark,
     get_benchmark_by_name,
     get_config,
+    capture_output,
 )
 from config_validation import load_config, Benchmark, Config
 
@@ -24,9 +26,53 @@ async def read_root(request: Request):
     # Fetch benchmarks from the config
     config = load_config("benchmark_config.yaml")
     benchmark_names = [benchmark.function_name for benchmark in config.benchmarks]
+    benchmarks_with_args = {
+        benchmark.function_name: {arg.name: arg.default for arg in benchmark.args}
+        for benchmark in config.benchmarks
+    }
 
     return templates.TemplateResponse(
-        "index.html", {"request": request, "benchmarks": benchmark_names}
+        "index.html",
+        {
+            "request": request,
+            "benchmarks": benchmark_names,
+            "benchmarks_with_args": benchmarks_with_args,
+        },
+    )
+
+
+@app.post("/sandbox")
+async def run_sandbox(request: Request):
+    form_data = await request.form()
+    benchmark_name = form_data["benchmark"]
+    user_inputs = form_data["sandbox-inputs"]
+
+    result_data = {}
+
+    try:
+        benchmark: Optional[Benchmark] = get_benchmark_by_name(name=benchmark_name)
+        if benchmark is None:
+            result_data = {"error": f"Benchmark '{benchmark_name}' does not exist"}
+        else:
+            reference_module_name: str = get_config().reference_module
+            reference_module = importlib.import_module(reference_module_name)
+            reference_func = getattr(reference_module, benchmark.function_name)
+
+            # Assume inputs are JSON and need to be converted to Python dict
+            inputs_dict = json.loads(user_inputs)
+
+            # Run the reference function with the provided inputs
+            ref_output, ref_std_output = capture_output(reference_func, **inputs_dict)
+            if ref_output is not None:
+                result_data["output"] = ref_output
+            if ref_std_output is not None:
+                result_data["std_output"] = ref_std_output
+
+    except Exception as e:
+        result_data = {"error": f"Error while running sandbox: {e}"}
+
+    return templates.TemplateResponse(
+        "sandbox_result.html", {"request": request, "result": result_data}
     )
 
 
