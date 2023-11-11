@@ -3,7 +3,9 @@ import time
 import importlib
 import sys
 import click
-from typing import Dict, Tuple, Any
+from typing import Dict, Tuple, Any, Optional
+import uvicorn
+from webserver import app
 
 from config_validation import Config, load_config, TArg
 
@@ -150,16 +152,20 @@ def run_benchmark(benchmark_config: Config):
     multiple=True,
     help="Specify benchmarks to run. Can be used multiple times.",
 )
-def main(benchmark):
-    config = load_config("benchmark_config.yaml")
+@click.option("--serve", is_flag=True, help="Serve the FastAPI application.")
+def main(benchmark: Optional[list[str]] = None, serve: bool = False):
+    if serve:
+        uvicorn.run(app, host="0.0.0.0", port=8421)
+    else:
+        config = load_config("benchmark_config.yaml")
 
-    # Filter benchmarks if specific ones are provided
-    if benchmark:
-        config.benchmarks = [
-            b for b in config.benchmarks if b.function_name in benchmark
-        ]
+        # Filter benchmarks if specific ones are provided
+        if benchmark:
+            config.benchmarks = [
+                b for b in config.benchmarks if b.function_name in benchmark
+            ]
 
-    run_benchmark(config)
+        run_benchmark(config)
 
 
 if __name__ == "__main__":

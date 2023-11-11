@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Benchmark Runner</title>
+    <!-- Add any required CSS or JS libraries here -->
+</head>
+<body>
+<h1>Benchmark Runner</h1>
+<form action="/run_benchmark" method="post">
+    <label for="benchmark">Select Benchmark:</label>
+    <select name="benchmark" id="benchmark">
+        {% for benchmark in benchmarks %}
+        <option value="{{ benchmark }}">{{ benchmark }}</option>
+        {% endfor %}
+    </select>
+    <br><br>
+    <label for="code">Submit Your Code:</label>
+    <br>
+    <textarea name="code" id="code" rows="10" cols="50"></textarea>
+    <br><br>
+    <input type="submit" value="Run Benchmark">
+</form>
+</body>
+</html>
