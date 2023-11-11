@@ -3,7 +3,7 @@ def square(side: int):
         print("*")
     elif side == 2:
         print("**\n**")
-    elif side == 3:
+    else:
         print("***\n*.*\n***")
 
 
@@ -12,5 +12,5 @@ def triangle(side: int):
         print("*")
     elif side == 2:
         print(".*\n**")
-    elif side == 3:
+    else:
         print("..*\n.**\n***")

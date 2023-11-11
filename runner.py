@@ -40,6 +40,7 @@ def run_benchmark(benchmark_config: Config):
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
 
         results: Dict[str, int] = {}
+        errors: Dict[str, str] = {}
         try:
             ref_func = getattr(ref_module, benchmark.function_name)
         except AttributeError:
@@ -63,7 +64,7 @@ def run_benchmark(benchmark_config: Config):
                 continue
             except AttributeError:
                 print(
-                    f"[{run_name}] Error: Function '{benchmark.function_name}' not found "
+                    f"Error: Function '{benchmark.function_name}' not found "
                     f"in user module '{user_module_name}'."
                 )
                 continue
@@ -82,7 +83,7 @@ def run_benchmark(benchmark_config: Config):
                         user_func, **arg_values
                     )
                 except Exception as e:
-                    print(f"[{run_name}] Error while executing '{run_name}': {e}")
+                    errors[run_name] = f"Error while executing '{run_name}': {e}"
                     break
 
                 # Only count the time in user code towards the benchmark, exclude all time spent in validation
@@ -91,20 +92,21 @@ def run_benchmark(benchmark_config: Config):
                 ref_output, ref_std_output = capture_output(ref_func, **arg_values)
 
                 if user_output != ref_output:
-                    print(
-                        f"[{run_name}] Mismatch in function output for '{run_name}' "
+                    errors[run_name] = (
+                        f"Mismatch in function output for '{run_name}' "
                         f"for arguments {arg_values}.\n"
-                        f"Expected: '{ref_output}'\n"
-                        f"Got: '{user_output}'\n"
+                        f"Expected:\n{ref_output}\n"
+                        f"Got:\n{user_output}\n"
                     )
+
                     break
 
                 if user_std_output != ref_std_output:
-                    print(
-                        f"[{run_name}] Mismatch in print-statement output for '{run_name}' "
-                        f"for arguments {arg_values}."
-                        f"Expected: '{ref_std_output}'\n"
-                        f"Got: '{user_std_output}'\n"
+                    errors[run_name] = (
+                        f"Mismatch in print-statement output for '{run_name}' "
+                        f"for arguments {arg_values}.\n"
+                        f"Expected:\n{ref_std_output}\n"
+                        f"Got:\n{user_std_output}\n"
                     )
                     break
 
@@ -115,17 +117,19 @@ def run_benchmark(benchmark_config: Config):
                     if callable(arg.increment):
                         arg_values[arg.name] = arg.increment(arg_values[arg.name])
 
-            results[
-                f"{user_module_name}.{benchmark.function_name}"
-            ] = last_valid_iteration
+            results[run_name] = last_valid_iteration
 
         # Sort the results to always list the best result first
         sorted_results = dict(
             sorted(results.items(), key=lambda item: item[1], reverse=True)
         )
 
-        for team, result in sorted_results.items():
-            print(team, result)
+        for idx, (team, result) in enumerate(sorted_results.items()):
+            print(f"({idx}) [{team}]: {result}")
+
+        print("\n❌ Execution Errors:")
+        for team, error_str in errors.items():
+            print(f"\n[{team}]: {error_str}")
 
         print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
