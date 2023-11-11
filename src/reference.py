@@ -15,7 +15,7 @@ def triangle(size: int):
         print(dots + stars)
 
 
-def rombo(size: int):
+def rhombus(size: int):
     limit = (size + 1) // 2
     for start, end, step in [(0, limit, 1), (limit - 1 - (size % 2), -1, -1)]:
         for x in range(start, end, step):

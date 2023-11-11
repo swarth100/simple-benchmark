@@ -20,7 +20,7 @@ benchmarks:
         increment: "lambda x: x + 1"
         default: 1
 
-  - function_name: "rombo"
+  - function_name: "rhombus"
     max_time: 1
     args:
       - name: "size"

@@ -64,8 +64,8 @@
 <div id="benchmark-tab" class="tab active-tab">
     <h2>Benchmark Mode</h2>
     <form action="/run_benchmark" method="post" id="benchmark-form">
-        <label for="benchmark">Select Benchmark:</label>
-        <select name="benchmark" id="benchmark">
+        <label for="benchmark-select">Select Benchmark:</label>
+        <select name="benchmark" id="benchmark-select">
             {% for benchmark in benchmarks %}
             <option value="{{ benchmark }}">{{ benchmark }}</option>
             {% endfor %}
@@ -112,6 +112,9 @@
         }
         document.getElementById(tabName).style.display = "block";
         element.className += " active";
+
+        // Save the active tab to local storage
+        localStorage.setItem('activeTab', tabName);
     }
 
     var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
@@ -150,6 +153,59 @@
     document.getElementById('benchmark-form').onsubmit = function() {
         document.getElementById('submit-button').disabled = true;
         document.getElementById('loading-spinner').classList.remove('hidden');
+    };
+
+    // Load content from local storage
+    function loadContent() {
+        // Restore the active tab
+        var activeTab = localStorage.getItem('activeTab') || 'benchmark';
+        openTab(activeTab, document.querySelector('.tab-button[onclick*="' + activeTab + '"]'));
+
+        // Restore selected benchmarks
+        var benchmarkSelect = localStorage.getItem('selectedBenchmark');
+        var sandboxBenchmarkSelect = localStorage.getItem('selectedSandboxBenchmark');
+
+        if (benchmarkSelect) {
+            document.getElementById('benchmark-select').value = benchmarkSelect;
+        }
+        if (sandboxBenchmarkSelect) {
+            document.getElementById('sandbox-benchmark').value = sandboxBenchmarkSelect;
+        }
+
+        if (localStorage.getItem('code')) {
+            editor.setValue(localStorage.getItem('code'));
+        }
+
+        updateSandboxInputs();
+        if (localStorage.getItem('sandbox-inputs')) {
+            sandboxEditor.setValue(localStorage.getItem('sandbox-inputs'));
+        }
+    }
+
+    // Initial call to load contents and set the active tab
+    window.onload = loadContent;
+
+    // Save selected benchmarks to local storage
+    document.getElementById('benchmark-select').addEventListener('change', function() {
+        localStorage.setItem('selectedBenchmark', this.value);
+    });
+    document.getElementById('sandbox-benchmark').addEventListener('change', function() {
+        localStorage.setItem('selectedSandboxBenchmark', this.value);
+        updateSandboxInputs();
+    });
+
+    // Save content to local storage
+    function saveContent() {
+        localStorage.setItem('code', editor.getValue());
+        localStorage.setItem('sandbox-inputs', sandboxEditor.getValue());
+    }
+
+    // Event listener for saving content before leaving the page
+    window.onbeforeunload = saveContent;
+
+    // Load content when the page loads
+    window.onload = function() {
+        loadContent();
     };
 </script>
 
