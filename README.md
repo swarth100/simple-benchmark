@@ -1,6 +1,8 @@
 # Simple Benchmark
 
 Simple benchmarking utilities to config and run benchmarks for given user modules.
+The runner can also be hosted as a webserver to give interactive user feedback on progress.
+Currently the runner only supports python code for benchmarking.
 
 The benchmark config must be expressed in `benchmark_config.yaml`.
 
