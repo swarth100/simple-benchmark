@@ -8,14 +8,14 @@ TArg: TypeAlias = Union[int, str]
 
 class Argument(BaseModel):
     name: str
-    increment: Callable[[TArg], TArg]
+    increment: str
     default: TArg
 
-    @validator("increment", pre=True)
-    def parse_lambda(cls, v):
-        if isinstance(v, str) and v.startswith("lambda"):
+    def apply_increment(self, argument: int) -> int:
+        if isinstance(self.increment, str) and self.increment.startswith("lambda"):
             try:
-                return eval(v)
+                lambda_func = eval(self.increment)
+                return lambda_func(argument)
             except Exception as e:
                 raise ValueError(f"Invalid lambda function: {e}")
         raise ValueError("Invalid format for lambda function")
