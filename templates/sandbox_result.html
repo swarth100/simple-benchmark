@@ -2,7 +2,26 @@
 <html>
 <head>
     <title>Sandbox Result</title>
-    <!-- Add styling and scripts if needed -->
+    <!-- Add any required CSS or JS libraries here -->
+    <style>
+        .error {
+            color: red;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .primary {
+            color: black;
+        }
+
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+    </style>
 </head>
 <body>
 <h1>Sandbox Result</h1>
@@ -15,13 +34,13 @@
 {% endif %}
 
 {% if "output" in result %}
-<div class="success">
+<div class="primary">
     <h2>Function Output</h2>
     <pre>{{ result.output }}</pre>
 </div>
 {% endif %}
 {% if "std_output" in result %}
-<div class="success">
+<div class="primary">
     <h2>Function Prints</h2>
     <pre>{{ result.std_output }}</pre>
 </div>
