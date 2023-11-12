@@ -134,7 +134,12 @@
     var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         mode: "python",
-        matchBrackets: true
+        matchBrackets: true,
+        indentUnit: 4,
+        extraKeys: {
+          Tab: (cm) => cm.execCommand("indentMore"),
+          "Shift-Tab": (cm) => cm.execCommand("indentLess"),
+        },
     });
 
     // Initialize CodeMirror for JSON editor in Sandbox

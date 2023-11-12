@@ -187,6 +187,14 @@ def _run_single_benchmark_by_module(
             name=str(target_module),
             error=f"Error: Target module '{target_module}' not found.",
         )
+    except Exception as e:
+        target_module_name: str = (
+            target_module if isinstance(target_module, str) else target_module.__name__
+        )
+        benchmark_result: BenchmarkResult = BenchmarkResult(
+            name=target_module_name,
+            error=f"Error: Target module '{target_module_name}' raised an error when imported:\n{e}",
+        )
     else:
         benchmark_result: BenchmarkResult = _run_single_benchmark(
             target_module=target_module, benchmark=benchmark
