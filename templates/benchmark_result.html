@@ -47,6 +47,41 @@
 </div>
 {% endif %}
 
+{% if "chartData" in result %}
+<div class="chart">
+    <h2>Performance Chart</h2>
+    <svg width="600" height="370" , style="border: 1px solid dimgray">
+        <!-- Plot points -->
+        {% for point in result.chartData %}
+        <circle cx="{{ point.x + 100 }}" cy="{{ 300 - point.y }}" r="3" fill="blue"/>
+        {% endfor %}
+        <!-- X-axis label -->
+        <text x="350" y="350" class="axis-label" text-anchor="middle">Problem Size</text>
+        <!-- Y-axis label -->
+        <text x="20" y="150" class="axis-label" transform="rotate(-90 20,150)" text-anchor="middle">Time Taken
+            (seconds)
+        </text>
+        <!-- X-axis ticks -->
+        {% for tick_pos, tick_label in result.xTicks %}
+        <text x="{{ tick_pos + 100 }}" y="320" class="tick">{{ tick_label }}</text>
+        {% endfor %}
+        <!-- Y-axis ticks -->
+        {% for tick_pos, tick_label in result.yTicks %}
+        <text x="40" y="{{ 305 - tick_pos }}" class="tick">{{ tick_label }}</text>
+        {% endfor %}
+        <!-- Horizontal grid lines (based on Y-axis ticks) -->
+        {% for tick_pos, _ in result.yTicks %}
+        <line x1="100" y1="{{ 300 - tick_pos }}" x2="600" y2="{{ 300 - tick_pos }}" stroke="#ddd" stroke-width="1"/>
+        {% endfor %}
+        <!-- Vertical grid lines (based on X-axis ticks) -->
+        {% for tick_pos, _ in result.xTicks %}
+        <line x1="{{ tick_pos + 110 }}" y1="0" x2="{{ tick_pos + 110 }}" y2="300" stroke="#ddd" stroke-width="1"/>
+        {% endfor %}
+    </svg>
+</div>
+{% endif %}
+
+<div style="height: 20px"></div>
 <a href="/">Run another benchmark</a>
 </body>
 </html>

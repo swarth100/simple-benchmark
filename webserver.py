@@ -1,10 +1,8 @@
 import importlib
 import json
 import tempfile
-from types import ModuleType
-from typing import Optional
+from typing import Optional, Any
 
-from fastapi import FastAPI, Request
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -83,7 +81,7 @@ async def run_user_benchmark(request: Request):
     benchmark_name = form_data["benchmark"]
     user_code = form_data["code"]
 
-    result_data: dict[str, str] = {}
+    result_data: dict[str, Any] = {}
 
     # Create a temporary module for user code
     with tempfile.NamedTemporaryFile(suffix=".py") as temp:
@@ -114,6 +112,41 @@ async def run_user_benchmark(request: Request):
                 result_data["error"] = benchmark_result.error
             else:
                 result_data["reference"] = str(reference_result.result)
+
+            x_cap: int = 500
+            y_cap: int = 300
+
+            if len(benchmark_result.details) > 0:
+                max_x = max(x for (x, y) in benchmark_result.details)
+                max_y = max(y for (x, y) in benchmark_result.details)
+
+                x_scaling: float = x_cap / max_x
+                x_index_scaling: float = (len(benchmark_result.details) / 10) + 1
+                y_scaling: float = y_cap / max_y
+                y_index_scaling: float = (len(benchmark_result.details) / 10) + 1
+
+                result_data["chartData"] = [
+                    {"x": x * x_scaling, "y": y * y_scaling}
+                    for x, y in benchmark_result.details
+                ]
+
+                tick_ranges = range(0, 10)
+
+                x_ticks_positions = [50 * x for x in tick_ranges]
+                x_ticks_labels = [
+                    benchmark_result.details[int(x * x_index_scaling)][0]
+                    for x in tick_ranges
+                ]
+                result_data["xTicks"] = list(zip(x_ticks_positions, x_ticks_labels))
+
+                y_ticks_positions = [30 * y for y in tick_ranges]
+                y_ticks_labels = [
+                    "{:.4f}".format(
+                        benchmark_result.details[int(y * y_index_scaling)][1]
+                    )
+                    for y in tick_ranges
+                ]
+                result_data["yTicks"] = list(zip(y_ticks_positions, y_ticks_labels))
 
     return templates.TemplateResponse(
         "benchmark_result.html", {"request": request, "result": result_data}

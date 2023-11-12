@@ -16,10 +16,13 @@ class BenchmarkResult:
     name: str
     result: int = 0
     error: Optional[str] = None
+    details: List[Tuple[int, float]] = None
 
     def __post_init__(self):
         if self.result is None and self.error is None:
             raise RuntimeError("Either result or error must not be None")
+        if self.details is None:
+            self.details = []
 
     @property
     def has_error(self) -> bool:
@@ -108,6 +111,8 @@ def _run_single_benchmark(
     last_valid_iteration = 0
     arg_values: Dict[str, TArg] = {arg.name: arg.default for arg in benchmark.args}
 
+    execution_details: List[Tuple[int, float]] = []
+
     while elapsed_time < max_time:
         start_time: float = time.perf_counter()
         try:
@@ -118,7 +123,8 @@ def _run_single_benchmark(
             )
 
         # Only count the time in user code towards the benchmark, exclude all time spent in validation
-        elapsed_time += time.perf_counter() - start_time
+        time_diff: float = time.perf_counter() - start_time
+        elapsed_time += time_diff
 
         ref_output, ref_std_output = capture_output(ref_func, **arg_values)
 
@@ -132,6 +138,7 @@ def _run_single_benchmark(
                     f"Expected:\n{ref_output}\n"
                     f"Got:\n{user_output}\n"
                 ),
+                details=execution_details,
             )
 
         if user_std_output != ref_std_output:
@@ -144,15 +151,19 @@ def _run_single_benchmark(
                     f"Expected:\n{ref_std_output}\n"
                     f"Got:\n{user_std_output}\n"
                 ),
+                details=execution_details,
             )
 
+        execution_details.append((last_valid_iteration, time_diff))
         last_valid_iteration += 1
 
         # Increment arguments
         for arg in benchmark.args:
             arg_values[arg.name] = arg.apply_increment(arg_values[arg.name])
 
-    return BenchmarkResult(name=run_name, result=last_valid_iteration)
+    return BenchmarkResult(
+        name=run_name, result=last_valid_iteration, details=execution_details
+    )
 
 
 def _run_single_benchmark_by_module(
@@ -184,14 +195,14 @@ def _run_single_benchmark_by_module(
 
 
 def run_benchmark_given_modules(
-    target_modules: List[ModuleType], benchmark: Benchmark
+    target_modules: List[Union[ModuleType, str]], benchmark: Benchmark
 ) -> List[BenchmarkResult]:
     """
     Execution of a single benchmark in a separate process.
     Process-level isolation prevents concurrently bottlenecks on parallel server-side execution.
     """
 
-    task_arguments: List[Tuple[ModuleType, Benchmark]] = [
+    task_arguments: List[Tuple[Union[ModuleType, str], Benchmark]] = [
         (target_module, benchmark) for target_module in target_modules
     ]
 
