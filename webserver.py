@@ -115,15 +115,17 @@ async def run_user_benchmark(request: Request):
 
             x_cap: int = 500
             y_cap: int = 300
+            n_iterations: int = len(benchmark_result.details)
 
-            if len(benchmark_result.details) > 0:
+            # To simplify plotting we only plot charts with at least 10 datapoints
+            if n_iterations > 10:
                 max_x = max(x for (x, y) in benchmark_result.details)
                 max_y = max(y for (x, y) in benchmark_result.details)
 
                 x_scaling: float = x_cap / max_x
-                x_index_scaling: float = (len(benchmark_result.details) / 10) + 1
+                x_index_scaling: float = n_iterations / 10
                 y_scaling: float = y_cap / max_y
-                y_index_scaling: float = (len(benchmark_result.details) / 10) + 1
+                y_index_scaling: float = n_iterations / 10
 
                 result_data["chartData"] = [
                     {"x": x * x_scaling, "y": y * y_scaling}
