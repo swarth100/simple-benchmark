@@ -20,7 +20,9 @@ from webserver import app
 )
 def main(benchmark: Optional[list[str]] = None, serve: bool = False):
     if serve:
-        uvicorn.run(app, host="0.0.0.0", port=8421)
+        uvicorn.run(
+            "webserver:app", host="0.0.0.0", port=8421, timeout_keep_alive=20, workers=4
+        )
     else:
         config = get_config()
 
