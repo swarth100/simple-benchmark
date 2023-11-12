@@ -1,5 +1,6 @@
 import importlib
 import json
+import tempfile
 from types import ModuleType
 from typing import Optional
 
@@ -10,7 +11,7 @@ from fastapi.templating import Jinja2Templates
 
 from benchmark import (
     BenchmarkResult,
-    run_single_benchmark,
+    run_benchmark_given_modules,
     get_benchmark_by_name,
     get_config,
     capture_output,
@@ -85,12 +86,11 @@ async def run_user_benchmark(request: Request):
     result_data: dict[str, str] = {}
 
     # Create a temporary module for user code
-    user_module = ModuleType("user_module")
-    try:
-        exec(user_code, user_module.__dict__)
-    except Exception as e:
-        result_data = {"error": f"Error in executing user code: {e}"}
-    else:
+    with tempfile.NamedTemporaryFile(suffix=".py") as temp:
+        user_module: str = temp.name
+        temp.write(user_code.encode())
+        temp.flush()
+
         benchmark_config: Config = get_config()
         benchmark: Optional[Benchmark] = get_benchmark_by_name(name=benchmark_name)
         if benchmark is None:
@@ -99,23 +99,21 @@ async def run_user_benchmark(request: Request):
             }
         else:
             # Run the benchmark
-            benchmark_result: BenchmarkResult = run_single_benchmark(
-                user_module=user_module, benchmark=benchmark
+            benchmark_results: list[BenchmarkResult] = run_benchmark_given_modules(
+                target_modules=[user_module, benchmark_config.reference_module],
+                benchmark=benchmark,
             )
 
-            reference_module_name: str = benchmark_config.reference_module
-            reference_module = importlib.import_module(reference_module_name)
-            reference_result: BenchmarkResult = run_single_benchmark(
-                user_module=reference_module, benchmark=benchmark
-            )
+            # Given we only submit two benchmarks we can assume we get an output for each
+            benchmark_result = [r for r in benchmark_results if not r.is_reference][0]
+            reference_result = [r for r in benchmark_results if r.is_reference][0]
 
-            result_data = {
-                "output": benchmark_result.result,
-                "reference": reference_result.result,
-            }
+            result_data = {"output": benchmark_result.result}
 
             if benchmark_result.has_error:
                 result_data["error"] = benchmark_result.error
+            else:
+                result_data["reference"] = str(reference_result.result)
 
     return templates.TemplateResponse(
         "benchmark_result.html", {"request": request, "result": result_data}

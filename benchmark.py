@@ -6,7 +6,7 @@ import time
 from dataclasses import dataclass
 from functools import lru_cache
 from types import ModuleType
-from typing import Dict, Callable, Optional, Tuple, Any, List
+from typing import Dict, Callable, Optional, Tuple, Any, List, Union
 
 from config_validation import Config, TArg, load_config, Benchmark
 
@@ -24,6 +24,10 @@ class BenchmarkResult:
     @property
     def has_error(self) -> bool:
         return self.error is not None
+
+    @property
+    def is_reference(self) -> bool:
+        return "reference" in self.name
 
 
 @lru_cache
@@ -82,20 +86,20 @@ def get_benchmark_by_name(name: str) -> Optional[Benchmark]:
 
 
 def _run_single_benchmark(
-    user_module: ModuleType, benchmark: Benchmark
+    target_module: ModuleType, benchmark: Benchmark
 ) -> BenchmarkResult:
-    user_module_name: str = user_module.__name__
+    target_module_name: str = target_module.__name__
     ref_func: Callable = get_reference_benchmark_function(benchmark.function_name)
-    run_name: str = f"{user_module_name}.{benchmark.function_name}"
+    run_name: str = f"{target_module_name}.{benchmark.function_name}"
 
     try:
-        user_func = getattr(user_module, benchmark.function_name)
+        user_func = getattr(target_module, benchmark.function_name)
     except AttributeError:
         return BenchmarkResult(
             name=run_name,
             error=(
                 f"Error: Function '{benchmark.function_name}' not found "
-                f"in user module '{user_module_name}'."
+                f"in user module '{target_module_name}'."
             ),
         )
 
@@ -151,57 +155,57 @@ def _run_single_benchmark(
     return BenchmarkResult(name=run_name, result=last_valid_iteration)
 
 
-def _run_single_benchmark_by_module_name(
-    user_module_name: str, benchmark: Benchmark
+def _run_single_benchmark_by_module(
+    target_module: Union[str, ModuleType], benchmark: Benchmark
 ) -> BenchmarkResult:
     try:
-        user_module = importlib.import_module(user_module_name)
+        if isinstance(target_module, str):
+            if not target_module.startswith("/tmp"):
+                # If the module is specified by string we try to import it normally
+                target_module = importlib.import_module(target_module)
+            else:
+                # In cases where we accept user code we write the module to a tempfile
+                # This code needs to be imported specially
+                spec = importlib.util.spec_from_file_location(
+                    "custom_module", target_module
+                )
+                target_module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(target_module)
     except ImportError:
         benchmark_result: BenchmarkResult = BenchmarkResult(
-            error=f"Error: User module '{user_module_name}' not found."
+            name=str(target_module),
+            error=f"Error: Target module '{target_module}' not found.",
         )
     else:
         benchmark_result: BenchmarkResult = _run_single_benchmark(
-            user_module=user_module, benchmark=benchmark
+            target_module=target_module, benchmark=benchmark
         )
     return benchmark_result
 
 
-def run_single_benchmark(
-    user_module: ModuleType, benchmark: Benchmark
-) -> BenchmarkResult:
+def run_benchmark_given_modules(
+    target_modules: List[ModuleType], benchmark: Benchmark
+) -> List[BenchmarkResult]:
     """
     Execution of a single benchmark in a separate process.
     Process-level isolation prevents concurrently bottlenecks on parallel server-side execution.
     """
 
-    def benchmark_wrapper(queue, user_module, benchmark):
-        _result: BenchmarkResult = _run_single_benchmark(user_module, benchmark)
-        queue.put(_result)
+    task_arguments: List[Tuple[ModuleType, Benchmark]] = [
+        (target_module, benchmark) for target_module in target_modules
+    ]
 
-    queue = multiprocessing.Queue()
-    p = multiprocessing.Process(
-        target=benchmark_wrapper, args=(queue, user_module, benchmark)
-    )
-    p.start()
-    p.join()  # Wait for the process to finish
+    with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
+        benchmark_results: List[BenchmarkResult] = pool.starmap(
+            _run_single_benchmark_by_module, task_arguments
+        )
 
-    # Retrieve the result from the queue
-    result = queue.get()
-    return result
+    return benchmark_results
 
 
 def run_benchmark_given_config(benchmark_config: Config):
     print("STARTING BENCHMARK")
     print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-
-    try:
-        ref_module = importlib.import_module(benchmark_config.reference_module)
-    except ImportError:
-        print(
-            f"Error: Reference module '{benchmark_config.reference_module}' not found."
-        )
-        sys.exit(1)
 
     for benchmark in benchmark_config.benchmarks:
         print(">>> " + benchmark.function_name)
@@ -211,18 +215,18 @@ def run_benchmark_given_config(benchmark_config: Config):
         errors: Dict[str, str] = {}
         task_arguments: List[Tuple[str, Benchmark]] = []
 
-        for user_module_name in [
+        for target_module_name in [
             *benchmark_config.user_modules,
             benchmark_config.reference_module,
         ]:
-            task_arguments.append((user_module_name, benchmark))
+            task_arguments.append((target_module_name, benchmark))
 
         # We execute in parallel to ensure:
         # 1) Process-level isolation on benchmark results
         # 2) Overall faster evaluation
         with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
             benchmark_results: List[BenchmarkResult] = pool.starmap(
-                _run_single_benchmark_by_module_name, task_arguments
+                _run_single_benchmark_by_module, task_arguments
             )
 
         for benchmark_result in benchmark_results:
