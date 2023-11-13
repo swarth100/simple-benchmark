@@ -30,3 +30,21 @@ def triangle(size: int):
         text += "\n"
 
     print(text)
+
+
+def rhombus(size: int):
+    limit = (size + 1) // 2
+
+    for step in [1, -1]:
+        if step == 1:
+            start = 0
+            end = limit
+        else:
+            start = limit - 1 - (size % 2)
+            end = -1
+
+        for x in range(start, end, step):
+            stars = 1 + (x * 2)
+            dots = (size - stars) // 2
+            row = "." * dots + "*" * stars + "." * dots
+            print(row)
