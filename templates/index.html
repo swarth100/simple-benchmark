@@ -81,7 +81,7 @@
 <div class="header">
     <h1>Benchmark Runner</h1>
     <div class="username-input">
-        <label for="username">Username:</label>
+        <label for="username" style="font-size: 24px">Username:</label>
         <input type="text" id="username" name="username">
     </div>
 </div>
@@ -196,6 +196,7 @@
     // Update the hidden username field in the form whenever the username input changes
     document.getElementById('username').addEventListener('change', function() {
         document.getElementById('form-username').value = this.value;
+        localStorage.setItem('username', this.value);
     });
 
     // Load content from local storage
@@ -222,6 +223,10 @@
         updateSandboxInputs();
         if (localStorage.getItem('sandbox-inputs')) {
             sandboxEditor.setValue(localStorage.getItem('sandbox-inputs'));
+        }
+
+        if (localStorage.getItem('username')) {
+            document.getElementById('username').value = localStorage.getItem('username');
         }
     }
 

@@ -7,6 +7,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
+from db.database import save_benchmark_result
 from src.benchmark import (
     run_benchmark_given_modules,
     get_benchmark_by_name,
@@ -106,6 +107,13 @@ async def run_user_benchmark(request: Request):
             # Given we only submit two benchmarks we can assume we get an output for each
             benchmark_result = [r for r in benchmark_results if not r.is_reference][0]
             reference_result = [r for r in benchmark_results if r.is_reference][0]
+
+            # Persist the result to the database for subsequent collection
+            save_benchmark_result(
+                benchmark=benchmark,
+                username=username,
+                benchmark_result=benchmark_result,
+            )
 
             result_data = {"output": benchmark_result.result}
 

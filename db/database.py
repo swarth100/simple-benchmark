@@ -42,7 +42,7 @@ def save_benchmark_result(
             INSERT INTO benchmark_results (benchmark_name, username, score)
             VALUES (?, ?, ?)
         """,
-            (benchmark.function_name, username, benchmark_result.score),
+            (benchmark.function_name, username, benchmark_result.result),
         )
         conn.commit()
 
