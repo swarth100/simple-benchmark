@@ -47,21 +47,16 @@ def save_benchmark_result(
         conn.commit()
 
 
-def get_top_benchmark_results(
-    benchmark: Benchmark, username: str
-) -> list[Tuple[str, ...]]:
+def get_top_benchmark_results(benchmark: Benchmark) -> list[Tuple[str, ...]]:
     with sqlite3.connect(BENCHMARKS_RESULT_DB) as conn:
         cursor = conn.cursor()
         cursor.execute(
             """
             SELECT * FROM top_benchmarks
-            WHERE benchmark_name = ? AND username = ?
+            WHERE benchmark_name = ?
             ORDER BY max_score DESC
             """,
-            (
-                benchmark.function_name,
-                username,
-            ),
+            (benchmark.function_name,),
         )
         results = cursor.fetchall()
     return results

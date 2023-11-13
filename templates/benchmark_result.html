@@ -21,6 +21,21 @@
             padding: 10px;
             border: 1px solid #ddd;
         }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid lightgray;
+            text-align: center;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
     </style>
 </head>
 <body>
@@ -78,6 +93,26 @@
         <line x1="{{ tick_pos + 110 }}" y1="0" x2="{{ tick_pos + 110 }}" y2="300" stroke="#ddd" stroke-width="1"/>
         {% endfor %}
     </svg>
+</div>
+{% endif %}
+
+{% if "topResults" in result %}
+<div>
+    <h2>Top Benchmark Results</h2>
+    <table>
+        <tr>
+            <th>User</th>
+            <th>Score</th>
+            <th>Submission number</th>
+        </tr>
+        {% for username, benchmark_name, max_score, submission_count in result.topResults %}
+        <tr{% if username == current_user %} style="font-weight: bold; color: blue;"{% endif %}>
+            <td>{{ username }}</td>
+            <td>{{ max_score }}</td>
+            <td>{{ submission_count }}</td>
+        </tr>
+        {% endfor %}
+    </table>
 </div>
 {% endif %}
 

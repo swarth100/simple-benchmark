@@ -7,7 +7,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from db.database import save_benchmark_result
+from db.database import save_benchmark_result, get_top_benchmark_results
 from src.benchmark import (
     run_benchmark_given_modules,
     get_benchmark_by_name,
@@ -159,6 +159,13 @@ async def run_user_benchmark(request: Request):
                 ]
                 result_data["yTicks"] = list(zip(y_ticks_positions, y_ticks_labels))
 
+    # Fetch top benchmark results for the current benchmark
+    top_results = get_top_benchmark_results(benchmark=benchmark)
+
+    # Include top_results in the response data
+    result_data["topResults"] = top_results
+
     return templates.TemplateResponse(
-        "benchmark_result.html", {"request": request, "result": result_data}
+        "benchmark_result.html",
+        {"request": request, "result": result_data, "current_user": username},
     )

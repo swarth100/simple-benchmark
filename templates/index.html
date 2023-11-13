@@ -226,7 +226,9 @@
         }
 
         if (localStorage.getItem('username')) {
-            document.getElementById('username').value = localStorage.getItem('username');
+            var username = localStorage.getItem('username')
+            document.getElementById('form-username').value = username;
+            document.getElementById('username').value = username;
         }
     }
 
