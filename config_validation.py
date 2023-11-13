@@ -23,8 +23,12 @@ class Argument(BaseModel):
 
 class Benchmark(BaseModel):
     function_name: str
-    max_time: float
+    max_time: int
     args: List[Argument]
+
+    @property
+    def max_time_seconds(self) -> float:
+        return self.max_time / 1_000
 
 
 class Config(BaseModel):

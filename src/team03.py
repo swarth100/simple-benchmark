@@ -9,7 +9,7 @@ def square(size: int):
             print("*" + ("." * (size - 2)) + "*")
 
     # Artificial delay to slow down implementation
-    time.sleep(0.01)
+    time.sleep(0.001)
 
 
 def triangle(size: int):
@@ -21,4 +21,4 @@ def triangle(size: int):
         print(dots + stars)
 
     # Artificial delay to slow down implementation
-    time.sleep(0.1)
+    time.sleep(0.001)

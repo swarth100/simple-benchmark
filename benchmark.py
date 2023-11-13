@@ -106,7 +106,7 @@ def _run_single_benchmark(
             ),
         )
 
-    max_time = benchmark.max_time
+    max_time: float = benchmark.max_time_seconds
     elapsed_time: float = 0
     last_valid_iteration = 0
     arg_values: Dict[str, TArg] = {arg.name: arg.default for arg in benchmark.args}

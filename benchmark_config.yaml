@@ -7,21 +7,21 @@ user_modules:
 
 benchmarks:
   - function_name: "square"
-    max_time: 1
+    max_time: 100
     args:
       - name: "size"
         increment: "lambda x: x + 1"
         default: 1
 
   - function_name: "triangle"
-    max_time: 1
+    max_time: 100
     args:
       - name: "size"
         increment: "lambda x: x + 1"
         default: 1
 
   - function_name: "rhombus"
-    max_time: 1
+    max_time: 100
     args:
       - name: "size"
         increment: "lambda x: x + 1"
