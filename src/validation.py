@@ -37,7 +37,10 @@ class Config(BaseModel):
     benchmarks: List[Benchmark]
 
 
-def load_config(file_path) -> Config:
+def _load_config(file_path) -> Config:
     with open(file_path, "r") as file:
         config_data = yaml.safe_load(file)
         return Config.parse_obj(config_data)
+
+
+BENCHMARK_CONFIG = _load_config("config/benchmark.yaml")

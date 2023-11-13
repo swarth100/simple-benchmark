@@ -7,14 +7,14 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from benchmark import (
-    BenchmarkResult,
+from src.benchmark import (
     run_benchmark_given_modules,
     get_benchmark_by_name,
     get_config,
     capture_output,
 )
-from config_validation import load_config, Benchmark, Config
+from src.config import BenchmarkResult
+from src.validation import BENCHMARK_CONFIG, Benchmark, Config
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -23,7 +23,7 @@ templates = Jinja2Templates(directory="templates")
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
     # Fetch benchmarks from the config
-    config = load_config("benchmark_config.yaml")
+    config = BENCHMARK_CONFIG
     benchmark_names = [benchmark.function_name for benchmark in config.benchmarks]
     benchmarks_with_args = {
         benchmark.function_name: {arg.name: arg.default for arg in benchmark.args}
@@ -80,6 +80,7 @@ async def run_user_benchmark(request: Request):
     form_data = await request.form()
     benchmark_name = form_data["benchmark"]
     user_code = form_data["code"]
+    username = form_data["username"]
 
     result_data: dict[str, Any] = {}
 

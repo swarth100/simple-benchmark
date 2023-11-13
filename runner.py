@@ -2,8 +2,8 @@ import click
 from typing import Optional
 import uvicorn
 
-from benchmark import run_benchmark_given_config, get_config
-from webserver import app
+from src.benchmark import run_benchmark_given_config, get_config
+from db.database import init_db
 
 
 @click.command()
@@ -19,9 +19,16 @@ from webserver import app
     help="Serve the benchmark runner as a webserver on port 8421.",
 )
 def main(benchmark: Optional[list[str]] = None, serve: bool = False):
+    # Always initialise the database on startup
+    init_db()
+
     if serve:
         uvicorn.run(
-            "webserver:app", host="0.0.0.0", port=8421, timeout_keep_alive=20, workers=8
+            "src.webserver:app",
+            host="0.0.0.0",
+            port=8421,
+            timeout_keep_alive=20,
+            workers=8,
         )
     else:
         config = get_config()

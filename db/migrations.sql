@@ -1,0 +1,18 @@
+CREATE TABLE IF NOT EXISTS benchmark_results (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    benchmark_name TEXT NOT NULL,
+    username TEXT NOT NULL,
+    score REAL NOT NULL,
+    submission_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE VIEW IF NOT EXISTS top_benchmarks AS
+SELECT
+    username,
+    benchmark_name,
+    MAX(score) as max_score,
+    COUNT(*) as submission_count
+FROM
+    benchmark_results
+GROUP BY
+    username, benchmark_name;

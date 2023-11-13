@@ -1,9 +1,9 @@
-reference_module: "src.reference"
+reference_module: "benchmarks.reference"
 
 user_modules:
-  - "src.team01"
-  - "src.team02"
-  - "src.team03"
+  - "benchmarks.team01"
+  - "benchmarks.team02"
+  - "benchmarks.team03"
 
 benchmarks:
   - function_name: "square"

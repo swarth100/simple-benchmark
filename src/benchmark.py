@@ -3,39 +3,17 @@ import io
 import multiprocessing
 import sys
 import time
-from dataclasses import dataclass
 from functools import lru_cache
 from types import ModuleType
 from typing import Dict, Callable, Optional, Tuple, Any, List, Union
 
-from config_validation import Config, TArg, load_config, Benchmark
-
-
-@dataclass
-class BenchmarkResult:
-    name: str
-    result: int = 0
-    error: Optional[str] = None
-    details: List[Tuple[int, float]] = None
-
-    def __post_init__(self):
-        if self.result is None and self.error is None:
-            raise RuntimeError("Either result or error must not be None")
-        if self.details is None:
-            self.details = []
-
-    @property
-    def has_error(self) -> bool:
-        return self.error is not None
-
-    @property
-    def is_reference(self) -> bool:
-        return "reference" in self.name
+from src.config import BenchmarkResult
+from src.validation import Config, TArg, Benchmark, BENCHMARK_CONFIG
 
 
 @lru_cache
 def get_config() -> Config:
-    benchmark_config: Config = load_config("benchmark_config.yaml")
+    benchmark_config: Config = BENCHMARK_CONFIG
     return benchmark_config
 
 

@@ -13,6 +13,16 @@
             border: 1px solid #ddd;
         }
 
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .username-input {
+            margin-right: 20px;
+        }
+
         .tab {
             display: none;
         }
@@ -68,7 +78,13 @@
     </style>
 </head>
 <body>
-<h1>Benchmark Runner</h1>
+<div class="header">
+    <h1>Benchmark Runner</h1>
+    <div class="username-input">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username">
+    </div>
+</div>
 
 <div class="tabs">
     <button class="tab-button active" onclick="openTab('benchmark-tab', this)">Benchmark Runner</button>
@@ -92,6 +108,9 @@
         <!-- Submit button and spinner -->
         <input type="submit" value="Run Benchmark" id="submit-button">
         <div class="spinner hidden" id="loading-spinner"></div>
+        <!-- Include the username as a hidden field in the form -->
+        <input type="hidden" name="username" id="form-username">
+        <!-- ... -->
     </form>
 </div>
 
@@ -173,6 +192,11 @@
         document.getElementById('submit-button').disabled = true;
         document.getElementById('loading-spinner').classList.remove('hidden');
     };
+
+    // Update the hidden username field in the form whenever the username input changes
+    document.getElementById('username').addEventListener('change', function() {
+        document.getElementById('form-username').value = this.value;
+    });
 
     // Load content from local storage
     function loadContent() {

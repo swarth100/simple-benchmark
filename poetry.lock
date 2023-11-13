@@ -337,6 +337,16 @@ files = [
 typing-extensions = ">=4.6.0,<4.7.0 || >4.7.0"
 
 [[package]]
+name = "pysqlite3"
+version = "0.5.2"
+description = "DB-API 2.0 interface for Sqlite 3.x"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pysqlite3-0.5.2.tar.gz", hash = "sha256:0abc1756e8b39bd51c303e8fac37497ccaccc7b237c89fe3cf47ee8e614c590b"},
+]
+
+[[package]]
 name = "python-multipart"
 version = "0.0.6"
 description = "A streaming multipart parser for Python"
@@ -471,4 +481,4 @@ standard = ["colorama (>=0.4)", "httptools (>=0.5.0)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "2.0"
 python-versions = "3.9.7"
-content-hash = "147bd92ce210f795a97f89412919f6627234e2852aa4af58a7ed47d8fc22cf98"
+content-hash = "155d9736e562d1cac30f76b5e9f3ed58943579aad12f8af7f43b6bd4da8d599c"
