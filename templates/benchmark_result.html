@@ -36,6 +36,24 @@
         th {
             background-color: #f2f2f2;
         }
+
+        .flex-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .chart, .top-results {
+            margin: 10px;
+            flex-basis: calc(50% - 20px); /* Adjust the width of each column */
+        }
+
+        /* Adjust the SVG width if necessary */
+        .chart svg {
+            max-width: 100%;
+            height: auto;
+        }
     </style>
 </head>
 <body>
@@ -62,59 +80,61 @@
 </div>
 {% endif %}
 
-{% if "chartData" in result %}
-<div class="chart">
-    <h2>Performance Chart</h2>
-    <svg width="600" height="370" , style="border: 1px solid dimgray">
-        <!-- Plot points -->
-        {% for point in result.chartData %}
-        <circle cx="{{ point.x + 100 }}" cy="{{ 300 - point.y }}" r="3" fill="blue"/>
-        {% endfor %}
-        <!-- X-axis label -->
-        <text x="350" y="350" class="axis-label" text-anchor="middle">Problem Size</text>
-        <!-- Y-axis label -->
-        <text x="20" y="150" class="axis-label" transform="rotate(-90 20,150)" text-anchor="middle">Time Taken
-            (seconds)
-        </text>
-        <!-- X-axis ticks -->
-        {% for tick_pos, tick_label in result.xTicks %}
-        <text x="{{ tick_pos + 100 }}" y="320" class="tick">{{ tick_label }}</text>
-        {% endfor %}
-        <!-- Y-axis ticks -->
-        {% for tick_pos, tick_label in result.yTicks %}
-        <text x="40" y="{{ 305 - tick_pos }}" class="tick">{{ tick_label }}</text>
-        {% endfor %}
-        <!-- Horizontal grid lines (based on Y-axis ticks) -->
-        {% for tick_pos, _ in result.yTicks %}
-        <line x1="100" y1="{{ 300 - tick_pos }}" x2="600" y2="{{ 300 - tick_pos }}" stroke="#ddd" stroke-width="1"/>
-        {% endfor %}
-        <!-- Vertical grid lines (based on X-axis ticks) -->
-        {% for tick_pos, _ in result.xTicks %}
-        <line x1="{{ tick_pos + 110 }}" y1="0" x2="{{ tick_pos + 110 }}" y2="300" stroke="#ddd" stroke-width="1"/>
-        {% endfor %}
-    </svg>
-</div>
-{% endif %}
+<div class="flex-container">
+    {% if "chartData" in result %}
+    <div class="chart">
+        <h2>Performance Chart</h2>
+        <svg width="600" height="370" , style="border: 1px solid dimgray">
+            <!-- Plot points -->
+            {% for point in result.chartData %}
+            <circle cx="{{ point.x + 100 }}" cy="{{ 300 - point.y }}" r="3" fill="blue"/>
+            {% endfor %}
+            <!-- X-axis label -->
+            <text x="350" y="350" class="axis-label" text-anchor="middle">Problem Size</text>
+            <!-- Y-axis label -->
+            <text x="20" y="150" class="axis-label" transform="rotate(-90 20,150)" text-anchor="middle">Time Taken
+                (seconds)
+            </text>
+            <!-- X-axis ticks -->
+            {% for tick_pos, tick_label in result.xTicks %}
+            <text x="{{ tick_pos + 100 }}" y="320" class="tick">{{ tick_label }}</text>
+            {% endfor %}
+            <!-- Y-axis ticks -->
+            {% for tick_pos, tick_label in result.yTicks %}
+            <text x="40" y="{{ 305 - tick_pos }}" class="tick">{{ tick_label }}</text>
+            {% endfor %}
+            <!-- Horizontal grid lines (based on Y-axis ticks) -->
+            {% for tick_pos, _ in result.yTicks %}
+            <line x1="100" y1="{{ 300 - tick_pos }}" x2="600" y2="{{ 300 - tick_pos }}" stroke="#ddd" stroke-width="1"/>
+            {% endfor %}
+            <!-- Vertical grid lines (based on X-axis ticks) -->
+            {% for tick_pos, _ in result.xTicks %}
+            <line x1="{{ tick_pos + 110 }}" y1="0" x2="{{ tick_pos + 110 }}" y2="300" stroke="#ddd" stroke-width="1"/>
+            {% endfor %}
+        </svg>
+    </div>
+    {% endif %}
 
-{% if "topResults" in result %}
-<div>
-    <h2>Top Benchmark Results</h2>
-    <table>
-        <tr>
-            <th>User</th>
-            <th>Score</th>
-            <th>Submission number</th>
-        </tr>
-        {% for username, benchmark_name, max_score, submission_count in result.topResults %}
-        <tr{% if username == current_user %} style="font-weight: bold; color: blue;"{% endif %}>
-            <td>{{ username }}</td>
-            <td>{{ max_score }}</td>
-            <td>{{ submission_count }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+    {% if "topResults" in result %}
+    <div class="top-results">
+        <h2>Top Benchmark Results</h2>
+        <table>
+            <tr>
+                <th>User</th>
+                <th>Score</th>
+                <th>Submission number</th>
+            </tr>
+            {% for username, benchmark_name, max_score, submission_count in result.topResults %}
+            <tr{% if username == current_user %} style="font-weight: bold; color: blue;"{% endif %}>
+                <td>{{ username }}</td>
+                <td>{{ max_score }}</td>
+                <td>{{ submission_count }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% endif %}
 </div>
-{% endif %}
 
 <div style="height: 20px"></div>
 <a href="/">Run another benchmark</a>
