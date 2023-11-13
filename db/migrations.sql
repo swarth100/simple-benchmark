@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS benchmark_results (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     benchmark_name TEXT NOT NULL,
     username TEXT NOT NULL,
-    score REAL NOT NULL,
+    score INT NOT NULL,
     submission_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 

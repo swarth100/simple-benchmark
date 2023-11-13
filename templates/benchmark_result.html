@@ -3,58 +3,7 @@
 <head>
     <title>Benchmark Results</title>
     <!-- Add any required CSS or JS libraries here -->
-    <style>
-        .error {
-            color: red;
-        }
-
-        .success {
-            color: green;
-        }
-
-        .primary {
-            color: black;
-        }
-
-        pre {
-            background-color: #f4f4f4;
-            padding: 10px;
-            border: 1px solid #ddd;
-        }
-
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-
-        th, td {
-            border: 1px solid lightgray;
-            text-align: center;
-            padding: 8px;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        .flex-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            flex-wrap: wrap;
-        }
-
-        .chart, .top-results {
-            margin: 10px;
-            flex-basis: calc(50% - 20px); /* Adjust the width of each column */
-        }
-
-        /* Adjust the SVG width if necessary */
-        .chart svg {
-            max-width: 100%;
-            height: auto;
-        }
-    </style>
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
 <h1>Benchmark Results</h1>
@@ -118,20 +67,15 @@
     {% if "topResults" in result %}
     <div class="top-results">
         <h2>Top Benchmark Results</h2>
-        <table>
-            <tr>
-                <th>User</th>
-                <th>Score</th>
-                <th>Submission number</th>
-            </tr>
-            {% for username, benchmark_name, max_score, submission_count in result.topResults %}
-            <tr{% if username == current_user %} style="font-weight: bold; color: blue;"{% endif %}>
-                <td>{{ username }}</td>
-                <td>{{ max_score }}</td>
-                <td>{{ submission_count }}</td>
-            </tr>
-            {% endfor %}
-        </table>
+        
+        {% if current_user is not defined or current_user == '' %}
+        <div class="error">
+            <h4>You must set your username to submit to the leaderboards</h4>
+        </div>
+        {% endif %}
+
+        {% from "leaderboard.html" import render_leaderboard as leaderboard_macro %}
+        {{ leaderboard_macro(leaderboard=result.topResults, current_user=current_user) }}
     </div>
     {% endif %}
 </div>

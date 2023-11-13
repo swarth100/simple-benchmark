@@ -1,0 +1,18 @@
+{% macro render_leaderboard(leaderboard, current_user) %}
+<div>
+    <table>
+        <tr>
+            <th>User</th>
+            <th>Score</th>
+            <th>Submission number</th>
+        </tr>
+        {% for username, benchmark_name, max_score, submission_count in leaderboard %}
+        <tr{% if username == current_user %} style="font-weight: bold; color: blue;"{% endif %}>
+            <td>{{ username }}</td>
+            <td>{{ max_score }}</td>
+            <td>{{ submission_count }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endmacro %}

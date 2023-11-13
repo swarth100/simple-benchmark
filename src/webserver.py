@@ -6,6 +6,7 @@ from typing import Optional, Any
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 
 from db.database import save_benchmark_result, get_top_benchmark_results
 from src.benchmark import (
@@ -19,6 +20,7 @@ from src.validation import BENCHMARK_CONFIG, Benchmark, Config
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -39,6 +41,20 @@ async def read_root(request: Request):
             "benchmarks_with_args": benchmarks_with_args,
         },
     )
+
+
+@app.get("/fetch_leaderboard")
+async def update_leaderboard(request: Request, benchmark: str, username: str):
+    benchmark: Optional[Benchmark] = get_benchmark_by_name(name=benchmark)
+    if benchmark is not None:
+        # Fetch the updated leaderboard data based on the benchmark
+        leaderboard_data = get_top_benchmark_results(benchmark=benchmark)
+
+        # Render the leaderboard data into HTML (you can use Jinja2 here)
+        return templates.TemplateResponse(
+            "leaderboard_partial.html",
+            {"request": request, "leaderboard": leaderboard_data, "username": username},
+        )
 
 
 @app.post("/sandbox")
@@ -108,12 +124,14 @@ async def run_user_benchmark(request: Request):
             benchmark_result = [r for r in benchmark_results if not r.is_reference][0]
             reference_result = [r for r in benchmark_results if r.is_reference][0]
 
-            # Persist the result to the database for subsequent collection
-            save_benchmark_result(
-                benchmark=benchmark,
-                username=username,
-                benchmark_result=benchmark_result,
-            )
+            # Persist the result to the database for subsequent collection.
+            # We purposefully decide not to store cases where the user has not set a username.
+            if (username is not None) and (len(username) > 0):
+                save_benchmark_result(
+                    benchmark=benchmark,
+                    username=username,
+                    benchmark_result=benchmark_result,
+                )
 
             result_data = {"output": benchmark_result.result}
 
@@ -161,8 +179,6 @@ async def run_user_benchmark(request: Request):
 
     # Fetch top benchmark results for the current benchmark
     top_results = get_top_benchmark_results(benchmark=benchmark)
-
-    # Include top_results in the response data
     result_data["topResults"] = top_results
 
     return templates.TemplateResponse(
