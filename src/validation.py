@@ -1,30 +1,55 @@
+import inspect
+
 from pydantic import BaseModel, validator
 from typing import List, Union, Callable
 import yaml
 from typing_extensions import TypeAlias
 
-TArg: TypeAlias = Union[int, str]
+TArg: TypeAlias = Union[int, str, list]
 
 
 class Argument(BaseModel):
     name: str
     increment: str
-    default: TArg
+    default: str
+    hidden: bool = False
 
-    def apply_increment(self, argument: int) -> int:
+    @property
+    def increment_lambda(self) -> Callable:
+        # Some libraries are required to be available for import by lambdas
+        import random
+
+        return eval(self.increment, {"random": random})
+
+    @property
+    def takes_kwargs_in_increment(self) -> bool:
+        sig = inspect.signature(self.increment_lambda)
+        params = sig.parameters.values()
+        return any(param.kind == param.VAR_KEYWORD for param in params)
+
+    def apply_increment(self, argument: TArg, **kwargs) -> TArg:
+        # NOTE: **kwargs will only be passed down if supported by the underlying lambda.
+        #       Otherwise, they will be ignored
         if isinstance(self.increment, str) and self.increment.startswith("lambda"):
             try:
-                lambda_func = eval(self.increment)
-                return lambda_func(argument)
+                if self.takes_kwargs_in_increment:
+                    return self.increment_lambda(**kwargs)
+                else:
+                    return self.increment_lambda(argument)
             except Exception as e:
                 raise ValueError(f"Invalid lambda function: {e}")
         raise ValueError("Invalid format for lambda function")
+
+    @property
+    def default_value(self) -> TArg:
+        return eval(self.default)
 
 
 class Benchmark(BaseModel):
     function_name: str
     max_time: int
     args: List[Argument]
+    hidden: bool = False
 
     @property
     def max_time_seconds(self) -> float:
@@ -35,7 +60,7 @@ class Benchmark(BaseModel):
         function_signature = f"def {self.function_name}("
 
         # Add arguments to the function signature
-        args = [arg.name for arg in self.args]
+        args = [arg.name for arg in self.args if not arg.hidden]
         function_signature += ", ".join(args)
 
         # Close the function signature and add a placeholder for function body
@@ -48,6 +73,9 @@ class Config(BaseModel):
     reference_module: str
     user_modules: List[str]
     benchmarks: List[Benchmark]
+
+    def get_all_valid_benchmarks(self) -> List[Benchmark]:
+        return [b for b in self.benchmarks if not b.hidden]
 
 
 def _load_config(file_path) -> Config:

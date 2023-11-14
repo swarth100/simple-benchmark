@@ -11,18 +11,57 @@ benchmarks:
     args:
       - name: "size"
         increment: "lambda x: x + 1"
-        default: 1
+        default: "int(1)"
 
   - function_name: "triangle"
     max_time: 100
     args:
       - name: "size"
         increment: "lambda x: x + 1"
-        default: 1
+        default: "int(1)"
 
   - function_name: "rhombus"
     max_time: 100
     args:
       - name: "size"
         increment: "lambda x: x + 1"
-        default: 1
+        default: "int(1)"
+
+  - function_name: "running_sum"
+    max_time: 50
+    args:
+      - name: "size"
+        increment: "lambda x: x + 1"
+        default: "int(1)"
+        hidden: true
+      - name: "nums"
+        increment: "lambda **kwargs: [random.randint(0, 100) for _ in range(kwargs['size'])]"
+        default: "list([1])"
+
+  - function_name: "count_pairs"
+    max_time: 100
+    args:
+      - name: "size"
+        increment: "lambda x: x + 1"
+        default: "int(4)"
+        hidden: true
+      - name: "nums"
+        increment: "lambda **kwargs: [random.randint(0, kwargs['size'] // 2) for _ in range(kwargs['size'])]"
+        default: "list([1,2,2,1])"
+      - name: "k"
+        increment: "lambda **kwargs: random.randint(1, kwargs['size'] // 2)"
+        default: "int(1)"
+
+  - function_name: "dividing_numbers"
+    max_time: 50
+    args:
+      - name: "size"
+        increment: "lambda x: x + 1"
+        default: "int(10)"
+        hidden: true
+      - name: "left"
+        increment: "lambda **kwargs: random.randint(0, kwargs['size'] // 2)"
+        default: "int(0)"
+      - name: "right"
+        increment: "lambda **kwargs: random.randint(kwargs['size'] // 2, kwargs['size'])"
+        default: "int(10)"

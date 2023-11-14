@@ -47,10 +47,13 @@ def main(benchmark: Optional[list[str]] = None, serve: bool = False):
     else:
         config = get_config()
 
-        # Filter benchmarks if specific ones are provided
+        # Filter benchmarks if specific ones are provided.
+        # Mutating in-place is accepted given this is a terminal state
         if benchmark:
             config.benchmarks = [
-                b for b in config.benchmarks if b.function_name in benchmark
+                b
+                for b in config.get_all_valid_benchmarks()
+                if b.function_name in benchmark
             ]
 
         run_benchmark_given_config(config)

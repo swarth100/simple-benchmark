@@ -40,15 +40,19 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 async def read_root(request: Request):
     # Fetch benchmarks from the config
     config = BENCHMARK_CONFIG
-    benchmark_names = [benchmark.function_name for benchmark in config.benchmarks]
+    benchmark_names = [
+        benchmark.function_name for benchmark in config.get_all_valid_benchmarks()
+    ]
     benchmarks_with_args = {
-        benchmark.function_name: {arg.name: arg.default for arg in benchmark.args}
-        for benchmark in config.benchmarks
+        benchmark.function_name: {
+            arg.name: arg.default_value for arg in benchmark.args if not arg.hidden
+        }
+        for benchmark in config.get_all_valid_benchmarks()
     }
 
     benchmark_signatures = {
         benchmark.function_name: benchmark.generate_function_signature()
-        for benchmark in config.benchmarks
+        for benchmark in config.get_all_valid_benchmarks()
     }
 
     return templates.TemplateResponse(
@@ -100,7 +104,7 @@ async def run_sandbox(request: Request):
             ref_output, ref_std_output = capture_output(reference_func, **inputs_dict)
             if ref_output is not None:
                 result_data["output"] = ref_output
-            if ref_std_output is not None:
+            if (ref_std_output is not None) and (ref_std_output != ""):
                 result_data["std_output"] = ref_std_output
 
     except Exception as e:

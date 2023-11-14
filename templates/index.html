@@ -24,7 +24,7 @@
 <div class="tabs">
     <button class="tab-button active" onclick="openTab('benchmark-tab', this)">Benchmark Runner</button>
     <button class="tab-button" onclick="openTab('sandbox-tab', this); updateSandboxInputs()">Sandbox Mode</button>
-    <button class="tab-button" onclick="openTab('leaderboard-tab', this); updateSandboxInputs()">Leaderboards</button>
+    <button class="tab-button" onclick="openTab('leaderboard-tab', this)">Leaderboards</button>
 </div>
 
 <div id="benchmark-tab" class="tab active-tab">
@@ -208,7 +208,6 @@
     });
     document.getElementById('sandbox-benchmark').addEventListener('change', function() {
         localStorage.setItem('selectedSandboxBenchmark', this.value);
-        updateSandboxInputs();
     });
     document.getElementById('leaderboard-benchmark').addEventListener('change', function() {
         localStorage.setItem('selectedLeaderboardBenchmark', this.value);
@@ -226,7 +225,6 @@
     // Load content when the page loads
     window.onload = function() {
         loadContent();
-        updateSandboxInputs();
     };
 </script>
 

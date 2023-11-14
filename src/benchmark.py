@@ -4,6 +4,7 @@ import multiprocessing
 import sys
 import time
 from functools import lru_cache
+import random
 from types import ModuleType
 from typing import Dict, Callable, Optional, Tuple, Any, List, Union
 
@@ -60,7 +61,7 @@ def get_reference_benchmark_function(function_name: str) -> Callable:
 def get_benchmark_by_name(name: str) -> Optional[Benchmark]:
     benchmark_config: Config = get_config()
 
-    for benchmark in benchmark_config.benchmarks:
+    for benchmark in benchmark_config.get_all_valid_benchmarks():
         if benchmark.function_name == name:
             return benchmark
     return None
@@ -87,14 +88,26 @@ def _run_single_benchmark(
     max_time: float = benchmark.max_time_seconds
     elapsed_time: float = 0
     last_valid_iteration = 0
-    arg_values: Dict[str, TArg] = {arg.name: arg.default for arg in benchmark.args}
+
+    arg_values: Dict[str, TArg] = {
+        arg.name: arg.default_value for arg in benchmark.args
+    }
 
     execution_details: List[Tuple[int, float]] = []
 
+    # We seed random once to ensure that output will be consistent.
+    # This applies BEFORE each benchmark execution.
+    # DO NOT REMOVE, or different benchmark runs might use different argument values.
+    random.seed(42)
+
     while elapsed_time < max_time:
+        valid_kwargs: dict[str, TArg] = {
+            arg.name: arg_values[arg.name] for arg in benchmark.args if not arg.hidden
+        }
+
         start_time: float = time.perf_counter()
         try:
-            user_output, user_std_output = capture_output(user_func, **arg_values)
+            user_output, user_std_output = capture_output(user_func, **valid_kwargs)
         except Exception as e:
             return BenchmarkResult(
                 name=run_name, error=f"Error while executing '{run_name}': {e}"
@@ -104,7 +117,7 @@ def _run_single_benchmark(
         time_diff: float = time.perf_counter() - start_time
         elapsed_time += time_diff
 
-        ref_output, ref_std_output = capture_output(ref_func, **arg_values)
+        ref_output, ref_std_output = capture_output(ref_func, **valid_kwargs)
 
         if user_output != ref_output:
             return BenchmarkResult(
@@ -112,7 +125,7 @@ def _run_single_benchmark(
                 result=last_valid_iteration,
                 error=(
                     f"Mismatch in function output for '{run_name}' "
-                    f"for arguments {arg_values}.\n"
+                    f"for arguments {valid_kwargs}.\n"
                     f"Expected:\n{ref_output}\n"
                     f"Got:\n{user_output}\n"
                 ),
@@ -125,7 +138,7 @@ def _run_single_benchmark(
                 result=last_valid_iteration,
                 error=(
                     f"Mismatch in print-statement output for '{run_name}' "
-                    f"for arguments {arg_values}.\n"
+                    f"for arguments {valid_kwargs}.\n"
                     f"Expected:\n{ref_std_output}\n"
                     f"Got:\n{user_std_output}\n"
                 ),
@@ -137,7 +150,11 @@ def _run_single_benchmark(
 
         # Increment arguments
         for arg in benchmark.args:
-            arg_values[arg.name] = arg.apply_increment(arg_values[arg.name])
+            arg_values[arg.name] = arg.apply_increment(
+                arg_values[arg.name], **arg_values
+            )
+
+        print(arg_values)
 
     return BenchmarkResult(
         name=run_name, result=last_valid_iteration, details=execution_details
@@ -204,7 +221,7 @@ def run_benchmark_given_config(benchmark_config: Config):
     print("STARTING BENCHMARK")
     print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
-    for benchmark in benchmark_config.benchmarks:
+    for benchmark in benchmark_config.get_all_valid_benchmarks():
         print(">>> " + benchmark.function_name)
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
 
