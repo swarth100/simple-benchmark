@@ -8,6 +8,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from starlette.responses import FileResponse
+from better_profanity import profanity
 
 from db.database import save_benchmark_result, get_top_benchmark_results
 from src.benchmark import (
@@ -110,6 +111,9 @@ async def run_user_benchmark(request: Request):
     benchmark_name = form_data["benchmark"]
     user_code = form_data["code"]
     username = form_data["username"]
+
+    # Ensure we validate the username against profanity before persisting
+    username = profanity.censor(username, "_")
 
     result_data: dict[str, Any] = {}
 

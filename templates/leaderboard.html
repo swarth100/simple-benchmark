@@ -4,7 +4,7 @@
         <tr>
             <th>User</th>
             <th>Score</th>
-            <th>Submission number</th>
+            <th>Submission count</th>
         </tr>
         {% for username, benchmark_name, max_score, submission_count in leaderboard %}
         <tr{% if username == current_user %} style="font-weight: bold; color: blue;"{% endif %}>

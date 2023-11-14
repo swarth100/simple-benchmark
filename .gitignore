@@ -1,4 +1,5 @@
 .python-version
+.profanity-filter
 __pycache__/
 
 # Database files

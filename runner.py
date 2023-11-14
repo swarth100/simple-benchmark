@@ -1,9 +1,23 @@
+import os
+
 import click
 from typing import Optional
 import uvicorn
+from better_profanity import profanity
 
 from src.benchmark import run_benchmark_given_config, get_config
 from db.database import init_db
+
+
+# Check if the .profanity-filter file exists and if it does we use its contents
+# as an additional dictionary of possible profane words.
+# Given we accept user usernames we wish to filter them for not-allowed content.
+if os.path.exists(".profanity-filter"):
+    with open(".profanity-filter", "r") as file:
+        custom_profanity_list = file.readlines()
+        # Clean up the list (remove newlines, etc.)
+        custom_profanity_list = [word.strip() for word in custom_profanity_list]
+        profanity.load_censor_words(custom_profanity_list)
 
 
 @click.command()
