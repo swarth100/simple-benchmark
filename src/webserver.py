@@ -46,11 +46,17 @@ async def read_root(request: Request):
         for benchmark in config.benchmarks
     }
 
+    benchmark_signatures = {
+        benchmark.function_name: benchmark.generate_function_signature()
+        for benchmark in config.benchmarks
+    }
+
     return templates.TemplateResponse(
         "index.html",
         {
             "request": request,
             "benchmarks": benchmark_names,
+            "benchmark_signatures": benchmark_signatures,
             "benchmarks_with_args": benchmarks_with_args,
         },
     )

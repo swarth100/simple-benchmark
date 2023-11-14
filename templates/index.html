@@ -31,7 +31,7 @@
     <h2>Benchmark Mode</h2>
     <form action="/run_benchmark" method="post" id="benchmark-form">
         <label for="benchmark-select">Select Benchmark:</label>
-        <select name="benchmark" id="benchmark-select">
+        <select name="benchmark" id="benchmark-select" onchange="updateFunctionSignature()">
             {% for benchmark in benchmarks %}
             <option value="{{ benchmark }}">{{ benchmark }}</option>
             {% endfor %}
@@ -118,26 +118,6 @@
         matchBrackets: true
     });
 
-    var benchmarksWithArgs = {{ benchmarks_with_args | tojson }};
-    function updateSandboxInputs() {
-        var selectedBenchmark = document.getElementById("sandbox-benchmark").value;
-        var defaultArgs = benchmarksWithArgs[selectedBenchmark];
-        // Update CodeMirror instance with new value
-        var jsonStr = JSON.stringify(defaultArgs, null, 2);
-
-        // Update CodeMirror instance with new value
-        sandboxEditor.setValue(jsonStr);
-
-        // Adjust the height of the editor based on the number of lines
-        var lineCount = sandboxEditor.lineCount();
-        var lineHeight = sandboxEditor.defaultTextHeight();
-        var newHeight = lineHeight * (lineCount + 1); // Number of lines plus 2
-        sandboxEditor.setSize(null, newHeight + 'px');
-    }
-
-    // Initialize the inputs when the page loads
-    window.onload = updateSandboxInputs;
-
     document.getElementById('benchmark-form').onsubmit = function() {
         document.getElementById('submit-button').disabled = true;
         document.getElementById('loading-spinner').classList.remove('hidden');
@@ -189,6 +169,35 @@
         document.getElementById('leaderboard-benchmark').dispatchEvent(new Event('change'));
     }
 
+    function adjust_editor_height(code_editor) {
+        // Adjust the height of the editor based on the number of lines
+        var lineCount = code_editor.lineCount();
+        var lineHeight = code_editor.defaultTextHeight();
+        var newHeight = lineHeight * (lineCount + 1); // Number of lines plus 2
+        code_editor.setSize(null, newHeight + 'px');
+    }
+
+    var benchmarksWithArgs = {{ benchmarks_with_args | tojson }};
+    function updateSandboxInputs() {
+        var selectedBenchmark = document.getElementById("sandbox-benchmark").value;
+        var defaultArgs = benchmarksWithArgs[selectedBenchmark];
+        // Update CodeMirror instance with new value
+        var jsonStr = JSON.stringify(defaultArgs, null, 2);
+
+        // Update CodeMirror instance with new value
+        sandboxEditor.setValue(jsonStr);
+        adjust_editor_height(sandboxEditor);
+    }
+
+    var benchmarkSignatures = {{ benchmark_signatures | tojson }};
+    function updateFunctionSignature() {
+        var selectedBenchmark = document.getElementById("benchmark-select").value;
+        var signature = benchmarkSignatures[selectedBenchmark];
+
+        // Update CodeMirror instance with new value
+        editor.setValue(signature);
+    }
+
     // Initial call to load contents and set the active tab
     window.onload = loadContent;
 
@@ -216,6 +225,7 @@
     // Load content when the page loads
     window.onload = function() {
         loadContent();
+        updateSandboxInputs();
     };
 </script>
 

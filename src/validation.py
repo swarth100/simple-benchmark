@@ -30,6 +30,19 @@ class Benchmark(BaseModel):
     def max_time_seconds(self) -> float:
         return self.max_time / 1_000
 
+    def generate_function_signature(self) -> str:
+        # Start with the function name
+        function_signature = f"def {self.function_name}("
+
+        # Add arguments to the function signature
+        args = [arg.name for arg in self.args]
+        function_signature += ", ".join(args)
+
+        # Close the function signature and add a placeholder for function body
+        function_signature += "):\n    ...\n"
+
+        return function_signature
+
 
 class Config(BaseModel):
     reference_module: str
