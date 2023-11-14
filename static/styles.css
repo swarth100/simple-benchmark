@@ -38,9 +38,10 @@ th {
     flex-wrap: wrap;
 }
 
-.chart, .top-results {
-    margin: 10px;
+.flex-element {
+    margin: 0px 10px 10px 10px;
     flex-basis: calc(50% - 20px);
+    flex-grow: 1;
 }
 
 .chart svg {

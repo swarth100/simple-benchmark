@@ -8,30 +8,34 @@
 <body>
 <h1>Benchmark Results</h1>
 
-{% if "error" in result %}
-<div class="error">
-    <h2>Error</h2>
-    <pre>{{ result.error }}</pre>
+<div class="flex-container">
+    {% if "error" in result %}
+    <div class="error flex-element">
+        <h2>Error</h2>
+        <pre>{{ result.error }}</pre>
+    </div>
+    {% endif %}
 </div>
-{% endif %}
 
-{% if "output" in result %}
-<div class="success">
-    <h2>Benchmark Result</h2>
-    <pre>{{ result.output }}</pre>
-</div>
-{% endif %}
+<div class="flex-container">
+    {% if "output" in result %}
+    <div class="success flex-element">
+        <h2>Benchmark Result</h2>
+        <pre>{{ result.output }}</pre>
+    </div>
+    {% endif %}
 
-{% if "reference" in result %}
-<div class="primary">
-    <h2>Reference Implementation</h2>
-    <pre>{{ result.reference }}</pre>
+    {% if "reference" in result %}
+    <div class="primary flex-element">
+        <h2>Reference Implementation</h2>
+        <pre>{{ result.reference }}</pre>
+    </div>
+    {% endif %}
 </div>
-{% endif %}
 
 <div class="flex-container">
     {% if "chartData" in result %}
-    <div class="chart">
+    <div class="chart flex-element">
         <h2>Performance Chart</h2>
         <svg width="600" height="370" , style="border: 1px solid dimgray">
             <!-- Plot points -->
@@ -65,9 +69,9 @@
     {% endif %}
 
     {% if "topResults" in result %}
-    <div class="top-results">
+    <div class="top-results flex-element">
         <h2>Top Benchmark Results</h2>
-        
+
         {% if current_user is not defined or current_user == '' %}
         <div class="error">
             <h4>You must set your username to submit to the leaderboards</h4>

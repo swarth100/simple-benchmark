@@ -7,6 +7,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from starlette.responses import FileResponse
 
 from db.database import save_benchmark_result, get_top_benchmark_results
 from src.benchmark import (
@@ -20,6 +21,17 @@ from src.validation import BENCHMARK_CONFIG, Benchmark, Config
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
+
+
+@app.get("/static/{file_path:path}")
+async def static(file_path: str):
+    # Allows for CSS updates to instantly be reflected on clients.
+    # Static files may otherwise be cached by browsers.
+    response = FileResponse("static/" + file_path)
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    return response
+
+
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
