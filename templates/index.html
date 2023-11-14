@@ -53,7 +53,7 @@
 <div id="sandbox-tab" class="tab">
     <h2>Sandbox Mode</h2>
     <form action="/sandbox" method="post">
-        <label for="sandbox-benchmark">Select Benchmark for Sandbox:</label>
+        <label for="sandbox-benchmark">Select Benchmark:</label>
         <select name="benchmark" id="sandbox-benchmark" onchange="updateSandboxInputs()">
             {% for benchmark in benchmarks %}
             <option value="{{ benchmark }}">{{ benchmark }}</option>
@@ -132,7 +132,7 @@
     // Load content from local storage
     function loadContent() {
         // Restore the active tab
-        var activeTab = localStorage.getItem('activeTab') || 'benchmark';
+        var activeTab = localStorage.getItem('activeTab') || 'benchmark-tab';
         openTab(activeTab, document.querySelector('.tab-button[onclick*="' + activeTab + '"]'));
 
         // Restore selected benchmarks
@@ -142,6 +142,10 @@
 
         if (benchmarkSelect) {
             document.getElementById('benchmark-select').value = benchmarkSelect;
+        } else {
+            // If no benchmark is selected we force an update of the benchmark signatures.
+            // This guarantees a signature is displayed on initial load.
+            updateFunctionSignature();
         }
         if (sandboxBenchmarkSelect) {
             document.getElementById('sandbox-benchmark').value = sandboxBenchmarkSelect;
@@ -197,9 +201,6 @@
         // Update CodeMirror instance with new value
         editor.setValue(signature);
     }
-
-    // Initial call to load contents and set the active tab
-    window.onload = loadContent;
 
     // Save selected benchmarks to local storage
     document.getElementById('benchmark-select').addEventListener('change', function() {
