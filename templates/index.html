@@ -85,7 +85,7 @@
 
 <div id="rankings-tab" class="tab">
     <h2>Rankings</h2>
-    <div id="rankings-content" hx-trigger="tab-activated" hx-get="/fetch_rankings" hx-swap="innerHTML" hx-include="#username">
+    <div id="rankings-content" hx-trigger="load, tab-activated" hx-get="/fetch_rankings" hx-swap="innerHTML" hx-include="#username">
         <!-- Rankings data will be loaded here -->
     </div>
 </div>
