@@ -115,6 +115,17 @@
         }
     }
 
+    // Function to check if the rankings-tab is active and trigger HTMX call
+    function checkAndRefreshRankings() {
+        console.log(localStorage.getItem('activeTab'))
+        if (localStorage.getItem('activeTab') === "rankings-tab") {
+            htmx.trigger('#rankings-content', 'tab-activated');
+        }
+    }
+
+    // Set interval to refresh rankings every 5 seconds
+    setInterval(checkAndRefreshRankings, 5000);
+
     var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         mode: "python",
