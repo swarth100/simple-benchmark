@@ -147,6 +147,8 @@ async def run_sandbox(request: Request):
                 # Assume inputs are JSON and need to be converted to Python dict
                 inputs_dict = json.loads(user_inputs)
 
+                result_data["input"] = inputs_dict
+
                 # Run the reference function with the provided inputs
                 ref_output, ref_std_output = capture_output(
                     reference_func, **inputs_dict
