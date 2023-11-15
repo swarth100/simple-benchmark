@@ -36,11 +36,11 @@ benchmarks:
     args:
       - name: "size"
         increment: "lambda x: x + 1"
-        default: "int(1)"
+        default: "int(4)"
         hidden: true
       - name: "nums"
         increment: "lambda **kwargs: [random.randint(0, 100) for _ in range(kwargs['size'])]"
-        default: "list([1])"
+        default: "list([2,5,3,1])"
 
   - function_name: "histogram"
     max_time: 50

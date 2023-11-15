@@ -83,7 +83,10 @@ def get_rankings(benchmarks: list[Benchmark]) -> list[UserRank]:
                 """,
                 (benchmark.function_name,),
             )
-            max_score = cursor.fetchone()[0]
+            # max_score could be None (if no entry present) or 0 if only invalid inputs are present
+            max_score = int(cursor.fetchone()[0] or 1.0)
+            if max_score == 0:
+                max_score = 1.0
             benchmark_max_scores[benchmark.function_name] = max_score
 
         # Query for user scores for each benchmark
