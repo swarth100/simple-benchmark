@@ -43,6 +43,7 @@
         <textarea name="code" id="code" rows="10" cols="50"></textarea>
         <br><br>
         <!-- Submit button and spinner -->
+        <input type="button" value="Reset" id="reset-button" class="warning-button" onclick="updateFunctionSignature()">
         <input type="submit" value="Run Benchmark" id="submit-button">
         <div class="spinner hidden" id="loading-spinner"></div>
         <!-- Include the username as a hidden field in the form -->
@@ -150,6 +151,7 @@
 
     document.getElementById('benchmark-form').onsubmit = function() {
         document.getElementById('submit-button').disabled = true;
+        document.getElementById('reset-button').disabled = true;
         document.getElementById('loading-spinner').classList.remove('hidden');
     };
 
