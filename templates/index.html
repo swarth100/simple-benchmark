@@ -72,7 +72,7 @@
 <div id="leaderboard-tab" class="tab">
     <h2>Leaderboards</h2>
     <label for="leaderboard-benchmark">Select Benchmark:</label>
-    <select name="benchmark" id="leaderboard-benchmark" hx-get="/fetch_leaderboard" hx-trigger="change" hx-swap="innerHTML" hx-target="#leaderboard-content" hx-include="#username">
+    <select name="benchmark" id="leaderboard-benchmark" hx-get="/fetch_leaderboard" hx-trigger="change, tab-activated" hx-swap="innerHTML" hx-target="#leaderboard-content" hx-include="#username">
         {% for benchmark in benchmarks %}
         <option value="{{ benchmark }}">{{ benchmark }}</option>
         {% endfor %}
@@ -107,10 +107,11 @@
         // Save the active tab to local storage
         localStorage.setItem('activeTab', tabName);
 
-        // Check if the opened tab is 'rankings-tab' and if so trigger data loads
-        if (tabName === 'rankings-tab') {
-            // Trigger the HTMx request
+        // Check if certain tabs are loaded and refresh htmx requests
+        if (tabName === 'leaderboard-tab') {
             htmx.trigger('#rankings-content', 'tab-activated');
+        } else if (tabName === 'rankings-tab') {
+            htmx.trigger('#leaderboard-benchmark', 'tab-activated');
         }
     }
 
