@@ -41,8 +41,8 @@ def main(benchmark: Optional[list[str]] = None, serve: bool = False):
             "src.webserver:app",
             host="0.0.0.0",
             port=8421,
-            timeout_keep_alive=20,
-            workers=64,
+            timeout_keep_alive=10,
+            workers=32,
         )
     else:
         config = get_config()

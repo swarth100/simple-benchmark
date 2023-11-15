@@ -8,6 +8,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from func_timeout import FunctionTimedOut
 from starlette.responses import FileResponse
 from better_profanity import profanity
 
@@ -272,6 +273,19 @@ async def run_user_benchmark(request: Request):
         return templates.TemplateResponse(
             "benchmark_result.html",
             {"request": request, "result": result_data, "current_user": username},
+        )
+    except FunctionTimedOut as e:
+        # Handle timeout errors gracefully
+        print(traceback.format_exc())
+        return templates.TemplateResponse(
+            "error.html",
+            {
+                "request": request,
+                "message": "The benchmark timed out and was terminated.\n"
+                "This is likely due to an infinite loop, "
+                "an `input()` function or some other code which never terminates.\n"
+                "Please refactor your code and submit again.",
+            },
         )
     except Exception as e:
         # Handle errors gracefully

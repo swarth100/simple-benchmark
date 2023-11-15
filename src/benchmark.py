@@ -8,6 +8,8 @@ import random
 from types import ModuleType
 from typing import Dict, Callable, Optional, Tuple, Any, List, Union
 
+from func_timeout import func_set_timeout
+
 from src.config import BenchmarkResult
 from src.validation import Config, TArg, Benchmark, BENCHMARK_CONFIG
 
@@ -195,12 +197,16 @@ def _run_single_benchmark_by_module(
     return benchmark_result
 
 
+@func_set_timeout(5)
 def run_benchmark_given_modules(
     target_modules: List[Union[ModuleType, str]], benchmark: Benchmark
 ) -> List[BenchmarkResult]:
     """
     Execution of a single benchmark in a separate process.
     Process-level isolation prevents concurrently bottlenecks on parallel server-side execution.
+    We cannot allow unbound unlimited execution and must hard-terminate long-lived calls.
+
+    :raises FunctionTimedOut: on timeout (i.e. excessively long execution)
     """
 
     task_arguments: List[Tuple[Union[ModuleType, str], Benchmark]] = [
