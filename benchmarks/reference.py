@@ -25,6 +25,40 @@ def rhombus(size: int):
             print(row)
 
 
+def histogram(nums: list[int]):
+    max_height = max(nums)
+
+    # Printing the histogram from top to bottom
+    for level in range(max_height, 0, -1):
+        line = "|"
+        for height in nums:
+            # Add a '#' if the current column height is >= current level, else add '.'
+            line += "#" if height >= level else "."
+        print(line)
+
+    # Printing the horizontal axis
+    print("+" + "-" * len(nums))
+
+
+def scatter(size: int, nums: list[tuple[int, int]]):
+    # Create a set of nums for faster lookup
+    points_set = set((x, y) for x, y in nums)
+
+    # Iterate through each row (y-axis)
+    for y in range(size, 0, -1):
+        line = "|"
+        for x in range(1, size + 1):
+            # Check if the point is in the points list
+            if (x, y) in points_set:
+                line += "*"
+            else:
+                line += "."
+        print(line)
+
+    # Printing the horizontal axis
+    print("+" + "-" * (size))
+
+
 def running_sum(nums: list[int]) -> list[int]:
     result: list[int] = []
     total: int = 0

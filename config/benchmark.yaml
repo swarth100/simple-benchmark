@@ -27,8 +27,36 @@ benchmarks:
         increment: "lambda x: x + 1"
         default: "int(1)"
 
+  - function_name: "histogram"
+    max_time: 50
+    hidden: true
+    args:
+      - name: "size"
+        increment: "lambda x: x + 1"
+        default: "int(3)"
+        hidden: true
+      - name: "nums"
+        increment: "lambda **kwargs: [random.randint(0, 10) for _ in range(kwargs['size'])]"
+        default: "list([4,1,2])"
+
+  - function_name: "scatter"
+    max_time: 50
+    hidden: true
+    args:
+      - name: "x"
+        increment: "lambda x: x + 1"
+        default: "int(16)"
+        hidden: true
+      - name: "size"
+        increment: "lambda **kwargs: int(kwargs['x'] ** 0.5)"
+        default: "int(4)"
+      - name: "nums"
+        increment: "lambda **kwargs: [[random.randint(1, kwargs['size']), random.randint(1, kwargs['size'])] for _ in range(kwargs['size'] + 1)]"
+        default: "list([[2,2],[1,3],[4,1]])"
+
   - function_name: "running_sum"
     max_time: 50
+    hidden: true
     args:
       - name: "size"
         increment: "lambda x: x + 1"
@@ -40,6 +68,7 @@ benchmarks:
 
   - function_name: "count_pairs"
     max_time: 100
+    hidden: true
     args:
       - name: "size"
         increment: "lambda x: x + 1"
@@ -54,6 +83,7 @@ benchmarks:
 
   - function_name: "dividing_numbers"
     max_time: 50
+    hidden: true
     args:
       - name: "size"
         increment: "lambda x: x + 1"
@@ -65,3 +95,4 @@ benchmarks:
       - name: "right"
         increment: "lambda **kwargs: random.randint(kwargs['size'] // 2, kwargs['size'])"
         default: "int(10)"
+
