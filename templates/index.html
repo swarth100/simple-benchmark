@@ -189,14 +189,6 @@
         document.getElementById('leaderboard-benchmark').dispatchEvent(new Event('change'));
     }
 
-    function adjust_editor_height(code_editor) {
-        // Adjust the height of the editor based on the number of lines
-        var lineCount = code_editor.lineCount();
-        var lineHeight = code_editor.defaultTextHeight();
-        var newHeight = lineHeight * (lineCount + 1); // Number of lines plus 2
-        code_editor.setSize(null, newHeight + 'px');
-    }
-
     var benchmarksWithArgs = {{ benchmarks_with_args | tojson }};
     function updateSandboxInputs() {
         var selectedBenchmark = document.getElementById("sandbox-benchmark").value;
@@ -206,7 +198,6 @@
 
         // Update CodeMirror instance with new value
         sandboxEditor.setValue(jsonStr);
-        adjust_editor_height(sandboxEditor);
     }
 
     var benchmarkSignatures = {{ benchmark_signatures | tojson }};
