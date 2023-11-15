@@ -1,6 +1,6 @@
 # Initialize SQLite database
 import sqlite3
-from typing import Tuple
+from typing import Tuple, Optional
 
 from src.config import BenchmarkResult, UserRank
 from src.validation import Benchmark
@@ -84,9 +84,10 @@ def get_rankings(benchmarks: list[Benchmark]) -> list[UserRank]:
                 (benchmark.function_name,),
             )
             # max_score could be None (if no entry present) or 0 if only invalid inputs are present
-            max_score = int(cursor.fetchone()[0] or 1.0)
+            # When read from the database it is returned as a `Optional[str]`
+            max_score: int = int(cursor.fetchone()[0] or 1)
             if max_score == 0:
-                max_score = 1.0
+                max_score = 1
             benchmark_max_scores[benchmark.function_name] = max_score
 
         # Query for user scores for each benchmark
