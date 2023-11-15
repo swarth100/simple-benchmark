@@ -32,7 +32,7 @@
     <h2>Benchmark Mode</h2>
     <form action="/run_benchmark" method="post" id="benchmark-form">
         <label for="benchmark-select">Select Benchmark:</label>
-        <select name="benchmark" id="benchmark-select" onchange="updateFunctionSignature()">
+        <select name="benchmark" id="benchmark-select">
             {% for benchmark in benchmarks %}
             <option value="{{ benchmark }}">{{ benchmark }}</option>
             {% endfor %}
@@ -91,6 +91,11 @@
 </div>
 
 <script>
+    // Function to check if the code for a benchmark is empty (after trimming)
+    function isCodeEmpty(code) {
+        return !code || code.trim() === '';
+    }
+
     function openTab(tabName, element) {
         var i, tabcontent, tablinks;
         tabcontent = document.getElementsByClassName("tab");
@@ -117,7 +122,6 @@
 
     // Function to check if the rankings-tab is active and trigger HTMX call
     function checkAndRefreshRankings() {
-        console.log(localStorage.getItem('activeTab'))
         if (localStorage.getItem('activeTab') === "rankings-tab") {
             htmx.trigger('#rankings-content', 'tab-activated');
         }
@@ -175,6 +179,7 @@
 
         if (benchmarkSelect) {
             document.getElementById('benchmark-select').value = benchmarkSelect;
+            lastSelectedBenchmark = benchmarkSelect;
         } else {
             // If no benchmark is selected we force an update of the benchmark signatures.
             // This guarantees a signature is displayed on initial load.
@@ -187,8 +192,14 @@
             document.getElementById('leaderboard-benchmark').value = leaderboardBenchmarkSelect;
         }
 
-        if (localStorage.getItem('code')) {
-            editor.setValue(localStorage.getItem('code'));
+        var savedData = JSON.parse(localStorage.getItem('editor-by-benchmark') || '{}');
+        if (savedData[benchmarkSelect]) {
+            editor.setValue(savedData[benchmarkSelect]);
+            if (isCodeEmpty(savedData[benchmarkSelect])) {
+                updateFunctionSignature();
+            }
+        } else {
+            updateFunctionSignature();
         }
 
         updateSandboxInputs();
@@ -222,7 +233,21 @@
 
     // Save selected benchmarks to local storage
     document.getElementById('benchmark-select').addEventListener('change', function() {
+        // Update the lastSelectedBenchmark to the new value
+        lastSelectedBenchmark = this.value;
         localStorage.setItem('selectedBenchmark', this.value);
+
+        var savedData = JSON.parse(localStorage.getItem('editor-by-benchmark') || '{}');
+
+        // Load saved code for the selected benchmark or set default signature
+        if (savedData[this.value]) {
+            editor.setValue(savedData[this.value]);
+            if (isCodeEmpty(savedData[this.value])) {
+                updateFunctionSignature();
+            }
+        } else {
+            updateFunctionSignature();
+        }
     });
     document.getElementById('sandbox-benchmark').addEventListener('change', function() {
         localStorage.setItem('selectedSandboxBenchmark', this.value);
@@ -231,9 +256,23 @@
         localStorage.setItem('selectedLeaderboardBenchmark', this.value);
     });
 
+    // Function to save the current state
+    var lastSelectedBenchmark = document.getElementById('benchmark-select').value;
+    function saveCurrentEditorState() {
+        var currentCode = editor.getValue();
+        var savedData = JSON.parse(localStorage.getItem('editor-by-benchmark') || '{}');
+        savedData[lastSelectedBenchmark] = currentCode;
+        localStorage.setItem('editor-by-benchmark', JSON.stringify(savedData));
+
+    }
+
+    // Attach an event listener to the editor to save the state on change
+    editor.on('change', function() {
+        saveCurrentEditorState();
+    });
+
     // Save content to local storage
     function saveContent() {
-        localStorage.setItem('code', editor.getValue());
         localStorage.setItem('sandbox-inputs', sandboxEditor.getValue());
     }
 
