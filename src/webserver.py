@@ -179,6 +179,9 @@ async def run_user_benchmark(request: Request):
         user_code = form_data["code"]
         username = form_data["username"]
 
+        # Strip all whitespace: it's NOT allowed
+        username = username.strip()
+
         # Ensure we validate the username against profanity before persisting
         username = profanity.censor(username, "_")
 

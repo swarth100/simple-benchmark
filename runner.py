@@ -42,7 +42,7 @@ def main(benchmark: Optional[list[str]] = None, serve: bool = False):
             host="0.0.0.0",
             port=8421,
             timeout_keep_alive=20,
-            workers=8,
+            workers=64,
         )
     else:
         config = get_config()

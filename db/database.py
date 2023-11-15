@@ -111,7 +111,7 @@ def get_rankings(benchmarks: list[Benchmark]) -> list[UserRank]:
 
             results.append(
                 UserRank(
-                    rank=int(idx) + 1,  # In human terms rank starts from 1, not 0
+                    rank=0,  # In human terms rank starts from 1, not 0
                     username=username,
                     scores={
                         benchmark.function_name: scores.get(benchmark.function_name, 0)
@@ -123,5 +123,8 @@ def get_rankings(benchmarks: list[Benchmark]) -> list[UserRank]:
 
         # Sort results based on total score
         results.sort(key=lambda x: x["total"], reverse=True)
+
+        for idx, data in enumerate(results):
+            data["rank"] = idx + 1
 
     return results
