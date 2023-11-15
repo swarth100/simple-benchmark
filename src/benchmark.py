@@ -154,8 +154,6 @@ def _run_single_benchmark(
                 arg_values[arg.name], **arg_values
             )
 
-        print(arg_values)
-
     return BenchmarkResult(
         name=run_name, result=last_valid_iteration, details=execution_details
     )

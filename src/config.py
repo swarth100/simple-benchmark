@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, TypedDict
 
 
 @dataclass
@@ -22,3 +22,10 @@ class BenchmarkResult:
     @property
     def is_reference(self) -> bool:
         return "reference" in self.name
+
+
+class UserRank(TypedDict):
+    rank: int
+    username: str
+    scores: dict[str, float]
+    total: float

@@ -25,6 +25,7 @@
     <button class="tab-button active" onclick="openTab('benchmark-tab', this)">Benchmark Runner</button>
     <button class="tab-button" onclick="openTab('sandbox-tab', this); updateSandboxInputs()">Sandbox Mode</button>
     <button class="tab-button" onclick="openTab('leaderboard-tab', this)">Leaderboards</button>
+    <button class="tab-button" onclick="openTab('rankings-tab', this)">Rankings</button>
 </div>
 
 <div id="benchmark-tab" class="tab active-tab">
@@ -82,6 +83,13 @@
     </div>
 </div>
 
+<div id="rankings-tab" class="tab">
+    <h2>Rankings</h2>
+    <div id="rankings-content" hx-trigger="tab-activated" hx-get="/fetch_rankings" hx-swap="innerHTML" hx-include="#username">
+        <!-- Rankings data will be loaded here -->
+    </div>
+</div>
+
 <script>
     function openTab(tabName, element) {
         var i, tabcontent, tablinks;
@@ -98,6 +106,12 @@
 
         // Save the active tab to local storage
         localStorage.setItem('activeTab', tabName);
+
+        // Check if the opened tab is 'rankings-tab' and if so trigger data loads
+        if (tabName === 'rankings-tab') {
+            // Trigger the HTMx request
+            htmx.trigger('#rankings-content', 'tab-activated');
+        }
     }
 
     var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
@@ -131,6 +145,13 @@
 
     // Load content from local storage
     function loadContent() {
+        // Restore username before all other actions on page
+        if (localStorage.getItem('username')) {
+            var username = localStorage.getItem('username')
+            document.getElementById('form-username').value = username;
+            document.getElementById('username').value = username;
+        }
+
         // Restore the active tab
         var activeTab = localStorage.getItem('activeTab') || 'benchmark-tab';
         openTab(activeTab, document.querySelector('.tab-button[onclick*="' + activeTab + '"]'));
@@ -161,12 +182,6 @@
         updateSandboxInputs();
         if (localStorage.getItem('sandbox-inputs')) {
             sandboxEditor.setValue(localStorage.getItem('sandbox-inputs'));
-        }
-
-        if (localStorage.getItem('username')) {
-            var username = localStorage.getItem('username')
-            document.getElementById('form-username').value = username;
-            document.getElementById('username').value = username;
         }
 
         // IMPORTANT: Must force leaderboard refresh after the username has been set!
