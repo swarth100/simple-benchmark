@@ -1,4 +1,5 @@
 # Initialize SQLite database
+import math
 import sqlite3
 from typing import Tuple, Optional
 
@@ -74,7 +75,7 @@ def get_rankings(benchmarks: list[Benchmark]) -> list[UserRank]:
         cursor = conn.cursor()
 
         # Query for the max scores for each benchmark
-        benchmark_max_scores: dict[str, int] = {}
+        benchmark_max_scores: dict[str, float] = {}
         for benchmark in benchmarks:
             cursor.execute(
                 """
@@ -85,13 +86,17 @@ def get_rankings(benchmarks: list[Benchmark]) -> list[UserRank]:
             )
             # max_score could be None (if no entry present) or 0 if only invalid inputs are present
             # When read from the database it is returned as a `Optional[str]`
-            max_score: int = int(cursor.fetchone()[0] or 1)
+            max_score: float = int(cursor.fetchone()[0] or 1)
             if max_score == 0:
                 max_score = 1
+
+            # We allow for a 2% variance across repeated benchmark runs
+            max_score = max_score * 0.98
+
             benchmark_max_scores[benchmark.function_name] = max_score
 
         # Query for user scores for each benchmark
-        user_scores: dict[str, dict[str, int]] = {}
+        user_scores: dict[str, dict[str, float]] = {}
         for benchmark in benchmarks:
             cursor.execute(
                 """
@@ -103,9 +108,17 @@ def get_rankings(benchmarks: list[Benchmark]) -> list[UserRank]:
             for username, score in cursor.fetchall():
                 if username not in user_scores:
                     user_scores[username] = {}
-                normalized_score = (
-                    score / benchmark_max_scores[benchmark.function_name]
-                ) * 10
+                # The scoring system is logarithmic to prevent people with extremely good
+                # implementations from completely skewing the grading curve.
+                # The max score is 10 and the min score is 0
+                scaling_factor: float = (
+                    1 / benchmark_max_scores[benchmark.function_name]
+                )
+                normalized_score: float = math.log(score * scaling_factor + 1, 2) * 10
+
+                # You cannot achieve more than 10 in scoring
+                normalized_score = min(normalized_score, 10.0)
+
                 user_scores[username][benchmark.function_name] = normalized_score
 
         # Calculate total score and format results
