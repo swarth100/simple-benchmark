@@ -148,6 +148,7 @@ async def run_sandbox(request: Request):
                 inputs_dict = json.loads(user_inputs)
 
                 result_data["input"] = inputs_dict
+                result_data["signature"] = benchmark.generate_function_signature()
 
                 # Run the reference function with the provided inputs
                 ref_output, ref_std_output = capture_output(
