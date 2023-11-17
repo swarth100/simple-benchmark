@@ -260,10 +260,7 @@
     });
     document.getElementById('sandbox-benchmark').addEventListener('change', function() {
         localStorage.setItem('selectedSandboxBenchmark', this.value);
-
-        // Clear the content of the 'sandbox-content' div.
-        // This prevents stale information from being rendered/shown to the user
-        document.getElementById('sandbox-content').innerHTML = '';
+        clearSandboxResult();
     });
     document.getElementById('leaderboard-benchmark').addEventListener('change', function() {
         localStorage.setItem('selectedLeaderboardBenchmark', this.value);
@@ -279,9 +276,20 @@
 
     }
 
+    function clearSandboxResult() {
+        // Clear the content of the 'sandbox-content' div.
+        // This prevents stale information from being rendered/shown to the user
+        document.getElementById('sandbox-content').innerHTML = '';
+    }
+
     // Attach an event listener to the editor to save the state on change
     editor.on('change', function() {
         saveCurrentEditorState();
+    });
+
+      // Attach an event listener to the editor to save the state on change
+    sandboxEditor.on('change', function() {
+        clearSandboxResult();
     });
 
     // Save content to local storage
