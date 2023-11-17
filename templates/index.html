@@ -53,21 +53,28 @@
 </div>
 
 <div id="sandbox-tab" class="tab">
-    <h2>Sandbox Mode</h2>
-    <form action="/sandbox" method="post">
-        <label for="sandbox-benchmark">Select Benchmark:</label>
-        <select name="benchmark" id="sandbox-benchmark" onchange="updateSandboxInputs()">
-            {% for benchmark in benchmarks %}
-            <option value="{{ benchmark }}">{{ benchmark }}</option>
-            {% endfor %}
-        </select>
-        <br><br>
-        <label for="sandbox-inputs">Input Parameters (as JSON):</label>
-        <br>
-        <textarea name="sandbox-inputs" id="sandbox-inputs" rows="10" cols="50"></textarea>
-        <br><br>
-        <input type="submit" value="Run Sandbox">
-    </form>
+    <div class="flex-container">
+        <div class="flex-element">
+            <h2>Sandbox Input</h2>
+            <form hx-post="/run_sandbox" hx-target="#sandbox-content" hx-trigger="submit">
+                <label for="sandbox-benchmark">Select Benchmark:</label>
+                <select name="benchmark" id="sandbox-benchmark" onchange="updateSandboxInputs()">
+                    {% for benchmark in benchmarks %}
+                    <option value="{{ benchmark }}">{{ benchmark }}</option>
+                    {% endfor %}
+                </select>
+                <br><br>
+                <label for="sandbox-inputs">Input Parameters (as JSON):</label>
+                <br>
+                <textarea name="sandbox-inputs" id="sandbox-inputs" rows="10" cols="50"></textarea>
+                <br><br>
+                <input type="submit" value="Run Sandbox">
+            </form>
+        </div>
+        <div id="sandbox-content" class="flex-element">
+            <!-- Sandbox data will be loaded here -->
+        </div>
+    </div>
 </div>
 
 <div id="leaderboard-tab" class="tab">
@@ -253,6 +260,10 @@
     });
     document.getElementById('sandbox-benchmark').addEventListener('change', function() {
         localStorage.setItem('selectedSandboxBenchmark', this.value);
+
+        // Clear the content of the 'sandbox-content' div.
+        // This prevents stale information from being rendered/shown to the user
+        document.getElementById('sandbox-content').innerHTML = '';
     });
     document.getElementById('leaderboard-benchmark').addEventListener('change', function() {
         localStorage.setItem('selectedLeaderboardBenchmark', this.value);

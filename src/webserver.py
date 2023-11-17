@@ -126,7 +126,7 @@ async def fetch_rankings(request: Request, username: str):
         )
 
 
-@app.post("/sandbox")
+@app.post("/run_sandbox")
 async def run_sandbox(request: Request):
     try:
         form_data = await request.form()
@@ -137,18 +137,20 @@ async def run_sandbox(request: Request):
 
         try:
             benchmark: Optional[Benchmark] = get_benchmark_by_name(name=benchmark_name)
+
             if benchmark is None:
                 result_data = {"error": f"Benchmark '{benchmark_name}' does not exist"}
             else:
-                reference_module_name: str = get_config().reference_module
-                reference_module = importlib.import_module(reference_module_name)
-                reference_func = getattr(reference_module, benchmark.function_name)
-
                 # Assume inputs are JSON and need to be converted to Python dict
                 inputs_dict = json.loads(user_inputs)
 
                 result_data["input"] = inputs_dict
                 result_data["signature"] = benchmark.generate_function_signature()
+
+                # After setting common fields we proceed to executing the function
+                reference_module_name: str = get_config().reference_module
+                reference_module = importlib.import_module(reference_module_name)
+                reference_func = getattr(reference_module, benchmark.function_name)
 
                 # Run the reference function with the provided inputs
                 ref_output, ref_std_output = capture_output(
@@ -161,10 +163,10 @@ async def run_sandbox(request: Request):
 
         except Exception as e:
             print(traceback.format_exc())
-            result_data = {"error": f"Error while running sandbox: {e}"}
+            result_data["error"] = f"Error while running sandbox: {e}"
 
         return templates.TemplateResponse(
-            "sandbox_result.html", {"request": request, "result": result_data}
+            "sandbox_partial.html", {"request": request, "result": result_data}
         )
     except Exception as e:
         # Handle errors gracefully

@@ -1,41 +1,35 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Sandbox Result</title>
-    <!-- Add any required CSS or JS libraries here -->
-    <link rel="stylesheet" href="/static/styles.css">
-</head>
-<body>
-<h1>Sandbox Result</h1>
+<h2>Sandbox Result</h2>
 
+{% if "signature" in result %}
 <div class="primary">
-    <h2>Signature</h2>
+    <h3>Signature</h3>
     <pre>{{ result.signature }}</pre>
-    
-    <h2>Inputs</h2>
+</div>
+{% endif %}
+
+{% if "input" in result %}
+<div class="primary">
+    <h3>Inputs</h3>
     <pre>{{ result.input }}</pre>
 </div>
+{% endif %}
 
 {% if "error" in result %}
 <div class="error">
-    <h2>Error</h2>
+    <h3>Error</h3>
     <pre>{{ result.error }}</pre>
 </div>
 {% endif %}
 
 {% if "output" in result %}
 <div class="primary">
-    <h2>Function Output</h2>
+    <h3>Function Output</h3>
     <pre>{{ result.output }}</pre>
 </div>
 {% endif %}
 {% if "std_output" in result %}
 <div class="primary">
-    <h2>Function Prints</h2>
+    <h3>Function Prints</h3>
     <pre>{{ result.std_output }}</pre>
 </div>
 {% endif %}
-
-<a href="/">Back to Home</a>
-</body>
-</html>

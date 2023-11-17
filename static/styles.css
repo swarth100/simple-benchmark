@@ -43,10 +43,10 @@ th {
     justify-content: space-between;
     align-items: flex-start;
     flex-wrap: wrap;
+    gap: 20px;
 }
 
 .flex-element {
-    margin: 0px 10px 10px 10px;
     flex-basis: calc(50% - 20px);
     flex-grow: 1;
 }
