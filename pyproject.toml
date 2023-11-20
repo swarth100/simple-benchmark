@@ -16,6 +16,7 @@ python-multipart = "^0.0.6"
 pysqlite3 = "^0.5.2"
 better-profanity = "^0.7.0"
 func-timeout = "^4.3.5"
+faker = "^20.1.0"
 
 
 [build-system]

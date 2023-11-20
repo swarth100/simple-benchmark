@@ -101,7 +101,7 @@ benchmarks:
 
   - function_name: "generate_trajectory"
     max_time: 50
-    hidden: false
+    hidden: true
     args:
       - name: "x"
         increment: "lambda x: x + 1"
@@ -116,4 +116,19 @@ benchmarks:
       - name: "size"
         increment: "lambda **kwargs: [random.randint(kwargs['x'] // 2, kwargs['x']), random.randint(kwargs['x'] // 4, kwargs['x'] // 2)]"
         default: "list([25, 8])"
+
+  - function_name: "sort_by_height"
+    max_time: 8
+    hidden: false
+    args:
+      - name: "x"
+        increment: "lambda x: x + 1"
+        default: "int(3)"
+        hidden: true
+      - name: "names"
+        increment: "lambda **kwargs: [fake.first_name() for _ in range(kwargs['x'])]"
+        default: "list(['Alice', 'Bob', 'Charlie'])"
+      - name: "heights"
+        increment: "lambda **kwargs: [random.randint(150, 200) for _ in range(kwargs['x'])]"
+        default: "list([165, 180, 175])"
 

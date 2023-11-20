@@ -5,6 +5,7 @@ import sys
 import time
 from functools import lru_cache
 import random
+from faker import Faker
 from types import ModuleType
 from typing import Dict, Callable, Optional, Tuple, Any, List, Union
 
@@ -101,6 +102,8 @@ def _run_single_benchmark(
     # This applies BEFORE each benchmark execution.
     # DO NOT REMOVE, or different benchmark runs might use different argument values.
     random.seed(42)
+    # We also seed faker which is used to generate random user-meaningful data
+    Faker.seed(42)
 
     while elapsed_time < max_time:
         valid_kwargs: dict[str, TArg] = {

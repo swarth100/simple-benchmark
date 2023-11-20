@@ -137,3 +137,16 @@ def generate_trajectory(velocity: float, angle: float, size: list[int]):
     # Print the chart in reverse order (to allow for bot-to-top printing)
     for row in reversed(chart):
         print("".join(row))
+
+
+def sort_by_height(names: list[str], heights: list[int]) -> list[str]:
+    # Pair each name with its corresponding height
+    name_height_pairs = zip(names, heights)
+
+    # Sort pairs based on heights in descending order
+    sorted_pairs = sorted(name_height_pairs, key=lambda x: x[1], reverse=True)
+
+    # Extract the names from the sorted pairs
+    sorted_names = [name for name, height in sorted_pairs]
+
+    return sorted_names

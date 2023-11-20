@@ -1,11 +1,15 @@
 import inspect
-
-from pydantic import BaseModel, validator
 from typing import List, Union, Callable
+
 import yaml
+from faker import Faker
+from pydantic import BaseModel
 from typing_extensions import TypeAlias
 
 TArg: TypeAlias = Union[int, str, list]
+
+# Global initialization to prevent redundant cost of reinitializing every time
+_FAKE = Faker()
 
 
 class Argument(BaseModel):
@@ -19,7 +23,7 @@ class Argument(BaseModel):
         # Some libraries are required to be available for import by lambdas
         import random
 
-        return eval(self.increment, {"random": random})
+        return eval(self.increment, {"random": random, "fake": _FAKE})
 
     @property
     def takes_kwargs_in_increment(self) -> bool:
