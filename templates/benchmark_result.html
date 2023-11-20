@@ -2,89 +2,122 @@
 <html>
 <head>
     <title>Benchmark Results</title>
-    <!-- Add any required CSS or JS libraries here -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-<h1>Benchmark Results</h1>
+<section class="section">
+    <div class="container">
+        <h1 class="title">Benchmark Results</h1>
 
-<div class="flex-container">
-    {% if "error" in result %}
-    <div class="error flex-element">
-        <h2>Error</h2>
-        <pre>{{ result.error }}</pre>
-    </div>
-    {% endif %}
-</div>
-
-<div class="flex-container">
-    {% if "output" in result %}
-    <div class="success flex-element">
-        <h2>Benchmark Result</h2>
-        <pre>{{ result.output }}</pre>
-    </div>
-    {% endif %}
-
-    {% if "reference" in result %}
-    <div class="primary flex-element">
-        <h2>Reference Implementation</h2>
-        <pre>{{ result.reference }}</pre>
-    </div>
-    {% endif %}
-</div>
-
-<div class="flex-container">
-    {% if "chartData" in result %}
-    <div class="chart flex-element">
-        <h2>Performance Chart</h2>
-        <svg width="600" height="370" , style="border: 1px solid dimgray">
-            <!-- Plot points -->
-            {% for point in result.chartData %}
-            <circle cx="{{ point.x + 100 }}" cy="{{ 300 - point.y }}" r="3" fill="blue"/>
-            {% endfor %}
-            <!-- X-axis label -->
-            <text x="350" y="350" class="axis-label" text-anchor="middle">Problem Size</text>
-            <!-- Y-axis label -->
-            <text x="20" y="150" class="axis-label" transform="rotate(-90 20,150)" text-anchor="middle">Time Taken
-                (seconds)
-            </text>
-            <!-- X-axis ticks -->
-            {% for tick_pos, tick_label in result.xTicks %}
-            <text x="{{ tick_pos + 100 }}" y="320" class="tick">{{ tick_label }}</text>
-            {% endfor %}
-            <!-- Y-axis ticks -->
-            {% for tick_pos, tick_label in result.yTicks %}
-            <text x="40" y="{{ 305 - tick_pos }}" class="tick">{{ tick_label }}</text>
-            {% endfor %}
-            <!-- Horizontal grid lines (based on Y-axis ticks) -->
-            {% for tick_pos, _ in result.yTicks %}
-            <line x1="100" y1="{{ 300 - tick_pos }}" x2="600" y2="{{ 300 - tick_pos }}" stroke="#ddd" stroke-width="1"/>
-            {% endfor %}
-            <!-- Vertical grid lines (based on X-axis ticks) -->
-            {% for tick_pos, _ in result.xTicks %}
-            <line x1="{{ tick_pos + 110 }}" y1="0" x2="{{ tick_pos + 110 }}" y2="300" stroke="#ddd" stroke-width="1"/>
-            {% endfor %}
-        </svg>
-    </div>
-    {% endif %}
-
-    {% if "topResults" in result %}
-    <div class="top-results flex-element">
-        <h2>Top Benchmark Results</h2>
-
-        {% if current_user is not defined or current_user == '' %}
-        <div class="error">
-            <h4>You must set your username to submit to the leaderboards</h4>
-        </div>
+        {% if "error" in result %}
+        <article class="message is-danger">
+            <div class="message-header">
+                <p>Error</p>
+            </div>
+            <div class="message-body">
+                <pre>{{ result.error }}</pre>
+            </div>
+        </article>
         {% endif %}
 
-        {% from "leaderboard.html" import render_leaderboard as leaderboard_macro %}
-        {{ leaderboard_macro(leaderboard=result.topResults, current_user=current_user) }}
-    </div>
-    {% endif %}
-</div>
+        <div class="columns">
+            {% if "output" in result %}
+            <div class="column">
+                <article class="message">
+                    <div class="message-header">
+                        <p>Benchmark Result</p>
+                    </div>
+                    <div class="message-body">
+                        <pre>{{ result.output }}</pre>
+                    </div>
+                </article>
+            </div>
+            {% endif %}
 
-<div style="height: 20px"></div>
-<a href="/">Run another benchmark</a>
+            {% if "reference" in result %}
+            <div class="column">
+                <article class="message is-success">
+                    <div class="message-header">
+                        <p>Reference Implementation</p>
+                    </div>
+                    <div class="message-body">
+                        <pre>{{ result.reference }}</pre>
+                    </div>
+                </article>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="columns is-multiline is-mobile">
+            {% if "chartData" in result %}
+            <div class="column is-half-fullhd is-full-widescreen">
+                <article class="message is-info">
+                    <div class="message-header">
+                        <p>Performance Chart</p>
+                    </div>
+                    <div class="message-body">
+                        <svg width="600" height="370" style="border: 1px solid dimgray">
+                            <!-- Plot points -->
+                            {% for point in result.chartData %}
+                            <circle cx="{{ point.x + 100 }}" cy="{{ 300 - point.y }}" r="3" fill="blue"/>
+                            {% endfor %}
+                            <!-- X-axis label -->
+                            <text x="350" y="350" class="axis-label" text-anchor="middle">Problem Size</text>
+                            <!-- Y-axis label -->
+                            <text x="20" y="150" class="axis-label" transform="rotate(-90 20,150)" text-anchor="middle">
+                                Time Taken
+                                (seconds)
+                            </text>
+                            <!-- X-axis ticks -->
+                            {% for tick_pos, tick_label in result.xTicks %}
+                            <text x="{{ tick_pos + 100 }}" y="320" class="tick">{{ tick_label }}</text>
+                            {% endfor %}
+                            <!-- Y-axis ticks -->
+                            {% for tick_pos, tick_label in result.yTicks %}
+                            <text x="40" y="{{ 305 - tick_pos }}" class="tick">{{ tick_label }}</text>
+                            {% endfor %}
+                            <!-- Horizontal grid lines (based on Y-axis ticks) -->
+                            {% for tick_pos, _ in result.yTicks %}
+                            <line x1="100" y1="{{ 300 - tick_pos }}" x2="600" y2="{{ 300 - tick_pos }}" stroke="#ddd"
+                                  stroke-width="1"/>
+                            {% endfor %}
+                            <!-- Vertical grid lines (based on X-axis ticks) -->
+                            {% for tick_pos, _ in result.xTicks %}
+                            <line x1="{{ tick_pos + 110 }}" y1="0" x2="{{ tick_pos + 110 }}" y2="300" stroke="#ddd"
+                                  stroke-width="1"/>
+                            {% endfor %}
+                        </svg>
+                    </div>
+                </article>
+            </div>
+            {% endif %}
+
+            {% if "topResults" in result %}
+            <div class="column">
+                <article class="message is-warning">
+                    <div class="message-header">
+                        <p>Top Benchmark Results</p>
+                    </div>
+                    <div class="message-body">
+                        {% if current_user is not defined or current_user == '' %}
+                        <div class="notification">
+                            <p><strong>NOTE</strong>: You must set your username to submit to the leaderboards</p>
+                        </div>
+                        {% endif %}
+                        {% from "leaderboard.html" import render_leaderboard as leaderboard_macro %}
+                        {{ leaderboard_macro(leaderboard=result.topResults, current_user=current_user) }}
+
+                    </div>
+                </article>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<div class="content has-text-centered">
+    <a href="/" class="button is-info">Run another benchmark</a>
+</div>
 </body>
 </html>

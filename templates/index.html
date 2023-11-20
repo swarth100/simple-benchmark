@@ -10,89 +10,126 @@
     <!-- HTMx Library -->
     <script src="https://unpkg.com/htmx.org@1.9.6"></script>
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-<div class="header">
-    <h1>Benchmark Runner</h1>
-    <div class="username-input">
-        <label for="username" style="font-size: 24px">Username:</label>
-        <input type="text" id="username" name="username">
-    </div>
+
+<div class="tabs is-boxed">
+    <ul>
+        <li class="is-active"><a onclick="openTab('benchmark-tab', this)">Benchmark Runner</a></li>
+        <li><a onclick="openTab('sandbox-tab', this); updateSandboxInputs()">Sandbox Mode</a></li>
+        <li><a onclick="openTab('leaderboard-tab', this)">Leaderboards</a></li>
+        <li><a onclick="openTab('rankings-tab', this)">Rankings</a></li>
+
+        <!-- Inline username input field -->
+        <li class="navbar-item" style="margin-left: auto;">
+            <div class="field">
+                <p class="control">
+                    <input class="input is-info" type="text" placeholder="Username" id="username" name="username">
+                </p>
+            </div>
+        </li>
+    </ul>
 </div>
 
-<div class="tabs">
-    <button class="tab-button active" onclick="openTab('benchmark-tab', this)">Benchmark Runner</button>
-    <button class="tab-button" onclick="openTab('sandbox-tab', this); updateSandboxInputs()">Sandbox Mode</button>
-    <button class="tab-button" onclick="openTab('leaderboard-tab', this)">Leaderboards</button>
-    <button class="tab-button" onclick="openTab('rankings-tab', this)">Rankings</button>
-</div>
 
 <div id="benchmark-tab" class="tab active-tab">
-    <h2>Benchmark Mode</h2>
     <form action="/run_benchmark" method="post" id="benchmark-form">
-        <label for="benchmark-select">Select Benchmark:</label>
-        <select name="benchmark" id="benchmark-select">
-            {% for benchmark in benchmarks %}
-            <option value="{{ benchmark }}">{{ benchmark }}</option>
-            {% endfor %}
-        </select>
-        <br><br>
-        <label for="code">Submit Your Code:</label>
-        <br>
-        <textarea name="code" id="code" rows="10" cols="50"></textarea>
-        <br><br>
-        <!-- Submit button and spinner -->
-        <input type="button" value="Reset" id="reset-button" class="warning-button" onclick="updateFunctionSignature()">
-        <input type="submit" value="Run Benchmark" id="submit-button">
+        <div class="field">
+            <label class="label" for="benchmark-select">Select Benchmark:</label>
+            <div class="control">
+                <div class="select">
+                    <select name="benchmark" id="benchmark-select">
+                        {% for benchmark in benchmarks %}
+                        <option value="{{ benchmark }}">{{ benchmark }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label" for="code">Submit Your Code:</label>
+            <div class="control">
+                <textarea class="textarea" name="code" id="code" rows="10"></textarea>
+            </div>
+        </div>
+
+        <div class="field is-grouped">
+            <p class="control">
+                <input type="button" class="button is-warning" value="Reset" id="reset-button" onclick="updateFunctionSignature()">
+            </p>
+            <p class="control">
+                <input type="submit" class="button is-info" value="Run Benchmark" id="submit-button">
+            </p>
+        </div>
+
+        <!-- The spinner can remain as is, unless you choose to use a Bulma-compatible spinner -->
         <div class="spinner hidden" id="loading-spinner"></div>
-        <!-- Include the username as a hidden field in the form -->
+
+        <!-- Hidden field for username -->
         <input type="hidden" name="username" id="form-username">
-        <!-- ... -->
     </form>
 </div>
 
+
 <div id="sandbox-tab" class="tab">
-    <div class="flex-container">
-        <div class="flex-element">
-            <h2>Sandbox Input</h2>
+    <div class="columns">
+        <div class="column">
             <form hx-post="/run_sandbox" hx-target="#sandbox-content" hx-trigger="submit">
-                <label for="sandbox-benchmark">Select Benchmark:</label>
-                <select name="benchmark" id="sandbox-benchmark" onchange="updateSandboxInputs()">
-                    {% for benchmark in benchmarks %}
-                    <option value="{{ benchmark }}">{{ benchmark }}</option>
-                    {% endfor %}
-                </select>
-                <br><br>
-                <label for="sandbox-inputs">Input Parameters (as JSON):</label>
-                <br>
-                <textarea name="sandbox-inputs" id="sandbox-inputs" rows="10" cols="50"></textarea>
-                <br><br>
-                <input type="submit" value="Run Sandbox">
+                <div class="field">
+                    <label class="label" for="sandbox-benchmark">Select Benchmark:</label>
+                    <div class="control">
+                        <div class="select">
+                            <select name="benchmark" id="sandbox-benchmark" onchange="updateSandboxInputs()">
+                                {% for benchmark in benchmarks %}
+                                <option value="{{ benchmark }}">{{ benchmark }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label" for="sandbox-inputs">Input Parameters (as JSON):</label>
+                    <div class="control">
+                        <textarea class="textarea" name="sandbox-inputs" id="sandbox-inputs" rows="10"></textarea>
+                    </div>
+                </div>
+
+                <div class="control">
+                    <input type="submit" class="button is-info" value="Run Sandbox">
+                </div>
             </form>
         </div>
-        <div id="sandbox-content" class="flex-element">
+        <div class="column" id="sandbox-content">
             <!-- Sandbox data will be loaded here -->
         </div>
     </div>
 </div>
 
 <div id="leaderboard-tab" class="tab">
-    <h2>Leaderboards</h2>
-    <label for="leaderboard-benchmark">Select Benchmark:</label>
-    <select name="benchmark" id="leaderboard-benchmark" hx-get="/fetch_leaderboard" hx-trigger="change, tab-activated" hx-swap="innerHTML" hx-target="#leaderboard-content" hx-include="#username">
-        {% for benchmark in benchmarks %}
-        <option value="{{ benchmark }}">{{ benchmark }}</option>
-        {% endfor %}
-    </select>
-    <div style="height: 20px"></div>
+    <div class="field">
+        <label class="label" for="leaderboard-benchmark">Select Benchmark:</label>
+        <div class="control">
+            <div class="select">
+                <select name="benchmark" id="leaderboard-benchmark" hx-get="/fetch_leaderboard" hx-trigger="change, tab-activated" hx-swap="innerHTML" hx-target="#leaderboard-content" hx-include="#username">
+                    {% for benchmark in benchmarks %}
+                    <option value="{{ benchmark }}">{{ benchmark }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="mb-4"></div> <!-- Bulma margin bottom class -->
     <div id="leaderboard-content">
         <!-- Leaderboard data will be loaded here -->
     </div>
 </div>
 
+
 <div id="rankings-tab" class="tab">
-    <h2>Rankings</h2>
     <div id="rankings-content" hx-trigger="load, tab-activated" hx-get="/fetch_rankings" hx-swap="innerHTML" hx-include="#username">
         <!-- Rankings data will be loaded here -->
     </div>
@@ -105,17 +142,21 @@
     }
 
     function openTab(tabName, element) {
+        console.log(tabName, element)
         var i, tabcontent, tablinks;
         tabcontent = document.getElementsByClassName("tab");
         for (i = 0; i < tabcontent.length; i++) {
             tabcontent[i].style.display = "none";
+            tabcontent[i].parentElement.classList.remove("is-active");
         }
-        tablinks = document.getElementsByClassName("tab-button");
+        tablinks = document.querySelectorAll(".tabs li");
         for (i = 0; i < tablinks.length; i++) {
-            tablinks[i].className = tablinks[i].className.replace(" active", "");
+            tablinks[i].classList.remove("is-active");
         }
         document.getElementById(tabName).style.display = "block";
-        element.className += " active";
+        if (element) {
+            element.parentElement.classList.add("is-active");
+        }
 
         // Save the active tab to local storage
         localStorage.setItem('activeTab', tabName);
@@ -157,9 +198,16 @@
     });
 
     document.getElementById('benchmark-form').onsubmit = function() {
-        document.getElementById('submit-button').disabled = true;
-        document.getElementById('reset-button').disabled = true;
+        // Add the 'is-loading' class to the submit button
+        var submitButton = document.getElementById('submit-button');
+        submitButton.classList.add('is-loading');
         document.getElementById('loading-spinner').classList.remove('hidden');
+
+        // Disable the submit button to prevent multiple submissions
+        submitButton.disabled = true;
+
+        // Disable the reset button during form submission
+        document.getElementById('reset-button').disabled = true;
     };
 
     // Update the hidden username field in the form whenever the username input changes
@@ -179,7 +227,7 @@
 
         // Restore the active tab
         var activeTab = localStorage.getItem('activeTab') || 'benchmark-tab';
-        openTab(activeTab, document.querySelector('.tab-button[onclick*="' + activeTab + '"]'));
+        openTab(activeTab, document.querySelector('.tabs li [onclick*="' + activeTab + '"]'));
 
         // Restore selected benchmarks
         var benchmarkSelect = localStorage.getItem('selectedBenchmark');

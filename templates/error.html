@@ -2,17 +2,27 @@
 <html>
 <head>
     <title>Error</title>
-    <link rel="stylesheet" href="/static/styles.css"> <!-- If you have a CSS file for styling -->
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-<div class="error-container error">
-    <h2>An Error Occurred</h2>
-    <pre>{{ message }}</pre> <!-- This is where the error message will be displayed -->
-    <a href="/">Back to Home</a>
-</div>
+<section class="section">
+    <div class="container">
+        <h1 class="title">Benchmark Results</h1>
+        <article class="message is-danger">
+            <div class="message-header">
+                <p>An Error Occurred</p>
+            </div>
+            <div class="message-body">
+                <pre>{{ message }}</pre>
+            </div>
+        </article>
+    </div>
+</section>
 
-<script>
-    // You can add some JavaScript if needed, for more dynamic behavior
-</script>
+<div class="content has-text-centered">
+    <a href="/" class="button is-info">Back to Home</a>
+</div>
 </body>
 </html>
