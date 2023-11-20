@@ -202,7 +202,7 @@ def _run_single_benchmark_by_module(
     return benchmark_result
 
 
-@func_set_timeout(5)
+@func_set_timeout(15)
 def run_benchmark_given_modules(
     target_modules: List[Union[ModuleType, str]], benchmark: Benchmark
 ) -> List[BenchmarkResult]:

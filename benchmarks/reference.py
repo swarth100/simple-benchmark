@@ -150,3 +150,19 @@ def sort_by_height(names: list[str], heights: list[int]) -> list[str]:
     sorted_names = [name for name, height in sorted_pairs]
 
     return sorted_names
+
+
+def best_student(gradebook: dict[str, list[float]]) -> str:
+    highest_avg = 0
+    top_student = ""
+
+    for student, grades in gradebook.items():
+        # Calculate the average grade for the student
+        avg_grade = sum(grades) / len(grades)
+
+        # Check if this average is the highest so far
+        if avg_grade > highest_avg:
+            highest_avg = avg_grade
+            top_student = student
+
+    return top_student

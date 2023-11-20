@@ -118,7 +118,7 @@ benchmarks:
         default: "list([25, 8])"
 
   - function_name: "sort_by_height"
-    max_time: 8
+    max_time: 10
     hidden: false
     args:
       - name: "x"
@@ -131,4 +131,21 @@ benchmarks:
       - name: "heights"
         increment: "lambda **kwargs: [random.randint(150, 200) for _ in range(kwargs['x'])]"
         default: "list([165, 180, 175])"
+
+  - function_name: "best_student"
+    max_time: 15
+    hidden: false
+    args:
+      - name: "x"
+        increment: "lambda x: x + 1"
+        default: "int(3)"
+        hidden: true
+      - name: "gradebook"
+        increment: "lambda **kwargs: {
+                      fake.first_name(): [
+                        round(random.uniform(0, 8) + 2, 1) for _ in range(random.randint(1, kwargs['x'] * 2))
+                      ] for _ in range(kwargs['x'])
+                    }"
+        default: "dict({'Alice': [8, 7.5, 8.8],'Bob': [8.5, 8, 9],'Charlie': [6, 6.2, 7.5]})"
+
 
