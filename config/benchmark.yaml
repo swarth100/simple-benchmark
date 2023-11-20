@@ -60,7 +60,7 @@ benchmarks:
     args:
       - name: "x"
         increment: "lambda x: x + 1"
-        default: "int(16)"
+        default: "int(10)"
         hidden: true
       - name: "size"
         increment: "lambda **kwargs: int(kwargs['x'] ** 0.65)"

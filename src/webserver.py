@@ -2,6 +2,7 @@ import importlib
 import json
 import tempfile
 import traceback
+from random import random, randint
 from typing import Optional, Any, Tuple
 
 from fastapi import FastAPI, Request
@@ -20,7 +21,7 @@ from src.benchmark import (
     capture_output,
 )
 from src.config import BenchmarkResult, UserRank
-from src.validation import BENCHMARK_CONFIG, Benchmark, Config
+from src.validation import BENCHMARK_CONFIG, Benchmark, Config, TArg
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -175,6 +176,32 @@ async def run_sandbox(request: Request):
             "error.html",
             {"request": request, "message": f"Error while running sandbox: {e}"},
         )
+
+
+@app.get("/randomize_args")
+async def update_leaderboard(request: Request, benchmark: str) -> dict:
+    try:
+        benchmark: Optional[Benchmark] = get_benchmark_by_name(name=benchmark)
+        arg_values: dict[str, TArg] = {
+            arg.name: arg.default_value for arg in benchmark.args
+        }
+
+        # We give a sense of randomization but only limit the extent of the range.
+        # Too-large of a range and the input would not display well.
+        # Random is not seeded so will still yield interesting results.
+        for _ in range(randint(1, 5)):
+            for arg in benchmark.args:
+                arg_values[arg.name] = arg.apply_increment(
+                    arg_values[arg.name], **arg_values
+                )
+        return {
+            arg.name: arg_values[arg.name] for arg in benchmark.args if not arg.hidden
+        }
+
+    except Exception as e:
+        # Handle errors gracefully
+        print(traceback.format_exc())
+        return {}
 
 
 @app.post("/run_benchmark")
