@@ -1,40 +1,46 @@
 <h2 class="title is-5">Sandbox Result</h2>
 
 {% if "signature" in result %}
-<div>
-    <h3 class="title is-6">Signature</h3>
-    <pre class="has-background-light">{{ result.signature }}</pre>
-</div>
-<br>
+<article class="message">
+    <div class="message-header">
+        <p>Signature</p>
+    </div>
+    <pre>{{ result.signature }}</pre>
+</article>
 {% endif %}
 
 {% if "input" in result %}
-<div>
-    <h3 class="title is-6">Inputs</h3>
-    <pre class="has-background-light">{{ result.input }}</pre>
-</div>
-<br>
+<article class="message">
+    <div class="message-header">
+        <p>Inputs</p>
+    </div>
+    <pre>{{ result.input }}</pre>
+</article>
 {% endif %}
 
 {% if "error" in result %}
-<div class="notification is-danger">
-    <h3 class="title is-6">Error</h3>
+<article class="message is-danger">
+    <div class="message-header">
+        <p>Error</p>
+    </div>
     <pre>{{ result.error }}</pre>
-</div>
-<br>
+</article>
 {% endif %}
 
 {% if "output" in result %}
-<div>
-    <h3 class="title is-6">Function Output</h3>
-    <pre class="has-background-light">{{ result.output }}</pre>
-</div>
-<br>
+<article class="message is-info">
+    <div class="message-header">
+        <p>Function Output</p>
+    </div>
+    <pre>{{ result.output }}</pre>
+</article>
 {% endif %}
 
 {% if "std_output" in result %}
-<div>
-    <h3 class="title is-6">Function Prints</h3>
-    <pre class="has-background-light">{{ result.std_output }}</pre>
-</div>
+<article class="message is-info">
+    <div class="message-header">
+        <p>Function Prints</p>
+    </div>
+    <pre>{{ result.std_output }}</pre>
+</article>
 {% endif %}

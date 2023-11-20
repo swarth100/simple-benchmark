@@ -15,9 +15,7 @@
             <div class="message-header">
                 <p>Error</p>
             </div>
-            <div class="message-body">
-                <pre>{{ result.error }}</pre>
-            </div>
+            <pre>{{ result.error }}</pre>
         </article>
         {% endif %}
 
@@ -28,22 +26,18 @@
                     <div class="message-header">
                         <p>Benchmark Result</p>
                     </div>
-                    <div class="message-body">
-                        <pre>{{ result.output }}</pre>
-                    </div>
+                    <pre>{{ result.output }}</pre>
                 </article>
             </div>
             {% endif %}
 
             {% if "reference" in result %}
             <div class="column">
-                <article class="message is-success">
+                <article class="message is-primary">
                     <div class="message-header">
                         <p>Reference Implementation</p>
                     </div>
-                    <div class="message-body">
-                        <pre>{{ result.reference }}</pre>
-                    </div>
+                    <pre>{{ result.reference }}</pre>
                 </article>
             </div>
             {% endif %}
