@@ -148,4 +148,21 @@ benchmarks:
                     }"
         default: "dict({'Alice': [8, 7.5, 8.8],'Bob': [8.5, 8, 9],'Charlie': [6, 6.2, 7.5]})"
 
+  - function_name: "inventory_counter"
+    max_time: 10
+    hidden: false
+    args:
+      - name: "x"
+        increment: "lambda x: x + 1"
+        default: "int(9)"
+        hidden: true
+      - name: "elems"
+        increment: "lambda **kwargs: [fake.job() for _ in range(int(kwargs['x'] ** 0.5))]"
+        default: "list(['apple', 'tomato', 'carrot'])"
+        hidden: true
+      - name: "items"
+        increment: "lambda **kwargs: [
+                      kwargs['elems'][int(random.randint(0, len(kwargs['elems']) - 1))] for _ in range(int(kwargs['x'] ** 1.15))
+                    ]"
+        default: "list(['apple', 'tomato', 'apple', 'carrot', 'apple', 'carrot', 'carrot', 'apple'])"
 
