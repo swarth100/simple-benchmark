@@ -28,4 +28,4 @@ class UserRank(TypedDict):
     rank: int
     username: str
     scores: dict[str, float]
-    total: float
+    average: float

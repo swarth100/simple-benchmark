@@ -4,7 +4,7 @@
         <tr>
             <th>Rank (#)</th>
             <th>User</th>
-            <th>Total</th>
+            <th>Average</th>
             {% for benchmark in benchmarks %}
             <th>{{ benchmark }}</th>
             {% endfor %}
@@ -15,9 +15,9 @@
         <tr class="{{ 'is-selected' if user_data.username == current_user }}">
             <td>{{ user_data.rank }}</td>
             <td>{{ user_data.username }}</td>
-            <td class="has-text-weight-bold">{{ user_data.total | round(2) }}</td>
+            <td class="has-text-weight-bold">{{ user_data.average | round(1) }}</td>
             {% for benchmark in benchmarks %}
-            <td>{{ user_data.scores[benchmark] | default(0) | round(2) }}</td>
+            <td>{{ user_data.scores[benchmark] | default(0) | round(1) }}</td>
             {% endfor %}
         </tr>
         {% endfor %}
