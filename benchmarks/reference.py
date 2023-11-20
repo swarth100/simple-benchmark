@@ -168,10 +168,10 @@ def best_student(gradebook: dict[str, list[float]]) -> str:
     return top_student
 
 
-def inventory_counter(items: list[str]) -> dict[str, int]:
+def jobs_counter(jobs: list[str]) -> dict[str, int]:
     inventory = {}
 
-    for item in items:
+    for item in jobs:
         if item in inventory:
             inventory[item] += 1
         else:

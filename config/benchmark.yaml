@@ -143,12 +143,12 @@ benchmarks:
       - name: "gradebook"
         increment: "lambda **kwargs: {
                       fake.first_name(): [
-                        round(random.uniform(0, 8) + 2, 1) for _ in range(random.randint(1, kwargs['x'] * 2))
+                        round(random.uniform(0, 8) + 2, 1) for _ in range(random.randint(1, int(kwargs['x'] ** 1.15)))
                       ] for _ in range(kwargs['x'])
                     }"
         default: "dict({'Alice': [8, 7.5, 8.8],'Bob': [8.5, 8, 9],'Charlie': [6, 6.2, 7.5]})"
 
-  - function_name: "inventory_counter"
+  - function_name: "jobs_counter"
     max_time: 10
     hidden: true
     args:
@@ -158,11 +158,11 @@ benchmarks:
         hidden: true
       - name: "elems"
         increment: "lambda **kwargs: [fake.job() for _ in range(int(kwargs['x'] ** 0.5))]"
-        default: "list(['apple', 'tomato', 'carrot'])"
+        default: "list(['artist', 'doctor', 'professor'])"
         hidden: true
-      - name: "items"
+      - name: "jobs"
         increment: "lambda **kwargs: [
                       kwargs['elems'][int(random.randint(0, len(kwargs['elems']) - 1))] for _ in range(int(kwargs['x'] ** 1.15))
                     ]"
-        default: "list(['apple', 'tomato', 'apple', 'carrot', 'apple', 'carrot', 'carrot', 'apple'])"
+        default: "list(['artist', 'doctor', 'artist', 'professor', 'artist', 'professor', 'professor', 'artist'])"
 
