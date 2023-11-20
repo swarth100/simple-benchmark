@@ -63,14 +63,14 @@ benchmarks:
         default: "int(16)"
         hidden: true
       - name: "size"
-        increment: "lambda **kwargs: int(kwargs['x'] ** 0.5)"
+        increment: "lambda **kwargs: int(kwargs['x'] ** 0.65)"
         default: "int(4)"
       - name: "nums"
         increment: "lambda **kwargs: [[random.randint(1, kwargs['size']), random.randint(1, kwargs['size'])] for _ in range(kwargs['size'] + 1)]"
         default: "list([[2,2],[1,3],[4,1]])"
 
   - function_name: "count_pairs"
-    max_time: 100
+    max_time: 50
     hidden: true
     args:
       - name: "size"
