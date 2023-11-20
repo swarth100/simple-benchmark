@@ -99,3 +99,21 @@ benchmarks:
         increment: "lambda **kwargs: random.randint(kwargs['size'] // 2, kwargs['size'])"
         default: "int(10)"
 
+  - function_name: "generate_trajectory"
+    max_time: 50
+    hidden: false
+    args:
+      - name: "x"
+        increment: "lambda x: x + 1"
+        default: "int(25)"
+        hidden: true
+      - name: "velocity"
+        increment: "lambda **kwargs: random.randint(0, kwargs['x'])"
+        default: "int(15)"
+      - name: "angle"
+        increment: "lambda angle: random.randint(0, 90)"
+        default: "int(45)"
+      - name: "size"
+        increment: "lambda **kwargs: [random.randint(kwargs['x'] // 2, kwargs['x']), random.randint(kwargs['x'] // 4, kwargs['x'] // 2)]"
+        default: "list([25, 8])"
+

@@ -112,7 +112,9 @@ def _run_single_benchmark(
             user_output, user_std_output = capture_output(user_func, **valid_kwargs)
         except Exception as e:
             return BenchmarkResult(
-                name=run_name, error=f"Error while executing '{run_name}': {e}"
+                name=run_name,
+                result=last_valid_iteration,
+                error=f"Error while executing '{run_name}' for arguments {valid_kwargs}: {e}",
             )
 
         # Only count the time in user code towards the benchmark, exclude all time spent in validation

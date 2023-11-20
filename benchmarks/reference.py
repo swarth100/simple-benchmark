@@ -1,3 +1,6 @@
+import math
+
+
 def square(size: int):
     for x in range(size):
         if (x == 0) or (x == size - 1):
@@ -96,3 +99,41 @@ def dividing_numbers(left: int, right: int) -> list[int]:
             result.append(x)
 
     return result
+
+
+def generate_trajectory(velocity: float, angle: float, size: list[int]):
+    g = 9.81  # Acceleration due to gravity (m/s^2)
+    angle_rad = math.radians(angle)  # Convert angle to radians
+
+    # Function to calculate the position at a given x
+    def position(x):
+        # Prevent division by zero issues!
+        if velocity == 0 or (math.cos(angle_rad) == 0):
+            return x, 0
+
+        t = x / (velocity * math.cos(angle_rad))
+        y = velocity * t * math.sin(angle_rad) - 0.5 * g * t**2
+        # We round to ensure consistent mathematical charting
+        return x, round(y)
+
+    # Generate points for the trajectory
+    points = [position(i) for i in range(size[0])]
+
+    # Create the ASCII chart
+    chart = [[" " for _ in range(size[0])] for _ in range(size[1])]
+    for x, y in points:
+        if 0 <= x < size[0] and 0 <= y < size[1]:
+            chart[y][x] = "#"
+
+    # Add axes
+    for i in range(size[0]):
+        chart[0][i] = "-"
+    for i in range(size[1]):
+        chart[i][0] = "|"
+    chart[-1][0] = "^"
+    chart[0][0] = "+"
+    chart[0][-1] = ">"
+
+    # Print the chart in reverse order (to allow for bot-to-top printing)
+    for row in reversed(chart):
+        print("".join(row))
