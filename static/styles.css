@@ -10,6 +10,11 @@
     padding: 0 20px;
 }
 
+/* Override footer color to always be transparent */
+.footer {
+    background-color: transparent;
+}
+
 /* Adjust bulma style to not introduce spacing inbetween tabs */
 .navbar-item, .navbar-link {
     padding: 0;
