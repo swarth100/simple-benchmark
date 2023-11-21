@@ -99,13 +99,15 @@ benchmarks:
         default: "int(25)"
         hidden: true
       - name: "velocity"
-        increment: "lambda **kwargs: random.randint(0, kwargs['x'])"
+        # Use a biased random function that favors higher velocities
+        increment: "lambda **kwargs: int(kwargs['x'] * (0.1 + random.random()))"
         default: "int(15)"
       - name: "angle"
-        increment: "lambda angle: random.randint(0, 90)"
+        # Use a biased random function that avoids extreme angles
+        increment: "lambda angle: int(45 + (random.random() - 0.5) * 45)"
         default: "int(45)"
       - name: "size"
-        increment: "lambda **kwargs: [random.randint(kwargs['x'] // 2, kwargs['x']), random.randint(kwargs['x'] // 4, kwargs['x'] // 2)]"
+        increment: "lambda **kwargs: [random.randint(kwargs['x'] // 2, kwargs['x'] * 2), random.randint(kwargs['x'] // 3, kwargs['x'] // 1.5)]"
         default: "list([25, 8])"
 
   - function_name: "sort_by_height"
