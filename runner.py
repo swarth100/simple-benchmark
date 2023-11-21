@@ -6,8 +6,8 @@ import uvicorn
 from better_profanity import profanity
 
 from src.benchmark import run_benchmark_given_config, get_config
-from db.database import init_db
-
+from db.database import init_db, upload_benchmark_config
+from src.validation import BENCHMARK_CONFIG
 
 # Check if the .profanity-filter file exists and if it does we use its contents
 # as an additional dictionary of possible profane words.
@@ -35,6 +35,8 @@ if os.path.exists(".profanity-filter"):
 def main(benchmark: Optional[list[str]] = None, serve: bool = False):
     # Always initialise the database on startup
     init_db()
+    # Upload the latest config to the database to ensure it's in-sync
+    upload_benchmark_config(BENCHMARK_CONFIG.benchmarks)
 
     if serve:
         uvicorn.run(

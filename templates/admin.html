@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- HTMx Library -->
+    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+</head>
+<body>
+<section class="section">
+    <div class="container">
+        <h1 class="title">Admin Panel</h1>
+        <table class="table is-fullwidth">
+            <thead>
+            <tr>
+                <th>Benchmark Name</th>
+                <th>Visibility</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for benchmark, is_hidden in benchmark_status %}
+            <tr>
+                <td>{{ benchmark }}</td>
+                <td>{{ 'Hidden' if is_hidden else 'Visible' }}</td>
+                <td>
+                    <button class="button is-small {{ 'is-danger' if is_hidden else 'is-success' }} toggle-visibility"
+                            data-benchmark="{{ benchmark }}" data-is-hidden="{{ is_hidden }}">
+                        {{ 'Enable' if is_hidden else 'Disable' }}
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<script>
+    document.querySelectorAll('.toggle-visibility').forEach(button => {
+        button.addEventListener('click', function () {
+            this.classList.add('is-loading'); // Add loading state
+            fetch('/toggle_benchmark', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `benchmark=${this.dataset.benchmark}&is_hidden=${this.dataset.isHidden === '1' ? 'false' : 'true'}`
+            }).then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    this.classList.remove('is-loading'); // Remove loading state if there's an error
+                }
+            })
+        });
+    });
+</script>
+</body>
+</html>

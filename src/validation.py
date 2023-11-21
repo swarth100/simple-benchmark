@@ -79,7 +79,9 @@ class Config(BaseModel):
     benchmarks: List[Benchmark]
 
     def get_all_valid_benchmarks(self) -> List[Benchmark]:
-        return [b for b in self.benchmarks if not b.hidden]
+        from db.database import get_enabled_benchmarks
+
+        return get_enabled_benchmarks()
 
 
 def _load_config(file_path) -> Config:

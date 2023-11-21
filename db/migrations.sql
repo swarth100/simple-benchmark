@@ -16,3 +16,9 @@ FROM
     benchmark_results
 GROUP BY
     username, benchmark_name;
+
+CREATE TABLE IF NOT EXISTS benchmarks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    is_hidden BOOLEAN DEFAULT FALSE
+);

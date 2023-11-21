@@ -4,7 +4,7 @@ import sqlite3
 from typing import Tuple, Optional
 
 from src.config import BenchmarkResult, UserRank
-from src.validation import Benchmark
+from src.validation import Benchmark, BENCHMARK_CONFIG
 
 MIGRATIONS_FILE = "db/migrations.sql"
 BENCHMARKS_RESULT_DB: str = "db/benchmark_results.db"
@@ -145,3 +145,99 @@ def get_rankings(benchmarks: list[Benchmark]) -> list[UserRank]:
             data["rank"] = idx + 1
 
     return results
+
+
+def toggle_benchmark_visibility(benchmark_name: str, is_hidden: bool):
+    with sqlite3.connect(BENCHMARKS_RESULT_DB) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            UPDATE benchmarks
+            SET is_hidden = ?
+            WHERE name = ?
+            """,
+            (is_hidden, benchmark_name),
+        )
+        conn.commit()
+
+
+def get_enabled_benchmarks() -> list[Benchmark]:
+    with sqlite3.connect(BENCHMARKS_RESULT_DB) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT name FROM benchmarks
+            WHERE NOT is_hidden
+            """
+        )
+        benchmark_names: list[str] = [x for x, in cursor.fetchall()]
+
+        enabled_benchmarks: list[Benchmark] = [
+            benchmark
+            for benchmark in BENCHMARK_CONFIG.benchmarks
+            if benchmark.function_name in benchmark_names
+        ]
+        return enabled_benchmarks
+
+
+def get_benchmark_status() -> list[tuple]:
+    """
+    Retrieve the visibility status of all available benchmarks
+
+    :return: A list of tuples with the data (benchmark_name, is_hidden)
+    """
+    with sqlite3.connect(BENCHMARKS_RESULT_DB) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT name, is_hidden FROM benchmarks
+            ORDER BY id
+            """
+        )
+        return cursor.fetchall()
+
+
+def upload_benchmark_config(benchmarks: list[Benchmark]):
+    """
+    Upload the benchmark config to the DB to allow it to persist visibility status.
+    By default visibility will be set to False for any newly added benchmarks.
+    Any benchmark that no longer exist will be removed from the database as well.
+
+    :param benchmarks: Benchmark config to upload
+    """
+    with sqlite3.connect(BENCHMARKS_RESULT_DB) as conn:
+        cursor = conn.cursor()
+
+        # Retrieve existing benchmarks from the database
+        cursor.execute("SELECT name FROM benchmarks")
+        existing_benchmarks = {row[0] for row in cursor.fetchall()}
+
+        # Determine benchmarks to add and to remove.
+        # NOTE: We care about ordering! Thus keep lists rather than sets!
+        config_benchmarks = [benchmark.function_name for benchmark in benchmarks]
+        benchmarks_to_add = [
+            b for b in config_benchmarks if b not in existing_benchmarks
+        ]
+        benchmarks_to_remove = existing_benchmarks - set(config_benchmarks)
+
+        # Insert new benchmarks with visibility set to hidden
+        for benchmark_name in benchmarks_to_add:
+            cursor.execute(
+                """
+                INSERT INTO benchmarks (name, is_hidden)
+                VALUES (?, TRUE)
+                """,
+                (benchmark_name,),
+            )
+
+        # Remove benchmarks that are no longer in the config
+        for benchmark_name in benchmarks_to_remove:
+            cursor.execute(
+                """
+                DELETE FROM benchmarks
+                WHERE name = ?
+                """,
+                (benchmark_name,),
+            )
+
+        conn.commit()

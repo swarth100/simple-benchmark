@@ -2,18 +2,24 @@ import importlib
 import json
 import tempfile
 import traceback
-from random import random, randint
-from typing import Optional, Any, Tuple
+from random import randint
+from typing import Optional, Any
 
+from better_profanity import profanity
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from func_timeout import FunctionTimedOut
 from starlette.responses import FileResponse
-from better_profanity import profanity
 
-from db.database import save_benchmark_result, get_top_benchmark_results, get_rankings
+from db.database import (
+    save_benchmark_result,
+    get_top_benchmark_results,
+    get_rankings,
+    get_benchmark_status,
+    toggle_benchmark_visibility,
+)
 from src.benchmark import (
     run_benchmark_given_modules,
     get_benchmark_by_name,
@@ -326,3 +332,24 @@ async def run_user_benchmark(request: Request):
             "error.html",
             {"request": request, "message": f"Error while running benchmark: {e}"},
         )
+
+
+@app.get("/admin", response_class=HTMLResponse)
+async def admin_page(request: Request):
+    benchmark_status: list[tuple] = get_benchmark_status()
+    return templates.TemplateResponse(
+        "admin.html",
+        {
+            "request": request,
+            "benchmark_status": benchmark_status,
+        },
+    )
+
+
+@app.post("/toggle_benchmark")
+async def toggle_benchmark(request: Request):
+    form_data = await request.form()
+    benchmark_name = form_data["benchmark"]
+    is_hidden = form_data["is_hidden"] == "true"
+    toggle_benchmark_visibility(benchmark_name, is_hidden)
+    return {"success": True}
