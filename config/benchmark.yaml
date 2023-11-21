@@ -8,7 +8,6 @@ user_modules:
 benchmarks:
   - function_name: "square"
     max_time: 100
-    hidden: true
     args:
       - name: "size"
         increment: "lambda x: x + 1"
@@ -16,7 +15,6 @@ benchmarks:
 
   - function_name: "triangle"
     max_time: 100
-    hidden: true
     args:
       - name: "size"
         increment: "lambda x: x + 1"
@@ -24,7 +22,6 @@ benchmarks:
 
   - function_name: "rhombus"
     max_time: 100
-    hidden: true
     args:
       - name: "size"
         increment: "lambda x: x + 1"
@@ -32,7 +29,6 @@ benchmarks:
 
   - function_name: "running_sum"
     max_time: 50
-    hidden: false
     args:
       - name: "size"
         increment: "lambda x: x + 1"
@@ -44,7 +40,6 @@ benchmarks:
 
   - function_name: "histogram"
     max_time: 50
-    hidden: false
     args:
       - name: "size"
         increment: "lambda x: x + 1"
@@ -56,7 +51,6 @@ benchmarks:
 
   - function_name: "scatter"
     max_time: 50
-    hidden: false
     args:
       - name: "x"
         increment: "lambda x: x + 1"
@@ -71,7 +65,6 @@ benchmarks:
 
   - function_name: "count_pairs"
     max_time: 50
-    hidden: true
     args:
       - name: "size"
         increment: "lambda x: x + 1"
@@ -86,7 +79,6 @@ benchmarks:
 
   - function_name: "dividing_numbers"
     max_time: 50
-    hidden: true
     args:
       - name: "size"
         increment: "lambda x: x + 1"
@@ -101,7 +93,6 @@ benchmarks:
 
   - function_name: "generate_trajectory"
     max_time: 50
-    hidden: true
     args:
       - name: "x"
         increment: "lambda x: x + 1"
@@ -119,7 +110,6 @@ benchmarks:
 
   - function_name: "sort_by_height"
     max_time: 10
-    hidden: true
     args:
       - name: "x"
         increment: "lambda x: x + 1"
@@ -134,7 +124,6 @@ benchmarks:
 
   - function_name: "best_student"
     max_time: 15
-    hidden: true
     args:
       - name: "x"
         increment: "lambda x: x + 1"
@@ -154,7 +143,6 @@ benchmarks:
 
   - function_name: "jobs_counter"
     max_time: 10
-    hidden: true
     args:
       - name: "x"
         increment: "lambda x: x + 1"

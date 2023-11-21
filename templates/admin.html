@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Benchmark Admin</title>
+
     <!-- HTMx Library -->
     <script src="https://unpkg.com/htmx.org@1.9.6"></script>
 
@@ -24,7 +26,9 @@
             {% for benchmark, is_hidden in benchmark_status %}
             <tr>
                 <td>{{ benchmark }}</td>
-                <td>{{ 'Hidden' if is_hidden else 'Visible' }}</td>
+                <td class="{{ 'has-text-danger' if is_hidden else 'has-text-success' }}">
+                    {{ 'Hidden' if is_hidden else 'Visible' }}
+                </td>
                 <td>
                     <button class="button is-small {{ 'is-danger' if is_hidden else 'is-success' }} toggle-visibility"
                             data-benchmark="{{ benchmark }}" data-is-hidden="{{ is_hidden }}">
