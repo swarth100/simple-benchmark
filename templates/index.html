@@ -259,6 +259,7 @@
 
         if (benchmarkSelect) {
             lastSelectedBenchmark = benchmarkSelect;
+            disableSubmitOnFreeze(benchmarkSelect);
         } else {
             // If no benchmark is selected we force an update of the benchmark signatures.
             // This guarantees a signature is displayed on initial load.
@@ -304,6 +305,17 @@
         editor.setValue(signature);
     }
 
+    // Benchmark submission is UI-side disabled when benchmarks are frozen
+    var frozenBenchmarks = {{ frozen_benchmarks | tojson }};
+    function disableSubmitOnFreeze(benchmark_name) {
+        var submitButton = document.getElementById("submit-button");
+        if (frozenBenchmarks.includes(benchmark_name)) {
+            submitButton.disabled = true;
+        } else {
+            submitButton.disabled = false;
+        }
+    }
+
     // Save selected benchmarks to local storage
     document.getElementById('benchmark-select').addEventListener('change', function() {
         // Update the lastSelectedBenchmark to the new value
@@ -321,6 +333,8 @@
         } else {
             updateFunctionSignature();
         }
+
+        disableSubmitOnFreeze(this.value);
     });
     document.getElementById('sandbox-benchmark').addEventListener('change', function() {
         localStorage.setItem('selectedSandboxBenchmark', this.value);

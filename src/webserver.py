@@ -20,6 +20,7 @@ from db.database import (
     get_benchmark_visibility_status,
     toggle_benchmark_visibility,
     toggle_benchmark_frozen_state,
+    get_frozen_benchmarks,
 )
 from src.benchmark import (
     run_benchmark_given_modules,
@@ -66,6 +67,10 @@ async def read_root(request: Request):
         for benchmark in config.get_all_valid_benchmarks()
     }
 
+    frozen_benchmarks: list[str] = [
+        benchmark.function_name for benchmark in get_frozen_benchmarks()
+    ]
+
     return templates.TemplateResponse(
         "index.html",
         {
@@ -73,6 +78,7 @@ async def read_root(request: Request):
             "benchmarks": benchmark_names,
             "benchmark_signatures": benchmark_signatures,
             "benchmarks_with_args": benchmarks_with_args,
+            "frozen_benchmarks": frozen_benchmarks,
         },
     )
 
