@@ -107,7 +107,7 @@ benchmarks:
         increment: "lambda angle: int(45 + (random.random() - 0.5) * 45)"
         default: "int(45)"
       - name: "size"
-        increment: "lambda **kwargs: [random.randint(kwargs['x'] // 2, kwargs['x'] * 2), random.randint(kwargs['x'] // 3, kwargs['x'] // 1.5)]"
+        increment: "lambda **kwargs: [random.randint(kwargs['x'], int(kwargs['x'] * 1.5)), random.randint(kwargs['x'] // 3, kwargs['x'] // 1.5)]"
         default: "list([25, 8])"
 
   - function_name: "sort_by_height"
