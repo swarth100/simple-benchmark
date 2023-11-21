@@ -148,15 +148,36 @@ def get_rankings(benchmarks: list[Benchmark]) -> list[UserRank]:
 
 
 def toggle_benchmark_visibility(benchmark_name: str, is_hidden: bool):
+    """
+    Toggles the visibility of a given benchmark.
+    Toggling visibility also side-effects frozen status (disabled benchmarks are also frozen)
+
+    :param benchmark_name: Name of benchmark to toggle
+    :param is_hidden: Hidden status to apply
+    """
     with sqlite3.connect(BENCHMARKS_RESULT_DB) as conn:
         cursor = conn.cursor()
         cursor.execute(
             """
             UPDATE benchmarks
-            SET is_hidden = ?
+            SET is_hidden = ?, is_frozen = ?
             WHERE name = ?
             """,
-            (is_hidden, benchmark_name),
+            (is_hidden, is_hidden, benchmark_name),
+        )
+        conn.commit()
+
+
+def toggle_benchmark_frozen_state(benchmark_name: str, is_frozen: bool):
+    with sqlite3.connect(BENCHMARKS_RESULT_DB) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            UPDATE benchmarks
+            SET is_frozen = ?
+            WHERE name = ?
+            """,
+            (is_frozen, benchmark_name),
         )
         conn.commit()
 
@@ -180,7 +201,26 @@ def get_enabled_benchmarks() -> list[Benchmark]:
         return enabled_benchmarks
 
 
-def get_benchmark_status() -> list[tuple]:
+def get_frozen_benchmarks() -> list[Benchmark]:
+    with sqlite3.connect(BENCHMARKS_RESULT_DB) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT name FROM benchmarks
+            WHERE is_frozen
+            """
+        )
+        benchmark_names: list[str] = [x for x, in cursor.fetchall()]
+
+        frozen_benchmarks: list[Benchmark] = [
+            benchmark
+            for benchmark in BENCHMARK_CONFIG.benchmarks
+            if benchmark.function_name in benchmark_names
+        ]
+        return frozen_benchmarks
+
+
+def get_benchmark_visibility_status() -> list[tuple]:
     """
     Retrieve the visibility status of all available benchmarks
 
@@ -190,7 +230,7 @@ def get_benchmark_status() -> list[tuple]:
         cursor = conn.cursor()
         cursor.execute(
             """
-            SELECT name, is_hidden FROM benchmarks
+            SELECT name, is_hidden, is_frozen FROM benchmarks
             ORDER BY id
             """
         )

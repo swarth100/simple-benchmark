@@ -11,6 +11,7 @@ from typing import Dict, Callable, Optional, Tuple, Any, List, Union
 
 from func_timeout import func_set_timeout
 
+from db.database import get_frozen_benchmarks
 from src.config import BenchmarkResult
 from src.validation import Config, TArg, Benchmark, BENCHMARK_CONFIG
 
@@ -68,6 +69,13 @@ def get_benchmark_by_name(name: str) -> Optional[Benchmark]:
         if benchmark.function_name == name:
             return benchmark
     return None
+
+
+def is_benchmark_frozen(name: str) -> bool:
+    for benchmark in get_frozen_benchmarks():
+        if benchmark.function_name == name:
+            return True
+    return False
 
 
 def _run_single_benchmark(

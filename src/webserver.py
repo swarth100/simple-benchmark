@@ -17,14 +17,16 @@ from db.database import (
     save_benchmark_result,
     get_top_benchmark_results,
     get_rankings,
-    get_benchmark_status,
+    get_benchmark_visibility_status,
     toggle_benchmark_visibility,
+    toggle_benchmark_frozen_state,
 )
 from src.benchmark import (
     run_benchmark_given_modules,
     get_benchmark_by_name,
     get_config,
     capture_output,
+    is_benchmark_frozen,
 )
 from src.config import BenchmarkResult, UserRank
 from src.validation import BENCHMARK_CONFIG, Benchmark, Config, TArg
@@ -226,6 +228,11 @@ async def run_user_benchmark(request: Request):
 
         result_data: dict[str, Any] = {}
 
+        # For frozen benchmarks we return as early as possible to prevent wasted compute.
+        # All forms of submission are banned when frozen.
+        if is_benchmark_frozen(benchmark_name):
+            return templates.TemplateResponse("frozen.html", {"request": request})
+
         # Create a temporary module for user code
         with tempfile.NamedTemporaryFile(suffix=".py") as temp:
             user_module: str = temp.name
@@ -336,7 +343,7 @@ async def run_user_benchmark(request: Request):
 
 @app.get("/admin", response_class=HTMLResponse)
 async def admin_page(request: Request):
-    benchmark_status: list[tuple] = get_benchmark_status()
+    benchmark_status: list[tuple] = get_benchmark_visibility_status()
     return templates.TemplateResponse(
         "admin.html",
         {
@@ -346,10 +353,19 @@ async def admin_page(request: Request):
     )
 
 
-@app.post("/toggle_benchmark")
+@app.post("/toggle_benchmark_visibility")
 async def toggle_benchmark(request: Request):
     form_data = await request.form()
     benchmark_name = form_data["benchmark"]
     is_hidden = form_data["is_hidden"] == "true"
     toggle_benchmark_visibility(benchmark_name, is_hidden)
+    return {"success": True}
+
+
+@app.post("/toggle_benchmark_frozen_state")
+async def toggle_benchmark_frozen(request: Request):
+    form_data = await request.form()
+    benchmark_name = form_data["benchmark"]
+    is_frozen = form_data["is_frozen"] == "true"
+    toggle_benchmark_frozen_state(benchmark_name, is_frozen)
     return {"success": True}

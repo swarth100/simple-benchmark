@@ -19,20 +19,28 @@
             <tr>
                 <th>Benchmark Name</th>
                 <th>Visibility</th>
+                <th>Frozen Status</th>
                 <th>Action</th>
             </tr>
             </thead>
             <tbody>
-            {% for benchmark, is_hidden in benchmark_status %}
+            {% for benchmark, is_hidden, is_frozen in benchmark_status %}
             <tr>
                 <td>{{ benchmark }}</td>
                 <td class="{{ 'has-text-danger' if is_hidden else 'has-text-success' }}">
                     {{ 'Hidden' if is_hidden else 'Visible' }}
                 </td>
+                <td class="{{ 'has-text-info' if (is_frozen and not is_hidden) else 'has-text-black' }}">
+                    {{ '--' if is_hidden else 'Frozen' if is_frozen else 'Open' }}
+                </td>
                 <td>
                     <button class="button is-small {{ 'is-danger' if is_hidden else 'is-success' }} toggle-visibility"
                             data-benchmark="{{ benchmark }}" data-is-hidden="{{ is_hidden }}">
                         {{ 'Enable' if is_hidden else 'Disable' }}
+                    </button>
+                    <button class="button is-small {{ 'is-info' if (not is_frozen and not is_hidden) else 'is-black' }} toggle-freeze"
+                            data-benchmark="{{ benchmark }}" data-is-frozen="{{ is_frozen }}" {{ 'disabled' if is_hidden }}>
+                        {{ '--' if is_hidden else 'Freeze' if not is_frozen else 'Unfreeze' }}
                     </button>
                 </td>
             </tr>
@@ -46,12 +54,31 @@
     document.querySelectorAll('.toggle-visibility').forEach(button => {
         button.addEventListener('click', function () {
             this.classList.add('is-loading'); // Add loading state
-            fetch('/toggle_benchmark', {
+            fetch('/toggle_benchmark_visibility', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: `benchmark=${this.dataset.benchmark}&is_hidden=${this.dataset.isHidden === '1' ? 'false' : 'true'}`
+            }).then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    this.classList.remove('is-loading'); // Remove loading state if there's an error
+                }
+            })
+        });
+    });
+
+    // Handle freeze/unfreeze toggle
+    document.querySelectorAll('.toggle-freeze').forEach(button => {
+        button.addEventListener('click', function () {
+            fetch('/toggle_benchmark_frozen_state', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `benchmark=${this.dataset.benchmark}&is_frozen=${this.dataset.isFrozen === '1' ? 'false' : 'true'}`
             }).then(response => {
                 if (response.ok) {
                     window.location.reload();
