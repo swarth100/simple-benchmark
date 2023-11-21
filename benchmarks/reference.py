@@ -47,9 +47,10 @@ def scatter(size: int, nums: list[tuple[int, int]]):
     # Create a set of nums for faster lookup
     points_set = set((x, y) for x, y in nums)
 
-    # Iterate through each row (y-axis)
+    # Iterate through each row (y-axis).
+    # NOTE: Ensure we also print the direction of the axes.
     for y in range(size, 0, -1):
-        line = "|"
+        line = "|" if y != size else "^"
         for x in range(1, size + 1):
             # Check if the point is in the points list
             if (x, y) in points_set:
@@ -59,7 +60,7 @@ def scatter(size: int, nums: list[tuple[int, int]]):
         print(line)
 
     # Printing the horizontal axis
-    print("+" + "-" * (size))
+    print("+" + "-" * (size - 1) + ">")
 
 
 def running_sum(nums: list[int]) -> list[int]:
