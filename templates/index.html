@@ -238,24 +238,31 @@
         var activeTab = localStorage.getItem('activeTab') || 'benchmark-tab';
         openTab(activeTab, document.querySelector('.tabs li [onclick*="' + activeTab + '"]'));
 
+        // Restores a dropdown value but ensures that the option exists.
+        // If the option no longer exists it picks the first option in the list.
+        function restoreSelectValue(selectElementId, savedValue) {
+            var selectElement = document.getElementById(selectElementId);
+            if (selectElement) {
+                if (savedValue && Array.from(selectElement.options).some(option => option.value === savedValue)) {
+                    selectElement.value = savedValue;
+                } else if (selectElement.options.length > 0) {
+                    selectElement.value = selectElement.options[0].value; // Select the first available option
+                }
+            }
+            return selectElement.value;
+        }
+
         // Restore selected benchmarks
-        var benchmarkSelect = localStorage.getItem('selectedBenchmark');
-        var sandboxBenchmarkSelect = localStorage.getItem('selectedSandboxBenchmark');
-        var leaderboardBenchmarkSelect = localStorage.getItem('selectedLeaderboardBenchmark');
+        var benchmarkSelect = restoreSelectValue('benchmark-select', localStorage.getItem('selectedBenchmark'));
+        restoreSelectValue('sandbox-benchmark', localStorage.getItem('selectedSandboxBenchmark'));
+        restoreSelectValue('leaderboard-benchmark', localStorage.getItem('selectedLeaderboardBenchmark'));
 
         if (benchmarkSelect) {
-            document.getElementById('benchmark-select').value = benchmarkSelect;
             lastSelectedBenchmark = benchmarkSelect;
         } else {
             // If no benchmark is selected we force an update of the benchmark signatures.
             // This guarantees a signature is displayed on initial load.
             updateFunctionSignature();
-        }
-        if (sandboxBenchmarkSelect) {
-            document.getElementById('sandbox-benchmark').value = sandboxBenchmarkSelect;
-        }
-        if (leaderboardBenchmarkSelect) {
-            document.getElementById('leaderboard-benchmark').value = leaderboardBenchmarkSelect;
         }
 
         var savedData = JSON.parse(localStorage.getItem('editor-by-benchmark') || '{}');
