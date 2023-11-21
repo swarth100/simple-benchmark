@@ -119,7 +119,7 @@ benchmarks:
 
   - function_name: "sort_by_height"
     max_time: 10
-    hidden: false
+    hidden: true
     args:
       - name: "x"
         increment: "lambda x: x + 1"
@@ -134,7 +134,7 @@ benchmarks:
 
   - function_name: "best_student"
     max_time: 15
-    hidden: false
+    hidden: true
     args:
       - name: "x"
         increment: "lambda x: x + 1"
@@ -154,7 +154,7 @@ benchmarks:
 
   - function_name: "jobs_counter"
     max_time: 10
-    hidden: false
+    hidden: true
     args:
       - name: "x"
         increment: "lambda x: x + 1"
