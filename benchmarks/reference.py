@@ -43,9 +43,9 @@ def histogram(nums: list[int]):
     print("+" + "-" * len(nums))
 
 
-def scatter(size: int, nums: list[tuple[int, int]]):
-    # Create a set of nums for faster lookup
-    points_set = set((x, y) for x, y in nums)
+def scatter(size: int, points: list[tuple[int, int]]):
+    # Create a set of points for faster lookup
+    points_set = set((x, y) for x, y in points)
 
     # Iterate through each row (y-axis).
     # NOTE: Ensure we also print the direction of the axes.
