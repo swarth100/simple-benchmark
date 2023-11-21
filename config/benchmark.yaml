@@ -66,7 +66,7 @@ benchmarks:
         increment: "lambda **kwargs: int(kwargs['x'] ** 0.65)"
         default: "int(4)"
       - name: "nums"
-        increment: "lambda **kwargs: [[random.randint(1, kwargs['size']), random.randint(1, kwargs['size'])] for _ in range(kwargs['size'] + 1)]"
+        increment: "lambda **kwargs: [[random.randint(1, kwargs['size']), random.randint(1, kwargs['size'])] for _ in range(random.randint(1, kwargs['size'] + 1))]"
         default: "list([[2,2],[1,3],[4,1]])"
 
   - function_name: "count_pairs"
@@ -119,7 +119,7 @@ benchmarks:
 
   - function_name: "sort_by_height"
     max_time: 10
-    hidden: true
+    hidden: false
     args:
       - name: "x"
         increment: "lambda x: x + 1"
@@ -134,23 +134,27 @@ benchmarks:
 
   - function_name: "best_student"
     max_time: 15
-    hidden: true
+    hidden: false
     args:
       - name: "x"
         increment: "lambda x: x + 1"
         default: "int(3)"
         hidden: true
+      - name: "offsets"
+        increment: "lambda **kwargs: [random.randint(2, 7) for _ in range(kwargs['x'])]"
+        default: "list([4, 5, 4])"
+        hidden: true
       - name: "gradebook"
         increment: "lambda **kwargs: {
                       fake.first_name(): [
-                        round(random.uniform(0, 8) + 2, 1) for _ in range(random.randint(1, int(kwargs['x'] ** 1.15)))
-                      ] for _ in range(kwargs['x'])
+                        round(random.uniform(0, 3) + kwargs['offsets'][idx], 1) for _ in range(random.randint(1, int(kwargs['x'] ** 1.15 // 3 + 1)))
+                      ] for idx in range(random.randint(3, kwargs['x']))
                     }"
         default: "dict({'Alice': [8, 7.5, 8.8],'Bob': [8.5, 8, 9],'Charlie': [6, 6.2, 7.5]})"
 
   - function_name: "jobs_counter"
     max_time: 10
-    hidden: true
+    hidden: false
     args:
       - name: "x"
         increment: "lambda x: x + 1"
