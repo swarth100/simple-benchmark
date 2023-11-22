@@ -14,6 +14,7 @@ benchmarks:
         description: "The size of the square's sides."
         increment: "lambda x: x + 1"
         default: "int(1)"
+        example: "int(4)"
 
   - function_name: "triangle"
     description: Print a right-angled triangle with stars.
@@ -23,6 +24,7 @@ benchmarks:
         description: "The height of the triangle."
         increment: "lambda x: x + 1"
         default: "int(1)"
+        example: "int(4)"
 
   - function_name: "rhombus"
     description: Print a rhombus pattern.
@@ -32,6 +34,7 @@ benchmarks:
         description: "The size of the rhombus."
         increment: "lambda x: x + 1"
         default: "int(1)"
+        example: "int(5)"
 
   - function_name: "running_sum"
     description: Return the (cumulative) running sum of a list.
@@ -39,7 +42,7 @@ benchmarks:
     args:
       - name: "size"
         increment: "lambda x: x + 1"
-        default: "int(4)"
+        default: "int(1)"
         hidden: true
       - name: "nums"
         description: "The list of integers for calculating the running sum."
@@ -52,7 +55,7 @@ benchmarks:
     args:
       - name: "size"
         increment: "lambda x: x + 1"
-        default: "int(3)"
+        default: "int(1)"
         hidden: true
       - name: "nums"
         description: "The list of numbers for generating a histogram."
@@ -65,7 +68,7 @@ benchmarks:
     args:
       - name: "x"
         increment: "lambda x: x + 1"
-        default: "int(10)"
+        default: "int(3)"
         hidden: true
       - name: "size"
         description: "The size of the scatter plot."
@@ -82,7 +85,7 @@ benchmarks:
     args:
       - name: "size"
         increment: "lambda x: x + 1"
-        default: "int(4)"
+        default: "int(1)"
         hidden: true
       - name: "nums"
         description: "The list of numbers to count pairs from."
@@ -139,7 +142,7 @@ benchmarks:
     args:
       - name: "x"
         increment: "lambda x: x + 1"
-        default: "int(3)"
+        default: "int(1)"
         hidden: true
       - name: "names"
         description: "The list of names."
@@ -156,7 +159,7 @@ benchmarks:
     args:
       - name: "x"
         increment: "lambda x: x + 1"
-        default: "int(3)"
+        default: "int(1)"
         hidden: true
       - name: "offsets"
         increment: "lambda **kwargs: [random.randint(2, 7) for _ in range(kwargs['x'])]"
@@ -177,7 +180,7 @@ benchmarks:
     args:
       - name: "x"
         increment: "lambda x: x + 1"
-        default: "int(9)"
+        default: "int(3)"
         hidden: true
       - name: "elems"
         increment: "lambda **kwargs: [fake.job() for _ in range(int(kwargs['x'] ** 0.5))]"
@@ -204,7 +207,7 @@ benchmarks:
     args:
       - name: "x"
         increment: "lambda x: x + 1"
-        default: "int(2)"
+        default: "int(1)"
         hidden: true
       - name: "names"
         increment: "lambda **kwargs: [fake.safe_color_name().title() for _ in range(kwargs['x'] + 1)]"

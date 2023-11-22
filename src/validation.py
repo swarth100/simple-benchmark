@@ -1,5 +1,5 @@
 import inspect
-from typing import List, Union, Callable
+from typing import List, Union, Callable, Optional, Any
 
 import yaml
 from faker import Faker
@@ -18,6 +18,12 @@ class Argument(BaseModel):
     default: str
     hidden: bool = False
     description: str = ""
+    example: Optional[str] = None
+
+    def model_post_init(self, ctx: Any):
+        # Set the example to equal the default if not present
+        if self.example is None:
+            self.example = self.default
 
     @property
     def increment_lambda(self) -> Callable:
@@ -44,6 +50,10 @@ class Argument(BaseModel):
             except Exception as e:
                 raise ValueError(f"Invalid lambda function: {e}")
         raise ValueError("Invalid format for lambda function")
+
+    @property
+    def example_value(self) -> TArg:
+        return eval(self.example)
 
     @property
     def default_value(self) -> TArg:
@@ -84,8 +94,8 @@ class Benchmark(BaseModel):
         return description_md
 
     @property
-    def default_args(self) -> dict[str, TArg]:
-        return {arg.name: arg.default_value for arg in self.args if not arg.hidden}
+    def example_args(self) -> dict[str, TArg]:
+        return {arg.name: arg.example_value for arg in self.args if not arg.hidden}
 
 
 class Config(BaseModel):

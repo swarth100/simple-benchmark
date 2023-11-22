@@ -58,7 +58,7 @@ async def read_root(request: Request):
         benchmark.function_name for benchmark in config.get_all_valid_benchmarks()
     ]
     benchmarks_with_args = {
-        benchmark.function_name: benchmark.default_args
+        benchmark.function_name: benchmark.example_args
         for benchmark in config.get_all_valid_benchmarks()
     }
 
@@ -198,7 +198,7 @@ async def update_leaderboard(request: Request, benchmark: str) -> dict:
         # We give a sense of randomization but only limit the extent of the range.
         # Too-large of a range and the input would not display well.
         # Random is not seeded so will still yield interesting results.
-        for _ in range(randint(1, 5)):
+        for _ in range(randint(1, 7)):
             for arg in benchmark.args:
                 arg_values[arg.name] = arg.apply_increment(
                     arg_values[arg.name], **arg_values
@@ -225,7 +225,7 @@ async def fetch_benchmark_details(request: Request, benchmark: str):
             benchmark.generate_description_md(), extensions=["nl2br"]
         )
 
-        example_input: dict[str, TArg] = benchmark.default_args
+        example_input: dict[str, TArg] = benchmark.example_args
 
         example_output, example_std_output = run_reference_benchmark_with_arguments(
             benchmark=benchmark, arguments=example_input
