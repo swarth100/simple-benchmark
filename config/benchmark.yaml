@@ -77,7 +77,7 @@ benchmarks:
         default: "list([[2,2],[1,3],[4,1]])"
 
   - function_name: "count_pairs"
-    description: Return the count of pairs of numbers that differ by a specific amount.
+    description: Given a list of pairs `nums`, return the count of pairs of numbers that differ by a specific amount (`k`).
     max_time: 50
     args:
       - name: "size"
@@ -111,7 +111,7 @@ benchmarks:
         default: "int(10)"
 
   - function_name: "generate_trajectory"
-    description: Print the trajectory of a projectile which is launched with a given angle and velocity.
+    description: Print the trajectory of a projectile which is launched with a given `angle` and `velocity`.
     max_time: 50
     args:
       - name: "x"
@@ -132,7 +132,9 @@ benchmarks:
         default: "list([25, 8])"
 
   - function_name: "sort_by_height"
-    description: Return a list of people sorted by corresponding heights.
+    description: |
+      Return a list of people sorted by corresponding heights.
+      Tallest person first.
     max_time: 10
     args:
       - name: "x"
@@ -149,7 +151,7 @@ benchmarks:
         default: "list([165, 180, 175])"
 
   - function_name: "best_student"
-    description: Return the name of the student with the highest average grade.
+    description: Given a dictionary of students and their grades, return the name of the student with the highest average grade.
     max_time: 15
     args:
       - name: "x"
@@ -187,3 +189,35 @@ benchmarks:
                       kwargs['elems'][int(random.randint(0, len(kwargs['elems']) - 1))] for _ in range(int(kwargs['x'] ** 1.15))
                     ]"
         default: "list(['artist', 'doctor', 'artist', 'professor', 'artist', 'professor', 'professor', 'artist'])"
+
+  - function_name: "can_visit_all_rooms"
+    description: |
+      You are given a dictionary of room names and all the rooms are locked except for the `first_room` in the dictionary.
+      Your goal is to visit all the rooms. 
+      However, you cannot enter a locked room without having its key.<br><br>
+      
+      When you visit a room, you may find a list of distinct keys in it. 
+      Each key has a room name on it, denoting which room it unlocks, and you can take all of them with you to unlock the other rooms.<br><br>
+      
+      Given a dictionary of rooms where `rooms[name]` is the list of keys that you can obtain if you visited room `name`, return `True` if you can visit all the rooms, or `False` otherwise.
+    max_time: 10
+    args:
+      - name: "x"
+        increment: "lambda x: x + 1"
+        default: "int(2)"
+        hidden: true
+      - name: "names"
+        increment: "lambda **kwargs: [fake.safe_color_name().title() for _ in range(kwargs['x'] + 1)]"
+        default: "list(['Red', 'Green', 'Blue'])"
+        hidden: true
+      - name: "first_room"
+        description: "The name of the only unlocked room (to start with)."
+        increment: "lambda **kwargs: kwargs['names'][random.randint(0, kwargs['x'])]"
+        default: "str('Red')"
+      - name: "rooms"
+        description: "The dictionary of all rooms and keys."
+        increment: "lambda **kwargs: {
+                      name: list(set([kwargs['names'][random.randint(0, kwargs['x'])] for x in range(random.randint(0, int(kwargs['x'] * 1.5)))]))
+                      for name in kwargs['names']
+                    }"
+        default: "dict({'Red': ['Green'], 'Blue': ['Red', 'Green'], 'Green': ['Blue']})"

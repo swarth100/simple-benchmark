@@ -179,3 +179,23 @@ def jobs_counter(jobs: list[str]) -> dict[str, int]:
             inventory[item] = 1
 
     return inventory
+
+
+def can_visit_all_rooms(first_room: str, rooms: dict[str, list[str]]) -> bool:
+    visited = []  # Keep track of visited rooms
+
+    # Stack to keep track of rooms to visit, starting with room "0"
+    stack = [first_room]
+
+    while stack:
+        room = stack.pop()  # Get the current room
+        if room in rooms:
+            if room not in visited:
+                visited.append(room)
+
+                for key in rooms[room]:  # Explore keys in the current room
+                    if key not in visited:  # If the room hasn't been visited yet
+                        stack.append(key)  # Add to stack to visit later
+
+    # Check if all rooms have been visited
+    return len(visited) == len(rooms)
