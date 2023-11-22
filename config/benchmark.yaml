@@ -143,11 +143,11 @@ benchmarks:
         hidden: true
       - name: "names"
         description: "The list of names."
-        increment: "lambda **kwargs: [fake.first_name() for _ in range(kwargs['x'])]"
+        increment: "lambda **kwargs: list(set([fake.first_name() for _ in range(kwargs['x'])]))"
         default: "list(['Alice', 'Bob', 'Charlie'])"
       - name: "heights"
         description: "The list of corresponding heights."
-        increment: "lambda **kwargs: [random.randint(150, 200) for _ in range(kwargs['x'])]"
+        increment: "lambda **kwargs: [random.randint(150, 200) for _ in range(len(kwargs['names']))]"
         default: "list([165, 180, 175])"
 
   - function_name: "best_student"
