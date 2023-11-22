@@ -7,39 +7,34 @@ user_modules:
 
 benchmarks:
   - function_name: "square"
-    description: |
-      **Square**: Generate a square of a given size.
-      - **size**: The size of the square's sides.
+    description: Generate a square of a given size.
     max_time: 100
     args:
       - name: "size"
+        description: "The size of the square's sides."
         increment: "lambda x: x + 1"
         default: "int(1)"
 
   - function_name: "triangle"
-    description: |
-      **Triangle**: Generate a right-angled triangle with stars.
-      - **size**: The height of the triangle.
+    description: Generate a right-angled triangle with stars.
     max_time: 100
     args:
       - name: "size"
+        description: "The height of the triangle."
         increment: "lambda x: x + 1"
         default: "int(1)"
 
   - function_name: "rhombus"
-    description: |
-      **Rhombus**: Create a rhombus pattern.
-      - **size**: The size of the rhombus.
+    description: Create a rhombus pattern.
     max_time: 100
     args:
       - name: "size"
+        description: "The size of the rhombus."
         increment: "lambda x: x + 1"
         default: "int(1)"
 
   - function_name: "running_sum"
-    description: |
-      **Running Sum**: Calculate the running sum of a list.
-      - **nums**: The list of integers.
+    description: Calculate the running sum of a list.
     max_time: 50
     args:
       - name: "size"
@@ -47,13 +42,12 @@ benchmarks:
         default: "int(4)"
         hidden: true
       - name: "nums"
+        description: "The list of integers for calculating the running sum."
         increment: "lambda **kwargs: [random.randint(0, 100) for _ in range(kwargs['size'])]"
         default: "list([2,5,3,1])"
 
   - function_name: "histogram"
-    description: |
-      **Histogram**: Generate a histogram from a list of numbers.
-      - **nums**: The list of numbers.
+    description: Generate a histogram from a list of numbers.
     max_time: 50
     args:
       - name: "size"
@@ -61,14 +55,12 @@ benchmarks:
         default: "int(3)"
         hidden: true
       - name: "nums"
+        description: "The list of numbers for generating a histogram."
         increment: "lambda **kwargs: [random.randint(0, 10) for _ in range(kwargs['size'])]"
         default: "list([4,1,2])"
 
   - function_name: "scatter"
-    description: |
-      **Scatter**: Create a scatter plot of points.
-      - **size**: The size of the scatter plot.
-      - **points**: The list of points as tuples.
+    description: Create a scatter plot of points.
     max_time: 50
     args:
       - name: "x"
@@ -76,17 +68,16 @@ benchmarks:
         default: "int(10)"
         hidden: true
       - name: "size"
+        description: "The size of the scatter plot."
         increment: "lambda **kwargs: int(kwargs['x'] ** 0.65)"
         default: "int(4)"
       - name: "points"
+        description: "The list of points as tuples for the scatter plot."
         increment: "lambda **kwargs: [[random.randint(1, kwargs['size']), random.randint(1, kwargs['size'])] for _ in range(random.randint(1, kwargs['size'] + 1))]"
         default: "list([[2,2],[1,3],[4,1]])"
 
   - function_name: "count_pairs"
-    description: |
-      **Count Pairs**: Count the pairs of numbers that differ by a specific value.
-      - **nums**: The list of numbers.
-      - **k**: The difference value.
+    description: Count the pairs of numbers that differ by a specific value.
     max_time: 50
     args:
       - name: "size"
@@ -94,17 +85,16 @@ benchmarks:
         default: "int(4)"
         hidden: true
       - name: "nums"
+        description: "The list of numbers to count pairs from."
         increment: "lambda **kwargs: [random.randint(0, kwargs['size'] // 2) for _ in range(kwargs['size'])]"
         default: "list([1,2,2,1])"
       - name: "k"
+        description: "The difference value for counting pairs."
         increment: "lambda **kwargs: random.randint(1, kwargs['size'] // 2)"
         default: "int(1)"
 
   - function_name: "dividing_numbers"
-    description: |
-      **Dividing Numbers**: Find self-dividing numbers in a range.
-      - **left**: The left boundary of the range.
-      - **right**: The right boundary of the range.
+    description: Find self-dividing numbers in a range.
     max_time: 50
     args:
       - name: "size"
@@ -112,18 +102,16 @@ benchmarks:
         default: "int(10)"
         hidden: true
       - name: "left"
+        description: "The left boundary of the range."
         increment: "lambda **kwargs: random.randint(0, kwargs['size'] // 2)"
         default: "int(0)"
       - name: "right"
+        description: "The right boundary of the range."
         increment: "lambda **kwargs: random.randint(kwargs['size'] // 2, kwargs['size'])"
         default: "int(10)"
 
   - function_name: "generate_trajectory"
-    description: |
-      **Generate Trajectory**: Simulate the trajectory of a projectile.
-      - **velocity**: The initial velocity of the projectile.
-      - **angle**: The angle of projection.
-      - **size**: The size of the simulation area.
+    description: Simulate the trajectory of a projectile.
     max_time: 50
     args:
       - name: "x"
@@ -131,22 +119,20 @@ benchmarks:
         default: "int(25)"
         hidden: true
       - name: "velocity"
-        # Use a biased random function that favors higher velocities
+        description: "The initial velocity of the projectile."
         increment: "lambda **kwargs: int(kwargs['x'] * (0.1 + random.random()))"
         default: "int(15)"
       - name: "angle"
-        # Use a biased random function that avoids extreme angles
+        description: "The angle of projection."
         increment: "lambda angle: int(45 + (random.random() - 0.5) * 45)"
         default: "int(45)"
       - name: "size"
+        description: "The size of the simulation area."
         increment: "lambda **kwargs: [random.randint(kwargs['x'], int(kwargs['x'] * 1.5)), random.randint(kwargs['x'] // 3, kwargs['x'] // 1.5)]"
         default: "list([25, 8])"
 
   - function_name: "sort_by_height"
-    description: |
-      **Sort by Height**: Sort names by corresponding heights.
-      - **names**: The list of names.
-      - **heights**: The list of corresponding heights.
+    description: Sort people by corresponding heights.
     max_time: 10
     args:
       - name: "x"
@@ -154,16 +140,16 @@ benchmarks:
         default: "int(3)"
         hidden: true
       - name: "names"
+        description: "The list of names."
         increment: "lambda **kwargs: [fake.first_name() for _ in range(kwargs['x'])]"
         default: "list(['Alice', 'Bob', 'Charlie'])"
       - name: "heights"
+        description: "The list of corresponding heights."
         increment: "lambda **kwargs: [random.randint(150, 200) for _ in range(kwargs['x'])]"
         default: "list([165, 180, 175])"
 
   - function_name: "best_student"
-    description: |
-      **Best Student**: Determine the student with the highest average grade.
-      - **gradebook**: The dictionary containing student names and their grades.
+    description: Determine the student with the highest average grade.
     max_time: 15
     args:
       - name: "x"
@@ -175,6 +161,7 @@ benchmarks:
         default: "list([4, 5, 4])"
         hidden: true
       - name: "gradebook"
+        description: "The dictionary containing student names and their grades."
         increment: "lambda **kwargs: {
                       fake.first_name(): [
                         round(random.uniform(0, 3) + kwargs['offsets'][idx], 1) for _ in range(random.randint(1, int(kwargs['x'] ** 1.15 // 3 + 1)))
@@ -183,9 +170,7 @@ benchmarks:
         default: "dict({'Alice': [8, 7.5, 8.8],'Bob': [8.5, 8, 9],'Charlie': [6, 6.2, 7.5]})"
 
   - function_name: "jobs_counter"
-    description: |
-      **Jobs Counter**: Count occurrences of each job in a list.
-      - **jobs**: The list of jobs.
+    description: Count occurrences of each job in a list.
     max_time: 10
     args:
       - name: "x"
@@ -197,8 +182,8 @@ benchmarks:
         default: "list(['artist', 'doctor', 'professor'])"
         hidden: true
       - name: "jobs"
+        description: "The list of jobs."
         increment: "lambda **kwargs: [
                       kwargs['elems'][int(random.randint(0, len(kwargs['elems']) - 1))] for _ in range(int(kwargs['x'] ** 1.15))
                     ]"
         default: "list(['artist', 'doctor', 'artist', 'professor', 'artist', 'professor', 'professor', 'artist'])"
-
