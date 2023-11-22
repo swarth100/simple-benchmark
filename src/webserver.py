@@ -5,6 +5,7 @@ import traceback
 from random import randint
 from typing import Optional, Any
 
+import markdown
 from better_profanity import profanity
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
@@ -220,7 +221,9 @@ async def fetch_benchmark_details(request: Request, benchmark: str):
         if benchmark is None:
             raise KeyError(f"Benchmark with name '{benchmark}' is invalid")
 
-        description = "TODO"
+        description: str = markdown.markdown(
+            benchmark.generate_description_md(), extensions=["nl2br"]
+        )
 
         example_input: dict[str, TArg] = benchmark.default_args
 

@@ -17,6 +17,7 @@ class Argument(BaseModel):
     increment: str
     default: str
     hidden: bool = False
+    description: str = ""
 
     @property
     def increment_lambda(self) -> Callable:
@@ -54,6 +55,7 @@ class Benchmark(BaseModel):
     max_time: int
     args: List[Argument]
     hidden: bool = False
+    description: str
 
     @property
     def max_time_seconds(self) -> float:
@@ -71,6 +73,13 @@ class Benchmark(BaseModel):
         function_signature += "):\n    ...\n"
 
         return function_signature
+
+    def generate_description_md(self) -> str:
+        description_md = ""
+        for arg in self.args:
+            if not arg.hidden and arg.description:
+                description_md += f"- **{arg.name}**: {arg.description}\n"
+        return description_md
 
     @property
     def default_args(self) -> dict[str, TArg]:

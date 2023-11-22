@@ -1,10 +1,10 @@
 <!-- Description Message -->
-<article class="message is-primary">
+<article class="message is-warning">
     <div class="message-header">
         <p>Description</p>
     </div>
     <div class="message-body">
-        {{ description }} <!-- Markdown-rendered description -->
+        {{ description | safe }} <!-- Markdown-rendered description -->
     </div>
 </article>
 
