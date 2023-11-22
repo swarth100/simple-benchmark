@@ -1,0 +1,37 @@
+<!-- Description Message -->
+<article class="message is-primary">
+    <div class="message-header">
+        <p>Description</p>
+    </div>
+    <div class="message-body">
+        {{ description }} <!-- Markdown-rendered description -->
+    </div>
+</article>
+
+<!-- Example Input Message -->
+<article class="message">
+    <div class="message-header">
+        <p>Example Input</p>
+    </div>
+    <pre>{{ example_input }}</pre>
+</article>
+
+{% if "example_output" in result_data %}
+<!-- Example Output Message -->
+<article class="message is-info">
+    <div class="message-header">
+        <p>Example Output</p>
+    </div>
+    <pre>{{ result_data.example_output }}</pre>
+</article>
+{% endif %}
+
+{% if "example_std_output" in result_data %}
+<!-- Example Output Message -->
+<article class="message is-info">
+    <div class="message-header">
+        <p>Example Prints</p>
+    </div>
+    <pre>{{ result_data.example_std_output }}</pre>
+</article>
+{% endif %}

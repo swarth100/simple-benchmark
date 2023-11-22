@@ -34,44 +34,57 @@
     </ul>
 </div>
 
-
 <div id="benchmark-tab" class="tab active-tab">
-    <form action="/run_benchmark" method="post" id="benchmark-form">
-        <div class="field">
-            <label class="label" for="benchmark-select">Select Benchmark:</label>
-            <div class="control">
-                <div class="select">
-                    <select name="benchmark" id="benchmark-select">
-                        {% for benchmark in benchmarks %}
-                        <option value="{{ benchmark }}">{{ benchmark }}</option>
-                        {% endfor %}
-                    </select>
+    <div class="columns">
+        <!-- Left Column for Dropdown, Description, Input, Output -->
+        <div class="column">
+            <div class="field">
+                <label class="label" for="benchmark-select">Select Benchmark:</label>
+                <div class="control">
+                    <div class="select">
+                        <select name="benchmark" id="benchmark-select" hx-get="/fetch_benchmark_details" hx-trigger="change" hx-target="#benchmark-details" hx-include="#benchmark-select">
+                            {% for benchmark in benchmarks %}
+                            <option value="{{ benchmark }}">{{ benchmark }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <div class="field">
-            <label class="label" for="code">Submit Your Code:</label>
-            <div class="control">
-                <textarea class="textarea" name="code" id="code" rows="10"></textarea>
+            <div id="benchmark-details">
+                <!-- Description, Input, and Output messages will be loaded here -->
             </div>
         </div>
 
-        <div class="field is-grouped">
-            <p class="control">
-                <input type="button" class="button is-warning" value="Reset" id="reset-button" onclick="updateFunctionSignature()">
-            </p>
-            <p class="control">
-                <input type="submit" class="button is-info" value="Run Benchmark" id="submit-button">
-            </p>
+        <!-- Right Column for Code editor -->
+        <div class="column">
+            <form action="/run_benchmark" method="post" id="benchmark-form">
+                <div class="field">
+                    <label class="label" for="code">Submit Your Code:</label>
+                    <div class="control">
+                        <textarea class="textarea" name="code" id="code" rows="10"></textarea>
+                    </div>
+                </div>
+
+                <div class="field is-grouped">
+                    <p class="control">
+                        <input type="button" class="button is-warning" value="Reset" id="reset-button" onclick="updateFunctionSignature()">
+                    </p>
+                    <p class="control">
+                        <input type="submit" class="button is-info" value="Run Benchmark" id="submit-button">
+                    </p>
+                </div>
+
+                <!-- The spinner can remain as is, unless you choose to use a Bulma-compatible spinner -->
+                <div class="spinner hidden" id="loading-spinner"></div>
+
+                <!-- Hidden field for username -->
+                <input type="hidden" name="username" id="form-username">
+
+                <!-- Hidden field for benchmark -->
+                <input type="hidden" name="benchmark" id="form-benchmark">
+            </form>
         </div>
-
-        <!-- The spinner can remain as is, unless you choose to use a Bulma-compatible spinner -->
-        <div class="spinner hidden" id="loading-spinner"></div>
-
-        <!-- Hidden field for username -->
-        <input type="hidden" name="username" id="form-username">
-    </form>
+    </div>
 </div>
 
 
@@ -258,7 +271,9 @@
         restoreSelectValue('leaderboard-benchmark', localStorage.getItem('selectedLeaderboardBenchmark'));
 
         if (benchmarkSelect) {
+            document.getElementById('form-benchmark').value = benchmarkSelect;
             lastSelectedBenchmark = benchmarkSelect;
+            htmx.trigger('#benchmark-select', 'change');
             disableSubmitOnFreeze(benchmarkSelect);
         } else {
             // If no benchmark is selected we force an update of the benchmark signatures.
@@ -320,6 +335,7 @@
     document.getElementById('benchmark-select').addEventListener('change', function() {
         // Update the lastSelectedBenchmark to the new value
         lastSelectedBenchmark = this.value;
+        document.getElementById('form-benchmark').value = this.value;
         localStorage.setItem('selectedBenchmark', this.value);
 
         var savedData = JSON.parse(localStorage.getItem('editor-by-benchmark') || '{}');

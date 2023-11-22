@@ -1,5 +1,6 @@
 import importlib
 import io
+import json
 import multiprocessing
 import sys
 import time
@@ -232,6 +233,20 @@ def run_benchmark_given_modules(
         )
 
     return benchmark_results
+
+
+def run_reference_benchmark_with_arguments(
+    benchmark: Benchmark, arguments: dict[str, TArg]
+) -> Tuple[str, str]:
+    # After setting common fields we proceed to executing the function
+    reference_module_name: str = get_config().reference_module
+    reference_module = importlib.import_module(reference_module_name)
+    reference_func = getattr(reference_module, benchmark.function_name)
+
+    # Run the reference function with the provided inputs
+    ref_output, ref_std_output = capture_output(reference_func, **arguments)
+
+    return ref_output, ref_std_output
 
 
 def run_benchmark_given_config(benchmark_config: Config):

@@ -28,6 +28,7 @@ from src.benchmark import (
     get_config,
     capture_output,
     is_benchmark_frozen,
+    run_reference_benchmark_with_arguments,
 )
 from src.config import BenchmarkResult, UserRank
 from src.validation import BENCHMARK_CONFIG, Benchmark, Config, TArg
@@ -56,9 +57,7 @@ async def read_root(request: Request):
         benchmark.function_name for benchmark in config.get_all_valid_benchmarks()
     ]
     benchmarks_with_args = {
-        benchmark.function_name: {
-            arg.name: arg.default_value for arg in benchmark.args if not arg.hidden
-        }
+        benchmark.function_name: benchmark.default_args
         for benchmark in config.get_all_valid_benchmarks()
     }
 
@@ -162,14 +161,9 @@ async def run_sandbox(request: Request):
                 result_data["input"] = inputs_dict
                 result_data["signature"] = benchmark.generate_function_signature()
 
-                # After setting common fields we proceed to executing the function
-                reference_module_name: str = get_config().reference_module
-                reference_module = importlib.import_module(reference_module_name)
-                reference_func = getattr(reference_module, benchmark.function_name)
-
                 # Run the reference function with the provided inputs
-                ref_output, ref_std_output = capture_output(
-                    reference_func, **inputs_dict
+                ref_output, ref_std_output = run_reference_benchmark_with_arguments(
+                    benchmark=benchmark, arguments=inputs_dict
                 )
                 if ref_output is not None:
                     result_data["output"] = ref_output
@@ -216,6 +210,47 @@ async def update_leaderboard(request: Request, benchmark: str) -> dict:
         # Handle errors gracefully
         print(traceback.format_exc())
         return {}
+
+
+@app.get("/fetch_benchmark_details")
+async def fetch_benchmark_details(request: Request, benchmark: str):
+    try:
+        benchmark: Optional[Benchmark] = get_benchmark_by_name(benchmark)
+
+        if benchmark is None:
+            raise KeyError(f"Benchmark with name '{benchmark}' is invalid")
+
+        description = "TODO"
+
+        example_input: dict[str, TArg] = benchmark.default_args
+
+        example_output, example_std_output = run_reference_benchmark_with_arguments(
+            benchmark=benchmark, arguments=example_input
+        )
+        result_data: dict[str, str] = dict()
+        if example_output is not None:
+            result_data["example_output"] = example_output
+        if (example_std_output is not None) and (example_std_output != ""):
+            result_data["example_std_output"] = example_std_output
+
+        return templates.TemplateResponse(
+            "benchmark_details_partial.html",  # Create this new template
+            {
+                "request": request,
+                "description": description,
+                "example_input": example_input,
+                "result_data": result_data,
+            },
+        )
+    except Exception as e:
+        print(traceback.format_exc())
+        return templates.TemplateResponse(
+            "error.html",
+            {
+                "request": request,
+                "message": f"Error while fetching benchmark details: {e}",
+            },
+        )
 
 
 @app.post("/run_benchmark")

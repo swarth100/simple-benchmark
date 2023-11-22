@@ -72,6 +72,10 @@ class Benchmark(BaseModel):
 
         return function_signature
 
+    @property
+    def default_args(self) -> dict[str, TArg]:
+        return {arg.name: arg.default_value for arg in self.args if not arg.hidden}
+
 
 class Config(BaseModel):
     reference_module: str
