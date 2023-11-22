@@ -7,7 +7,7 @@ user_modules:
 
 benchmarks:
   - function_name: "square"
-    description: Generate a square of a given size.
+    description: Print a square of a given size.
     max_time: 100
     args:
       - name: "size"
@@ -16,7 +16,7 @@ benchmarks:
         default: "int(1)"
 
   - function_name: "triangle"
-    description: Generate a right-angled triangle with stars.
+    description: Print a right-angled triangle with stars.
     max_time: 100
     args:
       - name: "size"
@@ -25,7 +25,7 @@ benchmarks:
         default: "int(1)"
 
   - function_name: "rhombus"
-    description: Create a rhombus pattern.
+    description: Print a rhombus pattern.
     max_time: 100
     args:
       - name: "size"
@@ -34,7 +34,7 @@ benchmarks:
         default: "int(1)"
 
   - function_name: "running_sum"
-    description: Calculate the running sum of a list.
+    description: Return the (cumulative) running sum of a list.
     max_time: 50
     args:
       - name: "size"
@@ -47,7 +47,7 @@ benchmarks:
         default: "list([2,5,3,1])"
 
   - function_name: "histogram"
-    description: Generate a histogram from a list of numbers.
+    description: Print a histogram from a list of numbers.
     max_time: 50
     args:
       - name: "size"
@@ -60,7 +60,7 @@ benchmarks:
         default: "list([4,1,2])"
 
   - function_name: "scatter"
-    description: Create a scatter plot of points.
+    description: Print a scatter plot of points of a given size.
     max_time: 50
     args:
       - name: "x"
@@ -77,7 +77,7 @@ benchmarks:
         default: "list([[2,2],[1,3],[4,1]])"
 
   - function_name: "count_pairs"
-    description: Count the pairs of numbers that differ by a specific value.
+    description: Return the count of pairs of numbers that differ by a specific amount.
     max_time: 50
     args:
       - name: "size"
@@ -94,7 +94,7 @@ benchmarks:
         default: "int(1)"
 
   - function_name: "dividing_numbers"
-    description: Find self-dividing numbers in a range.
+    description: Return a list of all self-dividing numbers in a range.
     max_time: 50
     args:
       - name: "size"
@@ -111,7 +111,7 @@ benchmarks:
         default: "int(10)"
 
   - function_name: "generate_trajectory"
-    description: Simulate the trajectory of a projectile.
+    description: Print the trajectory of a projectile which is launched with a given angle and velocity.
     max_time: 50
     args:
       - name: "x"
@@ -132,7 +132,7 @@ benchmarks:
         default: "list([25, 8])"
 
   - function_name: "sort_by_height"
-    description: Sort people by corresponding heights.
+    description: Return a list of people sorted by corresponding heights.
     max_time: 10
     args:
       - name: "x"
@@ -149,7 +149,7 @@ benchmarks:
         default: "list([165, 180, 175])"
 
   - function_name: "best_student"
-    description: Determine the student with the highest average grade.
+    description: Return the name of the student with the highest average grade.
     max_time: 15
     args:
       - name: "x"
@@ -170,7 +170,7 @@ benchmarks:
         default: "dict({'Alice': [8, 7.5, 8.8],'Bob': [8.5, 8, 9],'Charlie': [6, 6.2, 7.5]})"
 
   - function_name: "jobs_counter"
-    description: Count occurrences of each job in a list.
+    description: Return a dictionary with the count of occurrences for each job in a list.
     max_time: 10
     args:
       - name: "x"

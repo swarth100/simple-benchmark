@@ -77,7 +77,7 @@ class Benchmark(BaseModel):
     def generate_description_md(self) -> str:
         description_md = self.description + "<br><br>" + "Arguments:\n"
         for arg in self.args:
-            if not arg.hidden and arg.description:
+            if not arg.hidden:
                 # Infer the type from the default value
                 arg_type = type(eval(arg.default)).__name__
                 description_md += f"- **{arg.name}** ({arg_type}): {arg.description}\n"
