@@ -224,3 +224,71 @@ benchmarks:
                       for name in kwargs['names']
                     }"
         default: "dict({'Red': ['Green'], 'Blue': ['Red', 'Green'], 'Green': ['Blue']})"
+
+  - function_name: "complementary_dna"
+    description: |
+      Create a function that converts a sequence of nucleotides (*Adenine* `A`, *Cytosine* `C`, *Thymine* `T`, *Guanine* `G`) contained in an input vector of indefinite length into its complementary sequence (`Adenine --> Thymine`, `Thymine --> Adenine`, `Cytosine --> Guanine`, `Guanine --> Cytosine`).<br><br>
+      
+      The function returns a list of characters with the converted sequence.
+    max_time: 10
+    args:
+      - name: "x"
+        increment: "lambda x: x + 1"
+        default: "int(0)"
+        hidden: true
+      - name: "sequence"
+        description: "The input list containing the nucleotide sequence as a list of characters."
+        increment: "lambda **kwargs: [random.choice(['A', 'T', 'C', 'G']) for _ in range(kwargs['x'])]"
+        default: "list(['A','A','C','G','T'])"
+
+  - function_name: "prime_factors"
+    description: |
+      Create a function that decomposes a `number` into its prime factors.<br><br>
+      
+      The function returns a list with all prime factors of the input `number` in ascending order.
+    max_time: 10
+    args:
+      - name: "x"
+        increment: "lambda x: x + 1"
+        default: "int(0)"
+        hidden: true
+      - name: "number"
+        description: "The number to be decomposed into prime factors."
+        increment: "lambda **kwargs: kwargs['number'] + random.randint(1, int(kwargs['x'] ** 0.5))"
+        default: "int(1)"
+        example: "int(30)"
+
+  - function_name: "partitioning_line"
+    description: |
+      Create a function that given two points `start` and `end` and a list of points to partition (`points`) returns a list of all points that are on or above the line (on a cartesian plane).<br><br>
+      
+      The function will not return points that lie underneath the line.
+    max_time: 10
+    args:
+      - name: "x"
+        increment: "lambda x: x + 1"
+        default: "int(0)"
+        hidden: true
+      - name: "start"
+        description: "The start point of the line as a list of two coordinates `[x, y]`."
+        increment: "lambda **kwargs: [random.randint(0, 10), random.randint(0, 10)]"
+        default: "list([0, 0])"
+      - name: "end"
+        description: "The end point of the line as a list of two coordinates `[x, y]`."
+        increment: "lambda **kwargs: [random.randint(0, 10), random.randint(0, 10)]"
+        default: "list([10, 10])"
+      - name: "points"
+        description: "The list of points on the cartesian plane to partition as a list of lists of two coordinates `[x, y]`."
+        increment: "lambda **kwargs: [[random.randint(-kwargs['x']-5, kwargs['x']+5), random.randint(-kwargs['x']-5, kwargs['x']+5)] for _ in range(int(kwargs['x'] ** 0.5))]"
+        default: "list([[1, 2], [3, 1], [5, 5]])"
+
+  - function_name: "pascal_triangle"
+    description: |
+      Given an input number `n`, return a list of lists containing the numbers of Pascal's Triangle up to the `n`th row.
+    max_time: 100
+    args:
+      - name: "n"
+        description: "The number of rows in Pascal's Triangle to generate."
+        increment: "lambda x: x + 1"
+        default: "int(1)"
+        example: "int(5)"

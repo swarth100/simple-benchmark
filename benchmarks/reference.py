@@ -200,3 +200,47 @@ def can_visit_all_rooms(first_room: str, rooms: dict[str, list[str]]) -> bool:
 
     # Check if all rooms have been visited
     return len(visited) == len(rooms)
+
+
+def complementary_dna(sequence: list[str]) -> list[str]:
+    complement = {"A": "T", "T": "A", "C": "G", "G": "C"}
+    return [complement[nucleotide] for nucleotide in sequence]
+
+
+def prime_factors(number: int) -> list[int]:
+    factors = []
+    divisor = 2
+    while number > 1:
+        while number % divisor == 0:
+            factors.append(divisor)
+            number //= divisor
+        divisor += 1
+    return factors
+
+
+def partitioning_line(
+    start: list[int], end: list[int], points: list[list[int]]
+) -> list[list[int]]:
+    def calculate_position(point, start, end):
+        # The equation for the line through (x1, y1) and (x2, y2) is:
+        # (y - y1) * (x2 - x1) - (x - x1) * (y2 - y1) = 0
+        # If the result is positive or zero, the point is on or above the line.
+        x, y = point
+        x1, y1 = start
+        x2, y2 = end
+
+        return (y - y1) * (x2 - x1) - (x - x1) * (y2 - y1)
+
+    # Filter the points to include only those on or above the line
+    return [point for point in points if calculate_position(point, start, end) >= 0]
+
+
+def pascal_triangle(n: int) -> list[list[int]]:
+    triangle = [[1]]
+    for i in range(1, n):
+        row = [1]
+        for j in range(1, i):
+            row.append(triangle[i - 1][j - 1] + triangle[i - 1][j])
+        row.append(1)
+        triangle.append(row)
+    return triangle
