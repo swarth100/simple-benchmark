@@ -348,9 +348,14 @@ async def run_user_benchmark(request: Request):
 
                     y_ticks_positions = [30 * y for y in tick_ranges]
                     y_ticks_labels = [
-                        "{:.4f}".format(
-                            benchmark_result.details[int(y * y_index_scaling)][1]
+                        "{:.1e}".format(elem)
+                        if abs(
+                            elem := (
+                                benchmark_result.details[int(y * y_index_scaling)][1]
+                            )
                         )
+                        < 1e-3
+                        else "{:.4f}".format(elem)
                         for y in tick_ranges
                     ]
                     result_data["yTicks"] = list(zip(y_ticks_positions, y_ticks_labels))

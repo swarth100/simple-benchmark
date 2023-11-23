@@ -260,9 +260,9 @@ benchmarks:
 
   - function_name: "partitioning_line"
     description: |
-      Create a function that given two points `start` and `end` and a list of points to partition (`points`) returns a list of all points that are on or above the line (on a cartesian plane).<br><br>
+      Create a function that given two points `start` and `end` and a list of points to partition (`points`) returns a list of all points that are on or above the line passing through `start` and `end` (on a cartesian plane).<br><br>
       
-      The function will not return points that lie underneath the line.
+      The function will return points that lie on or above the line and **not** return points that lie underneath the line.
     max_time: 10
     args:
       - name: "x"
@@ -279,7 +279,7 @@ benchmarks:
         default: "list([10, 10])"
       - name: "points"
         description: "The list of points on the cartesian plane to partition as a list of lists of two coordinates `[x, y]`."
-        increment: "lambda **kwargs: [[random.randint(-kwargs['x']-5, kwargs['x']+5), random.randint(-kwargs['x']-5, kwargs['x']+5)] for _ in range(int(kwargs['x'] ** 0.5))]"
+        increment: "lambda **kwargs: [[random.randint(-kwargs['x']-5, kwargs['x']+5), random.randint(-kwargs['x']-5, kwargs['x']+5)] for _ in range(int(kwargs['x'] ** 0.8))]"
         default: "list([[1, 2], [3, 1], [5, 5]])"
 
   - function_name: "pascal_triangle"
