@@ -85,7 +85,7 @@ class Benchmark(BaseModel):
         return function_signature
 
     def generate_description_md(self) -> str:
-        description_md = self.description + "<br><br>" + "Arguments:\n"
+        description_md = self.description + "<br>" + "Arguments:\n"
         for arg in self.args:
             if not arg.hidden:
                 # Infer the type from the default value

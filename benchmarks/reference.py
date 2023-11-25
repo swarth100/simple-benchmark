@@ -244,3 +244,42 @@ def pascal_triangle(n: int) -> list[list[int]]:
         row.append(1)
         triangle.append(row)
     return triangle
+
+
+def missing_triangle(sides: dict):
+    c1 = sides.get("cathetus1")
+    c2 = sides.get("cathetus2")
+    h = sides.get("hypotenuse")
+
+    # Calculate the missing side using the Pythagorean theorem
+    if c1 is None:
+        c1 = (h**2 - c2**2) ** 0.5
+    elif c2 is None:
+        c2 = (h**2 - c1**2) ** 0.5
+    # NOTE: We do not look at `h` missing as it's not needed for printing.
+
+    # Determine the size for printing the triangle
+    height = int(round(c1))
+    width = int(round(c2))
+    ratio = width / height
+
+    # Print the triangle
+    for x in range(1, height + 1):
+        n_stars = int(round(ratio * x))
+        n_dots = width - n_stars
+        stars = n_stars * "*"
+        dots = n_dots * "."
+        print(dots + stars)
+
+
+def machine(commands: list):
+    row = ""
+    for command in commands:
+        if command == 0:
+            row += "."
+        elif command == 1:
+            row += "#"
+        elif command == 2:
+            print(row)
+            row = ""
+    print(row, end="")

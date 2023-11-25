@@ -197,10 +197,10 @@ benchmarks:
     description: |
       You are given a dictionary of room names and all the rooms are locked except for the `first_room` in the dictionary.
       Your goal is to visit all the rooms. 
-      However, you cannot enter a locked room without having its key.<br><br>
+      However, you cannot enter a locked room without having its key.<br>
       
       When you visit a room, you may find a list of distinct keys in it. 
-      Each key has a room name on it, denoting which room it unlocks, and you can take all of them with you to unlock the other rooms.<br><br>
+      Each key has a room name on it, denoting which room it unlocks, and you can take all of them with you to unlock the other rooms.<br>
       
       Given a dictionary of rooms where `rooms[name]` is the list of keys that you can obtain if you visited room `name`, return `True` if you can visit all the rooms, or `False` otherwise.
     max_time: 10
@@ -227,7 +227,7 @@ benchmarks:
 
   - function_name: "complementary_dna"
     description: |
-      Create a function that converts a sequence of nucleotides (*Adenine* `A`, *Cytosine* `C`, *Thymine* `T`, *Guanine* `G`) contained in an input vector of indefinite length into its complementary sequence (`Adenine --> Thymine`, `Thymine --> Adenine`, `Cytosine --> Guanine`, `Guanine --> Cytosine`).<br><br>
+      Create a function that converts a sequence of nucleotides (*Adenine* `A`, *Cytosine* `C`, *Thymine* `T`, *Guanine* `G`) contained in an input vector of indefinite length into its complementary sequence (`Adenine --> Thymine`, `Thymine --> Adenine`, `Cytosine --> Guanine`, `Guanine --> Cytosine`).<br>
       
       The function returns a list of characters with the converted sequence.
     max_time: 10
@@ -243,7 +243,7 @@ benchmarks:
 
   - function_name: "prime_factors"
     description: |
-      Create a function that decomposes a `number` into its prime factors.<br><br>
+      Create a function that decomposes a `number` into its prime factors.<br>
       
       The function returns a list with all prime factors of the input `number` in ascending order.
     max_time: 10
@@ -260,7 +260,7 @@ benchmarks:
 
   - function_name: "partitioning_line"
     description: |
-      Create a function that given two points `start` and `end` and a list of points to partition (`points`) returns a list of all points that are on or above the line passing through `start` and `end` (on a cartesian plane).<br><br>
+      Create a function that given two points `start` and `end` and a list of points to partition (`points`) returns a list of all points that are on or above the line passing through `start` and `end` (on a cartesian plane).<br>
       
       The function will return points that lie on or above the line and **not** return points that lie underneath the line.
     max_time: 10
@@ -292,3 +292,42 @@ benchmarks:
         increment: "lambda x: x + 1"
         default: "int(1)"
         example: "int(5)"
+
+  - function_name: "missing_triangle"
+    description: |
+      Print a right-angled triangle with given two sides, calculating the missing third side.<br>
+      The sides are provided in a dictionary where two of the following are always present:
+      * `cathetus1`: The vertical cathethus of the triangle
+      * `cathetus2`: The horizontal cathetus of the triangle
+      * `hypotenuse`: The hypothenuse of the right-angled triangle
+    max_time: 10
+    args:
+      - name: "size"
+        increment: "lambda x: x + 1"
+        default: "int(3)"
+        hidden: true
+      - name: "hypothenuse"
+        increment: "lambda **kwargs:  random.randint(kwargs['size'] // 2, kwargs['size'])"
+        default: "int(5)"
+        hidden: true
+      - name: "sides"
+        description: "A dictionary containing two sides of the triangle."
+        increment: "lambda **kwargs: {'cathetus1': random.randint(1, kwargs['hypothenuse'] - 1), 'hypotenuse': kwargs['hypothenuse']} if random.random() < 0.5 else {'cathetus2': random.randint(1, kwargs['hypothenuse'] // 2), 'hypotenuse': kwargs['hypothenuse']}"
+        default: "dict({'cathetus1': 3, 'hypotenuse': 5})"
+
+  - function_name: "machine"
+    description: |
+      Processes a list of commands to print characters, where:
+      * `0` prints `.`
+      * `1` prints `#`
+      * `2` prints a newline.
+    max_time: 10
+    args:
+      - name: "x"
+        increment: "lambda x: x + random.randint(1, 3)"
+        default: "int(1)"
+        hidden: true
+      - name: "commands"
+        description: "A list of integer commands consisting of `0`s, `1`s and `2`s"
+        increment: "lambda **kwargs: [random.randint(0, 2) for _ in range(kwargs['x'])] + [2]"
+        default: "list([1, 0, 2, 0, 1, 1, 2])"
