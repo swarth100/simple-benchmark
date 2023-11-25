@@ -272,7 +272,7 @@ def missing_triangle(sides: dict):
         print(dots + stars)
 
 
-def machine(commands: list):
+def machine(commands: list[int]):
     row = ""
     for command in commands:
         if command == 0:

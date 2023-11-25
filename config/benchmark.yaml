@@ -317,7 +317,7 @@ benchmarks:
 
   - function_name: "machine"
     description: |
-      Processes a list of commands to print characters, where:
+      Process a list of commands to print characters, where:
       * `0` prints `.`
       * `1` prints `#`
       * `2` prints a newline.
