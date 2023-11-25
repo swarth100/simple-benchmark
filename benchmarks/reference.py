@@ -142,14 +142,20 @@ def generate_trajectory(velocity: float, angle: float, size: list[int]):
 
 
 def sort_by_height(names: list[str], heights: list[int]) -> list[str]:
-    # Pair each name with its corresponding height
-    name_height_pairs = zip(names, heights)
+    # Initialize a dictionary to map heights to names
+    height_to_names = {}
 
-    # Sort pairs based on heights in descending order
-    sorted_pairs = sorted(name_height_pairs, key=lambda x: x[1], reverse=True)
+    # Populate the dictionary.
+    # The names are a list as multiple people can have the same height!
+    for name, height in zip(names, heights):
+        if height not in height_to_names:
+            height_to_names[height] = []
+        height_to_names[height].append(name)
 
-    # Extract the names from the sorted pairs
-    sorted_names = [name for name, height in sorted_pairs]
+    # Sort the dictionary by height in descending order and concatenate names
+    sorted_names = []
+    for height in sorted(height_to_names.keys(), reverse=True):
+        sorted_names.extend(height_to_names[height])
 
     return sorted_names
 
