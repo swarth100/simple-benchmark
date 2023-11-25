@@ -244,7 +244,6 @@ benchmarks:
   - function_name: "prime_factors"
     description: |
       Create a function that decomposes a `number` into its prime factors.<br>
-      
       The function returns a list with all prime factors of the input `number` in ascending order.
     max_time: 10
     args:
@@ -261,7 +260,6 @@ benchmarks:
   - function_name: "partitioning_line"
     description: |
       Create a function that given two points `start` and `end` and a list of points to partition (`points`) returns a list of all points that are on or above the line passing through `start` and `end` (on a cartesian plane).<br>
-      
       The function will return points that lie on or above the line and **not** return points that lie underneath the line.
     max_time: 10
     args:
