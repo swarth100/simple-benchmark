@@ -20,11 +20,12 @@
                 <th>Benchmark Name</th>
                 <th>Visibility</th>
                 <th>Frozen Status</th>
+                <th>Archive Status</th>
                 <th>Action</th>
             </tr>
             </thead>
             <tbody>
-            {% for benchmark, is_hidden, is_frozen in benchmark_status %}
+            {% for benchmark, is_hidden, is_frozen, is_archive in benchmark_status %}
             <tr>
                 <td>{{ benchmark }}</td>
                 <td class="{{ 'has-text-danger' if is_hidden else 'has-text-success' }}">
@@ -33,15 +34,26 @@
                 <td class="{{ 'has-text-info' if (is_frozen and not is_hidden) else 'has-text-black' }}">
                     {{ '--' if is_hidden else 'Frozen' if is_frozen else 'Open' }}
                 </td>
+                <td class="{{ 'has-text-success' if is_archive else 'has-text-black' }}">
+                    {{ 'Archived' if is_archive else '--' }}
+                </td>
                 <td>
                     <button class="button is-small {{ 'is-danger' if is_hidden else 'is-success' }} toggle-visibility"
                             data-benchmark="{{ benchmark }}" data-is-hidden="{{ is_hidden }}">
                         {{ 'Enable' if is_hidden else 'Disable' }}
                     </button>
+                    {% if not is_hidden %}
                     <button class="button is-small {{ 'is-info' if (not is_frozen and not is_hidden) else 'is-black' }} toggle-freeze"
                             data-benchmark="{{ benchmark }}" data-is-frozen="{{ is_frozen }}" {{ 'disabled' if is_hidden }}>
-                        {{ '--' if is_hidden else 'Freeze' if not is_frozen else 'Unfreeze' }}
+                        {{ 'Freeze' if not is_frozen else 'Unfreeze' }}
                     </button>
+                    {% endif %}
+                    {% if is_hidden %}
+                    <button class="button is-small {{ 'is-primary' if not is_archive else 'is-black' }} toggle-archive"
+                        data-benchmark="{{ benchmark }}" data-is-archive="{{ is_archive }}" {{ 'disabled' if not is_hidden }}>
+                        {{ 'Archive' if not is_archive else 'Unarchive' }}
+                    </button>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}
@@ -84,6 +96,23 @@
                     window.location.reload();
                 } else {
                     this.classList.remove('is-loading'); // Remove loading state if there's an error
+                }
+            })
+        });
+    });
+
+    // Handle archive/unarchive toggle
+    document.querySelectorAll('.toggle-archive').forEach(button => {
+        button.addEventListener('click', function () {
+            fetch('/toggle_benchmark_archive_state', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `benchmark=${this.dataset.benchmark}&is_archive=${this.dataset.isArchive === '1' ? 'false' : 'true'}`
+            }).then(response => {
+                if (response.ok) {
+                    window.location.reload();
                 }
             })
         });

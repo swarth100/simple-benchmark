@@ -160,7 +160,7 @@ def toggle_benchmark_visibility(benchmark_name: str, is_hidden: bool):
         cursor.execute(
             """
             UPDATE benchmarks
-            SET is_hidden = ?, is_frozen = ?
+            SET is_hidden = ?, is_frozen = ?, is_archive = FALSE
             WHERE name = ?
             """,
             (is_hidden, is_hidden, benchmark_name),
@@ -178,6 +178,20 @@ def toggle_benchmark_frozen_state(benchmark_name: str, is_frozen: bool):
             WHERE name = ?
             """,
             (is_frozen, benchmark_name),
+        )
+        conn.commit()
+
+
+def toggle_benchmark_archive_status(benchmark_name: str, is_archive: bool):
+    with sqlite3.connect(BENCHMARKS_RESULT_DB) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            UPDATE benchmarks
+            SET is_archive = ?
+            WHERE name = ?
+            """,
+            (is_archive, benchmark_name),
         )
         conn.commit()
 
@@ -230,7 +244,7 @@ def get_benchmark_visibility_status() -> list[tuple]:
         cursor = conn.cursor()
         cursor.execute(
             """
-            SELECT name, is_hidden, is_frozen FROM benchmarks
+            SELECT name, is_hidden, is_frozen, is_archive FROM benchmarks
             ORDER BY id
             """
         )

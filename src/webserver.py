@@ -22,6 +22,7 @@ from db.database import (
     toggle_benchmark_visibility,
     toggle_benchmark_frozen_state,
     get_frozen_benchmarks,
+    toggle_benchmark_archive_status,
 )
 from src.benchmark import (
     run_benchmark_given_modules,
@@ -417,4 +418,13 @@ async def toggle_benchmark_frozen(request: Request):
     benchmark_name = form_data["benchmark"]
     is_frozen = form_data["is_frozen"] == "true"
     toggle_benchmark_frozen_state(benchmark_name, is_frozen)
+    return {"success": True}
+
+
+@app.post("/toggle_benchmark_archive_state")
+async def toggle_benchmark_archive(request: Request):
+    form_data = await request.form()
+    benchmark_name = form_data["benchmark"]
+    is_archive = form_data["is_archive"] == "true"
+    toggle_benchmark_archive_status(benchmark_name, is_archive)
     return {"success": True}
