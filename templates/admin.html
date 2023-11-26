@@ -129,17 +129,32 @@
     });
 
     document.addEventListener('DOMContentLoaded', function () {
+        // Load the toggle state from localStorage and apply it
         const toggleArchived = document.getElementById('toggle-archived');
-        const rows = document.querySelectorAll('table tbody tr');
+        const archivedState = localStorage.getItem('toggle-archived-state');
+        if (archivedState !== null) {
+            toggleArchived.checked = archivedState === 'true';
+        }
 
+        // Save the toggle state to localStorage when changed
         toggleArchived.addEventListener('change', function () {
+            localStorage.setItem('toggle-archived-state', toggleArchived.checked);
+        });
+
+        // Apply the filter to all rendered rows
+        const rows = document.querySelectorAll('table tbody tr');
+        function filter_visible_rows () {
             rows.forEach(row => {
                 const isArchived = row.querySelector('.toggle-archive')?.dataset.isArchive === '1';
                 if (isArchived) {
                     row.style.display = this.checked ? '' : 'none';
                 }
             });
-        });
+        }
+        toggleArchived.addEventListener('change', filter_visible_rows);
+        if (archivedState === 'false') {
+            filter_visible_rows();
+        }
     });
 
 </script>
