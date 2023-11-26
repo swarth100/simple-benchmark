@@ -191,7 +191,7 @@ benchmarks:
         increment: "lambda **kwargs: [
                       kwargs['elems'][int(random.randint(0, len(kwargs['elems']) - 1))] for _ in range(int(kwargs['x'] ** 1.15))
                     ]"
-        default: "list(['artist', 'doctor', 'artist', 'professor', 'artist', 'professor', 'professor', 'artist'])"
+        default: "list(['doctor', 'professor', 'artist', 'professor', 'professor', 'artist'])"
 
   - function_name: "can_visit_all_rooms"
     description: |

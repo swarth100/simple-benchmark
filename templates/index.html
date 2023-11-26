@@ -370,7 +370,7 @@
         var benchmarkSelect = restoreSelectValue('benchmark-select', localStorage.getItem('selectedBenchmark'));
         restoreSelectValue('sandbox-benchmark', localStorage.getItem('selectedSandboxBenchmark'));
         restoreSelectValue('leaderboard-benchmark', localStorage.getItem('selectedLeaderboardBenchmark'));
-        restoreSelectValue('archive-benchmark', localStorage.getItem('selectedArchiveBenchmark'));
+        var archiveSelect = restoreSelectValue('archive-benchmark', localStorage.getItem('selectedArchiveBenchmark'));
 
         if (benchmarkSelect) {
             document.getElementById('form-benchmark').value = benchmarkSelect;
@@ -381,6 +381,11 @@
             // If no benchmark is selected we force an update of the benchmark signatures.
             // This guarantees a signature is displayed on initial load.
             updateFunctionSignature();
+        }
+
+        // We trigger archival selection change event to rerender HTMx components
+        if (archiveSelect) {
+            htmx.trigger('#archive-benchmark', 'change');
         }
 
         var savedData = JSON.parse(localStorage.getItem('editor-by-benchmark') || '{}');

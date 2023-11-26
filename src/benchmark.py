@@ -1,3 +1,4 @@
+import copy
 import importlib
 import io
 import json
@@ -129,10 +130,12 @@ def _run_single_benchmark(
         valid_kwargs: dict[str, TArg] = {
             arg.name: arg_values[arg.name] for arg in benchmark.args if not arg.hidden
         }
+        user_copy: dict[str, TArg] = copy.deepcopy(valid_kwargs)
+        reference_copy: dict[str, TArg] = copy.deepcopy(valid_kwargs)
 
         start_time: float = time.perf_counter()
         try:
-            user_output, user_std_output = capture_output(user_func, **valid_kwargs)
+            user_output, user_std_output = capture_output(user_func, **user_copy)
         except Exception as e:
             return BenchmarkResult(
                 name=run_name,
@@ -144,7 +147,7 @@ def _run_single_benchmark(
         time_diff: float = time.perf_counter() - start_time
         elapsed_time += time_diff
 
-        ref_output, ref_std_output = capture_output(ref_func, **valid_kwargs)
+        ref_output, ref_std_output = capture_output(ref_func, **reference_copy)
 
         if user_output != ref_output:
             return BenchmarkResult(
