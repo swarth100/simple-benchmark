@@ -234,6 +234,25 @@ def get_frozen_benchmarks() -> list[Benchmark]:
         return frozen_benchmarks
 
 
+def get_archived_benchmarks() -> list[Benchmark]:
+    with sqlite3.connect(BENCHMARKS_RESULT_DB) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT name FROM benchmarks
+            WHERE is_archive
+            """
+        )
+        benchmark_names: list[str] = [x for x, in cursor.fetchall()]
+
+        frozen_benchmarks: list[Benchmark] = [
+            benchmark
+            for benchmark in BENCHMARK_CONFIG.benchmarks
+            if benchmark.function_name in benchmark_names
+        ]
+        return frozen_benchmarks
+
+
 def get_benchmark_visibility_status() -> list[tuple]:
     """
     Retrieve the visibility status of all available benchmarks

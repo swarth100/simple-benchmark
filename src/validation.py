@@ -103,10 +103,16 @@ class Config(BaseModel):
     user_modules: List[str]
     benchmarks: List[Benchmark]
 
-    def get_all_valid_benchmarks(self) -> List[Benchmark]:
-        from db.database import get_enabled_benchmarks
+    def get_all_valid_benchmarks(
+        self, *, include_archived: bool = False
+    ) -> List[Benchmark]:
+        from db.database import get_enabled_benchmarks, get_archived_benchmarks
 
-        return get_enabled_benchmarks()
+        benchmarks: list[Benchmark] = get_enabled_benchmarks()
+        if include_archived:
+            benchmarks.extend(get_archived_benchmarks())
+
+        return benchmarks
 
 
 def _load_config(file_path) -> Config:
@@ -115,4 +121,4 @@ def _load_config(file_path) -> Config:
         return Config.parse_obj(config_data)
 
 
-BENCHMARK_CONFIG = _load_config("config/benchmark.yaml")
+BENCHMARK_CONFIG: Config = _load_config("config/benchmark.yaml")

@@ -1,4 +1,5 @@
 import importlib
+import inspect
 import json
 import tempfile
 import traceback
@@ -23,6 +24,7 @@ from db.database import (
     toggle_benchmark_frozen_state,
     get_frozen_benchmarks,
     toggle_benchmark_archive_status,
+    get_archived_benchmarks,
 )
 from src.benchmark import (
     run_benchmark_given_modules,
@@ -31,6 +33,7 @@ from src.benchmark import (
     capture_output,
     is_benchmark_frozen,
     run_reference_benchmark_with_arguments,
+    is_benchmark_archived,
 )
 from src.config import BenchmarkResult, UserRank
 from src.validation import BENCHMARK_CONFIG, Benchmark, Config, TArg
@@ -65,11 +68,15 @@ async def read_root(request: Request):
 
     benchmark_signatures = {
         benchmark.function_name: benchmark.generate_function_signature()
-        for benchmark in config.get_all_valid_benchmarks()
+        for benchmark in config.get_all_valid_benchmarks(include_archived=True)
     }
 
     frozen_benchmarks: list[str] = [
         benchmark.function_name for benchmark in get_frozen_benchmarks()
+    ]
+
+    archived_benchmarks: list[str] = [
+        benchmark.function_name for benchmark in get_archived_benchmarks()
     ]
 
     return templates.TemplateResponse(
@@ -80,6 +87,7 @@ async def read_root(request: Request):
             "benchmark_signatures": benchmark_signatures,
             "benchmarks_with_args": benchmarks_with_args,
             "frozen_benchmarks": frozen_benchmarks,
+            "archived_benchmarks": archived_benchmarks,
         },
     )
 
@@ -217,7 +225,9 @@ async def update_leaderboard(request: Request, benchmark: str) -> dict:
 @app.get("/fetch_benchmark_details")
 async def fetch_benchmark_details(request: Request, benchmark: str):
     try:
-        benchmark: Optional[Benchmark] = get_benchmark_by_name(benchmark)
+        benchmark: Optional[Benchmark] = get_benchmark_by_name(
+            benchmark, include_archived=True
+        )
 
         if benchmark is None:
             raise KeyError(f"Benchmark with name '{benchmark}' is invalid")
@@ -238,13 +248,39 @@ async def fetch_benchmark_details(request: Request, benchmark: str):
             result_data["example_std_output"] = example_std_output
 
         return templates.TemplateResponse(
-            "benchmark_details_partial.html",  # Create this new template
+            "benchmark_details_partial.html",
             {
                 "request": request,
                 "description": description,
                 "example_input": example_input,
                 "result_data": result_data,
             },
+        )
+    except Exception as e:
+        print(traceback.format_exc())
+        return templates.TemplateResponse(
+            "error.html",
+            {
+                "request": request,
+                "message": f"Error while fetching benchmark details: {e}",
+            },
+        )
+
+
+@app.get("/fetch_benchmark_code")
+async def fetch_benchmark_code(request: Request, benchmark: str):
+    try:
+        if not (is_benchmark_archived(benchmark)):
+            raise KeyError(f"Benchmark with name '{benchmark}' is not archived")
+
+        reference_module_name: str = get_config().reference_module
+        reference_module = importlib.import_module(reference_module_name)
+        reference_func = getattr(reference_module, benchmark)
+        implementation = inspect.getsource(reference_func)
+
+        return templates.TemplateResponse(
+            "archived_partial.html",
+            {"request": request, "reference_implementation": implementation},
         )
     except Exception as e:
         print(traceback.format_exc())

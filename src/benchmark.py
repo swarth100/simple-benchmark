@@ -12,7 +12,7 @@ from typing import Dict, Callable, Optional, Tuple, Any, List, Union
 
 from func_timeout import func_set_timeout
 
-from db.database import get_frozen_benchmarks
+from db.database import get_frozen_benchmarks, get_archived_benchmarks
 from src.config import BenchmarkResult
 from src.validation import Config, TArg, Benchmark, BENCHMARK_CONFIG
 
@@ -63,10 +63,14 @@ def get_reference_benchmark_function(function_name: str) -> Callable:
     return ref_func
 
 
-def get_benchmark_by_name(name: str) -> Optional[Benchmark]:
+def get_benchmark_by_name(
+    name: str, *, include_archived: bool = False
+) -> Optional[Benchmark]:
     benchmark_config: Config = get_config()
 
-    for benchmark in benchmark_config.get_all_valid_benchmarks():
+    for benchmark in benchmark_config.get_all_valid_benchmarks(
+        include_archived=include_archived
+    ):
         if benchmark.function_name == name:
             return benchmark
     return None
@@ -74,6 +78,13 @@ def get_benchmark_by_name(name: str) -> Optional[Benchmark]:
 
 def is_benchmark_frozen(name: str) -> bool:
     for benchmark in get_frozen_benchmarks():
+        if benchmark.function_name == name:
+            return True
+    return False
+
+
+def is_benchmark_archived(name: str) -> bool:
+    for benchmark in get_archived_benchmarks():
         if benchmark.function_name == name:
             return True
     return False
