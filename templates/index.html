@@ -11,7 +11,7 @@
     <script src="https://unpkg.com/htmx.org@1.9.6"></script>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/static/styles.css">
     <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
 </head>
@@ -27,19 +27,13 @@
         </li>
         <li>
             <a onclick="openTab('sandbox-tab', this); updateSandboxInputs()">
-                <span class="icon is-small"><i class="fas fa-umbrella-beach" aria-hidden="true"></i></span>
+                <span class="icon is-small"><i class="fas fa-flask-vial" aria-hidden="true"></i></span>
                 <span>Sandbox Mode</span>
             </a>
         </li>
         <li>
-            <a onclick="openTab('leaderboard-tab', this)">
-                <span class="icon is-small"><i class="fas fa-chart-line" aria-hidden="true"></i></span>
-                <span>Leaderboards</span>
-            </a>
-        </li>
-        <li>
             <a onclick="openTab('rankings-tab', this)">
-                <span class="icon is-small"><i class="fas fa-trophy" aria-hidden="true"></i></span>
+                <span class="icon is-small"><i class="fas fa-chart-line" aria-hidden="true"></i></span>
                 <span>Rankings</span>
             </a>
         </li>
@@ -156,35 +150,53 @@
     </div>
 </div>
 
-<div id="leaderboard-tab" class="tab">
-    <div class="field">
-        <label class="label" for="leaderboard-benchmark">Select Benchmark:</label>
-        <div class="control">
-            <div class="select">
-                <select name="benchmark" id="leaderboard-benchmark" hx-get="/fetch_leaderboard" hx-trigger="change, tab-activated" hx-swap="innerHTML" hx-target="#leaderboard-content" hx-include="#username">
-                    {% for benchmark in benchmarks %}
-                    <option value="{{ benchmark }}">{{ benchmark }}</option>
-                    {% endfor %}
-                </select>
+<div id="rankings-tab" class="tab">
+    <div class="tabs is-toggle is-fullwidth">
+        <ul>
+            <li class="is-active">
+                <a onclick="openSubTab('leaderboard-tab', this)">
+                    <span class="icon is-small"><i class="fas fa-list" aria-hidden="true"></i></span>
+                    <span>Leaderboard</span>
+                </a>
+            </li>
+            <li >
+                <a onclick="openSubTab('scoreboard-tab', this)">
+                    <span class="icon is-small"><i class="fas fa-trophy" aria-hidden="true"></i></span>
+                    <span>Scoreboard</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div id="leaderboard-tab" class="sub-tab">
+        <div class="field">
+            <label class="label" for="leaderboard-benchmark">Select Benchmark:</label>
+            <div class="control">
+                <div class="select">
+                    <select name="benchmark" id="leaderboard-benchmark" hx-get="/fetch_leaderboard" hx-trigger="change, tab-activated" hx-swap="innerHTML" hx-target="#leaderboard-content" hx-include="#username">
+                        {% for benchmark in benchmarks %}
+                        <option value="{{ benchmark }}">{{ benchmark }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
             </div>
         </div>
+        <div class="mb-4"></div> <!-- Bulma margin bottom class -->
+        <div id="leaderboard-content">
+            <!-- Leaderboard data will be loaded here -->
+        </div>
     </div>
-    <div class="mb-4"></div> <!-- Bulma margin bottom class -->
-    <div id="leaderboard-content">
-        <!-- Leaderboard data will be loaded here -->
-    </div>
-</div>
 
-
-<div id="rankings-tab" class="tab">
-    <div id="rankings-content" hx-trigger="load, tab-activated" hx-get="/fetch_rankings" hx-swap="innerHTML" hx-include="#username">
-        <!-- Rankings data will be loaded here -->
+    <div id="scoreboard-tab" class="sub-tab">
+        <div id="scoreboard-content" hx-trigger="load, tab-activated" hx-get="/fetch_rankings" hx-swap="innerHTML" hx-include="#username">
+            <!-- Rankings data will be loaded here -->
+        </div>
     </div>
 </div>
 
 <div id="archive-tab" class="tab">
     <div class="notification is-warning">
-        <p><strong>ARCHIVE NOTE</strong>: The archive tab gives you readonly access to example implementations for past questions</p>
+        <p><strong>ARCHIVE NOTE</strong>: The archive tab gives you <u>read-only</u> access to example implementations for past questions.</p>
     </div>
     <div class="columns">
         <!-- Left Column for Dropdown -->
@@ -227,7 +239,7 @@
             tabcontent[i].style.display = "none";
             tabcontent[i].parentElement.classList.remove("is-active");
         }
-        tablinks = document.querySelectorAll(".tabs li");
+        tablinks = document.querySelectorAll(".tabs.is-boxed li");
         for (i = 0; i < tablinks.length; i++) {
             tablinks[i].classList.remove("is-active");
         }
@@ -240,11 +252,7 @@
         localStorage.setItem('activeTab', tabName);
 
         // Check if certain tabs are loaded and refresh htmx requests
-        if (tabName === 'leaderboard-tab') {
-            htmx.trigger('#rankings-content', 'tab-activated');
-        } else if (tabName === 'rankings-tab') {
-            htmx.trigger('#leaderboard-benchmark', 'tab-activated');
-        } else if (tabName === 'benchmark-tab') {
+        if (tabName === 'benchmark-tab') {
             editor.refresh()
         } else if (tabName === 'sandbox-tab') {
             sandboxEditor.refresh()
@@ -253,10 +261,37 @@
         }
     }
 
+    function openSubTab(tabName, element) {
+        var i, subtabcontent, subtablinks;
+        subtabcontent = document.getElementsByClassName("sub-tab");
+        for (i = 0; i < subtabcontent.length; i++) {
+            subtabcontent[i].style.display = "none";
+        }
+        subtablinks = document.querySelectorAll(".tabs.is-toggle li");
+        for (i = 0; i < subtablinks.length; i++) {
+            subtablinks[i].classList.remove("is-active");
+        }
+        document.getElementById(tabName).style.display = "block";
+        if (element) {
+            element.parentElement.classList.add("is-active");
+        }
+
+        // Save the active sub-tab to local storage
+        localStorage.setItem('activeSubTab', tabName);
+
+        if (tabName === 'leaderboard-content') {
+            htmx.trigger('#leaderboard-benchmark', 'tab-activated');
+        } else if (tabName === 'scoreboard-content') {
+            htmx.trigger('#scoreboard-content', 'tab-activated');
+        }
+    }
+
     // Function to check if the rankings-tab is active and trigger HTMX call
     function checkAndRefreshRankings() {
-        if (localStorage.getItem('activeTab') === "rankings-tab") {
-            htmx.trigger('#rankings-content', 'tab-activated');
+        if (localStorage.getItem('activeSubTab') === "leaderboard-content") {
+            htmx.trigger('#leaderboard-benchmark', 'tab-activated');
+        } else if (localStorage.getItem('activeSubTab') === "scoreboard-content") {
+            htmx.trigger('#scoreboard-content', 'tab-activated');
         }
     }
 
@@ -312,6 +347,10 @@
         // Restore the active tab
         var activeTab = localStorage.getItem('activeTab') || 'benchmark-tab';
         openTab(activeTab, document.querySelector('.tabs li [onclick*="' + activeTab + '"]'));
+
+        // Restore the active sub-tab
+        var activeSubTab = localStorage.getItem('activeSubTab') || 'leaderboard-tab';
+        openSubTab(activeSubTab, document.querySelector('.tabs li [onclick*="' + activeSubTab + '"]'));
 
         // Restores a dropdown value but ensures that the option exists.
         // If the option no longer exists it picks the first option in the list.
