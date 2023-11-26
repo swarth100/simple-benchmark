@@ -14,6 +14,16 @@
 <section class="section">
     <div class="container">
         <h1 class="title">Admin Panel</h1>
+
+        <!-- Settings Section -->
+        <div class="box">
+            <h2 class="subtitle">Settings</h2>
+            <div class="field">
+                <input id="toggle-archived" type="checkbox" name="toggle-archived" class="switch is-rounded is-info" checked>
+                <label for="toggle-archived">Show Archived Exercises</label>
+            </div>
+        </div>
+
         <table class="table is-fullwidth">
             <thead>
             <tr>
@@ -117,6 +127,21 @@
             })
         });
     });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const toggleArchived = document.getElementById('toggle-archived');
+        const rows = document.querySelectorAll('table tbody tr');
+
+        toggleArchived.addEventListener('change', function () {
+            rows.forEach(row => {
+                const isArchived = row.querySelector('.toggle-archive')?.dataset.isArchive === '1';
+                if (isArchived) {
+                    row.style.display = this.checked ? '' : 'none';
+                }
+            });
+        });
+    });
+
 </script>
 </body>
 </html>
