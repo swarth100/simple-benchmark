@@ -103,7 +103,7 @@ def dividing_numbers(left: int, right: int) -> list[int]:
     return result
 
 
-def generate_trajectory(velocity: float, angle: float, size: list[int]):
+def generate_trajectory(velocity: int, angle: int, size: list[int]):
     g = 9.81  # Acceleration due to gravity (m/s^2)
     angle_rad = math.radians(angle)  # Convert angle to radians
 
