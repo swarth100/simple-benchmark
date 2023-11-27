@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, List, Tuple, TypedDict
+from typing import Optional, List, Tuple, TypedDict, NamedTuple
 
 
 @dataclass
@@ -29,3 +29,10 @@ class UserRank(TypedDict):
     username: str
     scores: dict[str, float]
     average: float
+
+
+class BenchmarkStatus(NamedTuple):
+    name: str
+    is_hidden: bool
+    is_frozen: bool
+    is_archive: bool

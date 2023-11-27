@@ -3,7 +3,7 @@ import math
 import sqlite3
 from typing import Tuple, Optional
 
-from src.config import BenchmarkResult, UserRank
+from src.config import BenchmarkResult, UserRank, BenchmarkStatus
 from src.validation import Benchmark, BENCHMARK_CONFIG
 
 MIGRATIONS_FILE = "db/migrations.sql"
@@ -253,7 +253,7 @@ def get_archived_benchmarks() -> list[Benchmark]:
         return frozen_benchmarks
 
 
-def get_benchmark_visibility_status() -> list[tuple]:
+def get_benchmark_visibility_status() -> list[BenchmarkStatus]:
     """
     Retrieve the visibility status of all available benchmarks
 
@@ -267,7 +267,7 @@ def get_benchmark_visibility_status() -> list[tuple]:
             ORDER BY id
             """
         )
-        return cursor.fetchall()
+        return [BenchmarkStatus(*row) for row in cursor.fetchall()]
 
 
 def upload_benchmark_config(benchmarks: list[Benchmark]):

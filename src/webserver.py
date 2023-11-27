@@ -35,7 +35,7 @@ from src.benchmark import (
     run_reference_benchmark_with_arguments,
     is_benchmark_archived,
 )
-from src.config import BenchmarkResult, UserRank
+from src.config import BenchmarkResult, UserRank, BenchmarkStatus
 from src.validation import BENCHMARK_CONFIG, Benchmark, Config, TArg
 
 app = FastAPI()
@@ -429,11 +429,11 @@ async def run_user_benchmark(request: Request):
 
 @app.get("/admin", response_class=HTMLResponse)
 async def admin_page(request: Request, show_archived: bool = False):
-    benchmark_status: list[tuple] = get_benchmark_visibility_status()
+    benchmark_status: list[BenchmarkStatus] = get_benchmark_visibility_status()
 
     # TODO: Perhaps used NamedTuple to prevent magic indexing to `[3]`?
     if not show_archived:
-        benchmark_status = [item for item in benchmark_status if not item[3]]
+        benchmark_status = [item for item in benchmark_status if not item.is_archive]
 
     return templates.TemplateResponse(
         "admin.html",
