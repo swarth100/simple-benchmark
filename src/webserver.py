@@ -428,8 +428,13 @@ async def run_user_benchmark(request: Request):
 
 
 @app.get("/admin", response_class=HTMLResponse)
-async def admin_page(request: Request):
+async def admin_page(request: Request, show_archived: bool = False):
     benchmark_status: list[tuple] = get_benchmark_visibility_status()
+
+    # TODO: Perhaps used NamedTuple to prevent magic indexing to `[3]`?
+    if not show_archived:
+        benchmark_status = [item for item in benchmark_status if not item[3]]
+
     return templates.TemplateResponse(
         "admin.html",
         {
