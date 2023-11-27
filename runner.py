@@ -1,3 +1,4 @@
+import importlib
 import os
 
 import click
@@ -32,20 +33,42 @@ if os.path.exists(".profanity-filter"):
     is_flag=True,
     help="Serve the benchmark runner as a webserver on port 8421.",
 )
-def main(benchmark: Optional[list[str]] = None, serve: bool = False):
+@click.option(
+    "--workers",
+    default=32,
+    type=int,
+    help="Number of workers for the Uvicorn server.",
+)
+@click.option(
+    "--debug",
+    is_flag=True,
+    help="Run the app in debug mode (in-process).",
+)
+def main(
+    benchmark: Optional[list[str]] = None,
+    serve: bool = False,
+    workers: int = 32,
+    debug: bool = False,
+):
     # Always initialise the database on startup
     init_db()
     # Upload the latest config to the database to ensure it's in-sync
     upload_benchmark_config(BENCHMARK_CONFIG.benchmarks)
 
     if serve:
-        uvicorn.run(
-            "src.webserver:app",
-            host="0.0.0.0",
-            port=8421,
-            timeout_keep_alive=10,
-            workers=32,
-        )
+        if debug:
+            # Run FastAPI app in-process (useful for debugging)
+            app = importlib.import_module("src.webserver").app
+            app(debug=True)
+        else:
+            # Run via Uvicorn with specified number of workers
+            uvicorn.run(
+                "src.webserver:app",
+                host="0.0.0.0",
+                port=8421,
+                timeout_keep_alive=10,
+                workers=workers,
+            )
     else:
         config = get_config()
 
