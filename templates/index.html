@@ -59,16 +59,26 @@
 <div id="benchmark-tab" class="tab active-tab">
     <div class="columns">
         <!-- Left Column for Dropdown, Description, Input, Output -->
-        <div class="column">
+        <div class="column" hx-get="/fetch_difficulty" hx-trigger="change" hx-swap="innerHTML" hx-target="#benchmark-difficulty" hx-include="#benchmark-select">
             <div class="field">
-                <label class="label" for="benchmark-select">Select Benchmark:</label>
-                <div class="control">
-                    <div class="select">
-                        <select name="benchmark" id="benchmark-select" hx-get="/fetch_benchmark_details" hx-trigger="change" hx-target="#benchmark-details" hx-include="#benchmark-select">
-                            {% for benchmark in benchmarks %}
-                            <option value="{{ benchmark }}">{{ benchmark }}</option>
-                            {% endfor %}
-                        </select>
+                <div class="control columns">
+                    <div class="column">
+                        <label class="label" for="benchmark-select">Select Benchmark:</label>
+                        <div class="select">
+                            <select name="benchmark" id="benchmark-select" hx-get="/fetch_benchmark_details" hx-trigger="change" hx-target="#benchmark-details" hx-include="#benchmark-select">
+                                {% for benchmark in benchmarks %}
+                                <option value="{{ benchmark }}">{{ benchmark }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <label class="label" style="margin-right: 5px;">Difficulty:</label>
+                        <div class="benchmark-difficulty-container" style="display: flex; align-items: center; margin-top: 15px;">
+                            <span id="benchmark-difficulty" class="benchmark-difficulty">
+                                <!-- Difficulty stars will be loaded here -->
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>

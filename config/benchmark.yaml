@@ -9,6 +9,7 @@ benchmarks:
   - function_name: "square"
     description: Print a square of a given size.
     max_time: 100
+    difficulty: 1.5
     args:
       - name: "size"
         description: "The size of the square's sides."
@@ -19,6 +20,7 @@ benchmarks:
   - function_name: "triangle"
     description: Print a right-angled triangle with stars.
     max_time: 100
+    difficulty: 2.0
     args:
       - name: "size"
         description: "The height of the triangle."
@@ -29,6 +31,7 @@ benchmarks:
   - function_name: "rhombus"
     description: Print a rhombus pattern.
     max_time: 100
+    difficulty: 2.5
     args:
       - name: "size"
         description: "The size of the rhombus."
@@ -39,6 +42,7 @@ benchmarks:
   - function_name: "running_sum"
     description: Return the (cumulative) running sum of a list.
     max_time: 50
+    difficulty: 2.0
     args:
       - name: "size"
         increment: "lambda x: x + 1"
@@ -52,6 +56,7 @@ benchmarks:
   - function_name: "histogram"
     description: Print a histogram from a list of numbers.
     max_time: 50
+    difficulty: 2.5
     args:
       - name: "size"
         increment: "lambda x: x + 1"
@@ -65,6 +70,7 @@ benchmarks:
   - function_name: "scatter"
     description: Print a scatter plot of points of a given size.
     max_time: 50
+    difficulty: 3.0
     args:
       - name: "x"
         increment: "lambda x: x + 1"
@@ -82,6 +88,7 @@ benchmarks:
   - function_name: "count_pairs"
     description: Given a list of pairs `nums`, return the count of pairs of numbers that differ by a specific amount (`k`).
     max_time: 50
+    difficulty: 2.0
     args:
       - name: "size"
         increment: "lambda x: x + 1"
@@ -99,6 +106,7 @@ benchmarks:
   - function_name: "dividing_numbers"
     description: Return a list of all self-dividing numbers in a range.
     max_time: 50
+    difficulty: 2.5
     args:
       - name: "size"
         increment: "lambda x: x + 1"
@@ -116,6 +124,7 @@ benchmarks:
   - function_name: "generate_trajectory"
     description: Print the trajectory of a projectile which is launched with a given `angle` and `velocity`.
     max_time: 50
+    difficulty: 4.0
     args:
       - name: "x"
         increment: "lambda x: x + 1"
@@ -139,6 +148,7 @@ benchmarks:
       Return a list of people sorted by corresponding heights.
       Tallest person first.
     max_time: 10
+    difficulty: 1.5
     args:
       - name: "x"
         increment: "lambda x: x + 1"
@@ -156,6 +166,7 @@ benchmarks:
   - function_name: "best_student"
     description: Given a dictionary of students and their grades, return the name of the student with the highest average grade.
     max_time: 15
+    difficulty: 2.5
     args:
       - name: "x"
         increment: "lambda x: x + 1"
@@ -177,6 +188,7 @@ benchmarks:
   - function_name: "jobs_counter"
     description: Return a dictionary with the count of occurrences for each job in a list.
     max_time: 10
+    difficulty: 1.5
     args:
       - name: "x"
         increment: "lambda x: x + 1"
@@ -204,6 +216,7 @@ benchmarks:
       
       Given a dictionary of rooms where `rooms[name]` is the list of keys that you can obtain if you visited room `name`, return `True` if you can visit all the rooms, or `False` otherwise.
     max_time: 10
+    difficulty: 4.5
     args:
       - name: "x"
         increment: "lambda x: x + 1"
@@ -231,6 +244,7 @@ benchmarks:
       
       The function returns a list of characters with the converted sequence.
     max_time: 10
+    difficulty: 1.0
     args:
       - name: "x"
         increment: "lambda x: x + 1"
@@ -246,6 +260,7 @@ benchmarks:
       Create a function that decomposes a `number` into its prime factors.<br>
       The function returns a list with all prime factors of the input `number` in ascending order.
     max_time: 10
+    difficulty: 2.5
     args:
       - name: "x"
         increment: "lambda x: x + 1"
@@ -262,6 +277,7 @@ benchmarks:
       Create a function that given two points `start` and `end` and a list of points to partition (`points`) returns a list of all points that are on or above the line passing through `start` and `end` (on a cartesian plane).<br>
       The function will return points that lie on or above the line and **not** return points that lie underneath the line.
     max_time: 10
+    difficulty: 3.0
     args:
       - name: "x"
         increment: "lambda x: x + 1"
@@ -284,6 +300,7 @@ benchmarks:
     description: |
       Given an input number `n`, return a list of lists containing the numbers of Pascal's Triangle up to the `n`th row.
     max_time: 100
+    difficulty: 2.5
     args:
       - name: "n"
         description: "The number of rows in Pascal's Triangle to generate."
@@ -299,6 +316,7 @@ benchmarks:
       * `cathetus2`: The horizontal cathetus of the triangle
       * `hypotenuse`: The hypothenuse of the right-angled triangle
     max_time: 10
+    difficulty: 2.5
     args:
       - name: "size"
         increment: "lambda x: x + 1"
@@ -320,6 +338,7 @@ benchmarks:
       * `1` prints `#`
       * `2` prints a newline.
     max_time: 10
+    difficulty: 1.0
     args:
       - name: "x"
         increment: "lambda x: x + random.randint(1, 3)"

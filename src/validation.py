@@ -77,8 +77,9 @@ class Benchmark(BaseModel):
     function_name: str
     max_time: int
     args: List[Argument]
-    hidden: bool = False
     description: str
+    difficulty: float
+    hidden: bool = False
 
     @property
     def max_time_seconds(self) -> float:

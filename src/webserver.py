@@ -58,9 +58,13 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 async def read_root(request: Request):
     # Fetch benchmarks from the config
     config = BENCHMARK_CONFIG
-    benchmark_names = [
-        benchmark.function_name for benchmark in config.get_all_valid_benchmarks()
-    ]
+
+    # We sort by difficulty to give an ascending difficulty list to users
+    sorted_benchmarks = sorted(
+        config.get_all_valid_benchmarks(), key=lambda b: b.difficulty
+    )
+    benchmark_names = [benchmark.function_name for benchmark in sorted_benchmarks]
+
     benchmarks_with_args = {
         benchmark.function_name: benchmark.example_args
         for benchmark in config.get_all_valid_benchmarks()
@@ -263,6 +267,39 @@ async def fetch_benchmark_details(request: Request, benchmark: str):
             {
                 "request": request,
                 "message": f"Error while fetching benchmark details: {e}",
+            },
+        )
+
+
+@app.get("/fetch_difficulty")
+async def fetch_difficulty(request: Request, benchmark: str):
+    benchmark: Optional[Benchmark] = get_benchmark_by_name(benchmark)
+    try:
+        if benchmark is None:
+            raise KeyError(f"Benchmark with name '{benchmark}' is invalid")
+
+        difficulty = benchmark.difficulty
+        full_stars = int(difficulty)
+        half_star = difficulty - full_stars >= 0.5
+        empty_stars = 5 - full_stars - int(half_star)
+
+        stars_html = (
+            '<i class="fas fa-star" style="color: orange;"></i>' * full_stars
+            + (
+                '<i class="fas fa-star-half-alt" style="color: orange;"></i>'
+                if half_star
+                else ""
+            )
+            + '<i class="far fa-star" style="color: orange;"></i>' * empty_stars
+        )
+        return HTMLResponse(content=stars_html, media_type="text/html")
+    except Exception as e:
+        print(traceback.format_exc())
+        return templates.TemplateResponse(
+            "error.html",
+            {
+                "request": request,
+                "message": f"Error while fetching benchmark difficulty: {e}",
             },
         )
 
