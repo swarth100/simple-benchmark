@@ -207,7 +207,7 @@ benchmarks:
 
   - function_name: "can_visit_all_rooms"
     description: |
-      You are given a dictionary of room names and all the rooms are locked except for the `first_room` in the dictionary.
+      You are given a dictionary of room names and all the rooms are locked except for the `unlocked` room in the dictionary.
       Your goal is to visit all the rooms. However, you cannot enter a locked room without having its key.<br><br>
       
       When you visit a room, you may find a list of distinct keys in it. 
@@ -225,14 +225,14 @@ benchmarks:
         increment: "lambda **kwargs: [fake.safe_color_name().title() for _ in range(kwargs['x'] + 1)]"
         default: "list(['Red', 'Green', 'Blue'])"
         hidden: true
-      - name: "first_room"
+      - name: "unlocked"
         description: "The name of the only unlocked room (to start with)."
         increment: "lambda **kwargs: kwargs['names'][random.randint(0, kwargs['x'])]"
         default: "str('Red')"
       - name: "rooms"
         description: "The dictionary of all rooms and keys."
         increment: "lambda **kwargs: {
-                      name: list(set([kwargs['names'][random.randint(0, kwargs['x'])] for x in range(random.randint(0, int(kwargs['x'] * 1.5)))]))
+                      name: list(set([kwargs['names'][random.randint(0, kwargs['x'])] for x in range(random.randint(0, int(kwargs['x'] ** 0.5 + 2)))]) - {name})
                       for name in kwargs['names']
                     }"
         default: "dict({'Red': ['Green'], 'Blue': ['Red', 'Green'], 'Green': ['Blue']})"

@@ -188,11 +188,11 @@ def jobs_counter(jobs: list[str]) -> dict[str, int]:
     return inventory
 
 
-def can_visit_all_rooms(first_room: str, rooms: dict[str, list[str]]) -> bool:
+def can_visit_all_rooms(unlocked: str, rooms: dict[str, list[str]]) -> bool:
     visited = []  # Keep track of visited rooms
 
     # Stack to keep track of rooms to visit, starting with room "0"
-    stack = [first_room]
+    stack = [unlocked]
 
     while stack:
         room = stack.pop()  # Get the current room
