@@ -148,7 +148,7 @@ benchmarks:
       Return a list of people sorted by corresponding heights.
       Tallest person first.
     max_time: 10
-    difficulty: 1.5
+    difficulty: 2.0
     args:
       - name: "x"
         increment: "lambda x: x + 1"
@@ -315,7 +315,7 @@ benchmarks:
       * `cathetus2`: The horizontal cathetus of the triangle
       * `hypotenuse`: The hypothenuse of the right-angled triangle
     max_time: 10
-    difficulty: 2.5
+    difficulty: 3.5
     args:
       - name: "size"
         increment: "lambda x: x + 1"
