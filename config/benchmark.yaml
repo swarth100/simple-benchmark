@@ -208,11 +208,10 @@ benchmarks:
   - function_name: "can_visit_all_rooms"
     description: |
       You are given a dictionary of room names and all the rooms are locked except for the `first_room` in the dictionary.
-      Your goal is to visit all the rooms. 
-      However, you cannot enter a locked room without having its key.<br>
+      Your goal is to visit all the rooms. However, you cannot enter a locked room without having its key.<br><br>
       
       When you visit a room, you may find a list of distinct keys in it. 
-      Each key has a room name on it, denoting which room it unlocks, and you can take all of them with you to unlock the other rooms.<br>
+      Each key has a room name on it, denoting which room it unlocks, and you can take all of them with you to unlock the other rooms.<br><br>
       
       Given a dictionary of rooms where `rooms[name]` is the list of keys that you can obtain if you visited room `name`, return `True` if you can visit all the rooms, or `False` otherwise.
     max_time: 10
@@ -296,14 +295,14 @@ benchmarks:
         increment: "lambda **kwargs: [[random.randint(-kwargs['x']-5, kwargs['x']+5), random.randint(-kwargs['x']-5, kwargs['x']+5)] for _ in range(int(kwargs['x'] ** 0.8))]"
         default: "list([[1, 2], [3, 1], [5, 5]])"
 
-  - function_name: "pascal_triangle"
+  - function_name: "tartaglia_triangle"
     description: |
-      Given an input number `n`, return a list of lists containing the numbers of Pascal's Triangle up to the `n`th row.
+      Given an input number `n`, return a list of lists containing the numbers of Tartaglia's Triangle up to the `n`th row.
     max_time: 100
     difficulty: 2.5
     args:
       - name: "n"
-        description: "The number of rows in Pascal's Triangle to generate."
+        description: "The number of rows in Tartaglia's Triangle to generate."
         increment: "lambda x: x + 1"
         default: "int(1)"
         example: "int(5)"

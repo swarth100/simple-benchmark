@@ -90,15 +90,28 @@ class Benchmark(BaseModel):
         return {arg.name: arg.example_value for arg in self.args if not arg.hidden}
 
     def generate_function_signature(self) -> str:
+        # Retrieve the argument and return type annotations
+        annotations, return_type = self.get_function_annotations(BENCHMARK_CONFIG)
+
         # Start with the function name
         function_signature = f"def {self.function_name}("
 
-        # Add arguments to the function signature
-        args = [arg.name for arg in self.args if not arg.hidden]
-        function_signature += ", ".join(args)
+        # Add arguments with their type annotations to the function signature
+        args_with_types: list[str] = []
+        for arg in self.args:
+            if not arg.hidden:
+                # Default to 'Any' if type is not specified
+                arg_type = annotations.get(arg.name, "Any")
+                args_with_types.append(f"{arg.name}: {arg_type}")
 
-        # Close the function signature and add a placeholder for function body
-        function_signature += "):\n    ...\n"
+        function_signature += ", ".join(args_with_types)
+
+        # Add return type annotation
+        if return_type is not None and return_type != type(None):
+            return_type_annotation = _format_type_hint(return_type)
+            function_signature += f") -> {return_type_annotation}:\n    ...\n"
+        else:
+            function_signature += "):\n    ...\n"
 
         return function_signature
 

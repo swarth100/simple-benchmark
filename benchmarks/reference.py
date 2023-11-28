@@ -241,7 +241,7 @@ def partitioning_line(
     return [point for point in points if calculate_position(point, start, end) >= 0]
 
 
-def pascal_triangle(n: int) -> list[list[int]]:
+def tartaglia_triangle(n: int) -> list[list[int]]:
     triangle = [[1]]
     for i in range(1, n):
         row = [1]
