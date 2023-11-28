@@ -183,7 +183,7 @@ benchmarks:
                         round(random.uniform(0, 3) + kwargs['offsets'][idx], 1) for _ in range(random.randint(1, int(kwargs['x'] ** 1.15 // 3 + 1)))
                       ] for idx in range(kwargs['x'])
                     }"
-        default: "dict({'Alice': [8, 7.5, 8.8],'Bob': [8.5, 8, 9],'Charlie': [6, 6.2, 7.5]})"
+        default: "dict({'Alice': [8, 7.5, 8.8],'Bob': [8, 9],'Charlie': [6.2, 7.5]})"
 
   - function_name: "jobs_counter"
     description: Return a dictionary with the count of occurrences for each job in a list.

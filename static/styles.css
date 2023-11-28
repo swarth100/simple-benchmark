@@ -44,3 +44,9 @@
         transform: rotate(360deg);
     }
 }
+
+.difficulty-container {
+    display: flex;
+    align-items: center;
+    margin-top: 15px;
+}

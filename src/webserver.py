@@ -273,7 +273,9 @@ async def fetch_benchmark_details(request: Request, benchmark: str):
 
 @app.get("/fetch_difficulty")
 async def fetch_difficulty(request: Request, benchmark: str):
-    benchmark: Optional[Benchmark] = get_benchmark_by_name(benchmark)
+    benchmark: Optional[Benchmark] = get_benchmark_by_name(
+        benchmark, include_archived=True
+    )
     try:
         if benchmark is None:
             raise KeyError(f"Benchmark with name '{benchmark}' is invalid")
