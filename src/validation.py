@@ -139,6 +139,30 @@ class Benchmark(BaseModel):
         description_md += f"<br>Return Type: {return_type_str}\n"
         return description_md
 
+    def generate_difficulty_stars_html(self) -> str:
+        full_stars = int(self.difficulty)
+        half_star = self.difficulty - full_stars >= 0.5
+        empty_stars = 5 - full_stars - int(half_star)
+
+        color: str
+        if self.difficulty >= 4:
+            color = "red"
+        elif self.difficulty >= 2:
+            color = "orange"
+        else:
+            color = "green"
+
+        stars_html = (
+            f'<i class="fas fa-star" style="color: {color};"></i>' * full_stars
+            + (
+                f'<i class="fas fa-star-half-alt" style="color: {color};"></i>'
+                if half_star
+                else ""
+            )
+            + f'<i class="far fa-star" style="color: {color};"></i>' * empty_stars
+        )
+        return stars_html
+
 
 class Config(BaseModel):
     reference_module: str

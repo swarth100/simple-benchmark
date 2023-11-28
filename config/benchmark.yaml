@@ -88,7 +88,7 @@ benchmarks:
   - function_name: "count_pairs"
     description: Given a list of pairs `nums`, return the count of pairs of numbers that differ by a specific amount (`k`).
     max_time: 50
-    difficulty: 2.0
+    difficulty: 2.5
     args:
       - name: "size"
         increment: "lambda x: x + 1"

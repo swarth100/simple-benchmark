@@ -278,20 +278,7 @@ async def fetch_difficulty(request: Request, benchmark: str):
         if benchmark is None:
             raise KeyError(f"Benchmark with name '{benchmark}' is invalid")
 
-        difficulty = benchmark.difficulty
-        full_stars = int(difficulty)
-        half_star = difficulty - full_stars >= 0.5
-        empty_stars = 5 - full_stars - int(half_star)
-
-        stars_html = (
-            '<i class="fas fa-star" style="color: orange;"></i>' * full_stars
-            + (
-                '<i class="fas fa-star-half-alt" style="color: orange;"></i>'
-                if half_star
-                else ""
-            )
-            + '<i class="far fa-star" style="color: orange;"></i>' * empty_stars
-        )
+        stars_html = benchmark.generate_difficulty_stars_html()
         return HTMLResponse(content=stars_html, media_type="text/html")
     except Exception as e:
         print(traceback.format_exc())
@@ -468,15 +455,21 @@ async def run_user_benchmark(request: Request):
 async def admin_page(request: Request, show_archived: bool = False):
     benchmark_status: list[BenchmarkStatus] = get_benchmark_visibility_status()
 
-    # TODO: Perhaps used NamedTuple to prevent magic indexing to `[3]`?
     if not show_archived:
         benchmark_status = [item for item in benchmark_status if not item.is_archive]
+
+    # Generate difficulty stars HTML for each benchmark
+    difficulty_stars: dict[str, str] = {
+        benchmark.function_name: benchmark.generate_difficulty_stars_html()
+        for benchmark in BENCHMARK_CONFIG.benchmarks
+    }
 
     return templates.TemplateResponse(
         "admin.html",
         {
             "request": request,
             "benchmark_status": benchmark_status,
+            "difficulty_stars": difficulty_stars,
         },
     )
 

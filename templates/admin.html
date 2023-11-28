@@ -7,6 +7,7 @@
     <script src="https://unpkg.com/htmx.org@1.9.6"></script>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/static/styles.css">
     <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
 </head>
@@ -28,6 +29,7 @@
             <thead>
             <tr>
                 <th>Benchmark Name</th>
+                <th>Difficulty</th>
                 <th>Visibility</th>
                 <th>Frozen Status</th>
                 <th>Archive Status</th>
@@ -38,6 +40,7 @@
             {% for benchmark, is_hidden, is_frozen, is_archive in benchmark_status %}
             <tr>
                 <td>{{ benchmark }}</td>
+                <td>{{ difficulty_stars[benchmark]|safe }}</td>
                 <td class="{{ 'has-text-danger' if is_hidden else 'has-text-success' }}">
                     {{ 'Hidden' if is_hidden else 'Visible' }}
                 </td>
