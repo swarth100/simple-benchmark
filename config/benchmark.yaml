@@ -299,7 +299,7 @@ benchmarks:
     description: |
       Given an input number `n`, return a list of lists containing the numbers of Tartaglia's Triangle up to the `n`th row.
     max_time: 100
-    difficulty: 2.5
+    difficulty: 3.0
     args:
       - name: "n"
         description: "The number of rows in Tartaglia's Triangle to generate."
