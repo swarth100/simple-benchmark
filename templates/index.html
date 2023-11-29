@@ -309,10 +309,12 @@
 
     // Function to check if the rankings-tab is active and trigger HTMX call
     function checkAndRefreshRankings() {
-        if (localStorage.getItem('activeSubTab') === "leaderboard-content") {
-            htmx.trigger('#leaderboard-benchmark', 'tab-activated');
-        } else if (localStorage.getItem('activeSubTab') === "scoreboard-content") {
-            htmx.trigger('#scoreboard-content', 'tab-activated');
+        if (localStorage.getItem('activeTab') === "rankings-tab") {
+            if (localStorage.getItem('activeSubTab') === "leaderboard-tab") {
+                htmx.trigger('#leaderboard-benchmark', 'tab-activated');
+            } else if (localStorage.getItem('activeSubTab') === "scoreboard-tab") {
+                htmx.trigger('#scoreboard-content', 'tab-activated');
+            }
         }
     }
 
