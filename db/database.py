@@ -35,6 +35,9 @@ def init_db():
 def save_benchmark_result(
     benchmark: Benchmark, username: str, benchmark_result: BenchmarkResult
 ):
+    # We ensure the username is uppercase, in case the user has circumvented client-side validation
+    uppercase_username: str = username.upper()
+
     # Insert the result into the database
     with sqlite3.connect(BENCHMARKS_RESULT_DB) as conn:
         cursor = conn.cursor()
@@ -43,7 +46,7 @@ def save_benchmark_result(
             INSERT INTO benchmark_results (benchmark_name, username, score)
             VALUES (?, ?, ?)
         """,
-            (benchmark.function_name, username, benchmark_result.result),
+            (benchmark.function_name, uppercase_username, benchmark_result.result),
         )
         conn.commit()
 

@@ -363,7 +363,7 @@
         submitButton.classList.remove('is-loading');
         submitButton.disabled = false;
     }
-    
+
     window.addEventListener('pageshow', function(event) {
         // The event.persisted property is true if the page was cached by the browser,
         // so the UI needs to be reset in this case
@@ -376,6 +376,11 @@
     document.getElementById('username').addEventListener('change', function() {
         document.getElementById('form-username').value = this.value;
         localStorage.setItem('username', this.value);
+    });
+
+    // Force only upper-case username text
+    document.getElementById('username').addEventListener('input', function() {
+        this.value = this.value.toUpperCase();
     });
 
     // Load content from local storage
