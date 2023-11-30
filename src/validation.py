@@ -5,6 +5,7 @@ from typing import List, Union, Callable, Optional, Any
 import yaml
 from faker import Faker
 from pydantic import BaseModel
+from black import FileMode, format_str
 from typing_extensions import TypeAlias
 
 TArg: TypeAlias = Union[int, str, list]
@@ -88,6 +89,24 @@ class Benchmark(BaseModel):
     @property
     def example_args(self) -> dict[str, TArg]:
         return {arg.name: arg.example_value for arg in self.args if not arg.hidden}
+
+    @property
+    def example_args_as_function_call(self) -> str:
+        """
+        Generate a string representing how to call the function with default arguments.
+        """
+        default_args_str = ", ".join(
+            f"{arg.name}={repr(arg.example_value)}"
+            for arg in self.args
+            if not arg.hidden
+        )
+        function_call_str = f"{self.function_name}({default_args_str})"
+
+        # Format using black
+        mode = FileMode(line_length=80)
+        formatted_str = format_str(function_call_str, mode=mode)
+
+        return formatted_str
 
     def generate_function_signature(self) -> str:
         # Retrieve the argument and return type annotations

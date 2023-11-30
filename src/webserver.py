@@ -241,6 +241,7 @@ async def fetch_benchmark_details(request: Request, benchmark: str):
         )
 
         example_input: dict[str, TArg] = benchmark.example_args
+        pretty_printed_example_args: str = benchmark.example_args_as_function_call
 
         example_output, example_std_output = run_reference_benchmark_with_arguments(
             benchmark=benchmark, arguments=example_input
@@ -256,7 +257,7 @@ async def fetch_benchmark_details(request: Request, benchmark: str):
             {
                 "request": request,
                 "description": description,
-                "example_input": example_input,
+                "example_input": pretty_printed_example_args,
                 "result_data": result_data,
             },
         )
