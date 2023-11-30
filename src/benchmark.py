@@ -15,7 +15,13 @@ from func_timeout import func_set_timeout
 
 from db.database import get_frozen_benchmarks, get_archived_benchmarks
 from src.config import BenchmarkResult
-from src.validation import Config, TArg, Benchmark, BENCHMARK_CONFIG
+from src.validation import (
+    Config,
+    TArg,
+    Benchmark,
+    BENCHMARK_CONFIG,
+    format_args_as_function_call,
+)
 
 
 @lru_cache
@@ -137,10 +143,13 @@ def _run_single_benchmark(
         try:
             user_output, user_std_output = capture_output(user_func, **user_copy)
         except Exception as e:
+            function_call: str = format_args_as_function_call(
+                func_name=benchmark.function_name, args_dict=valid_kwargs
+            )
             return BenchmarkResult(
                 name=run_name,
                 result=last_valid_iteration,
-                error=f"Error while executing '{run_name}' for arguments {valid_kwargs}: {e}",
+                error=f"Error while executing '{run_name}' for function call:\n{function_call}{e}",
             )
 
         # Only count the time in user code towards the benchmark, exclude all time spent in validation
@@ -150,12 +159,15 @@ def _run_single_benchmark(
         ref_output, ref_std_output = capture_output(ref_func, **reference_copy)
 
         if user_output != ref_output:
+            function_call: str = format_args_as_function_call(
+                func_name=benchmark.function_name, args_dict=valid_kwargs
+            )
             return BenchmarkResult(
                 name=run_name,
                 result=last_valid_iteration,
                 error=(
                     f"Mismatch in function output for '{run_name}' "
-                    f"for arguments {valid_kwargs}.\n"
+                    f"for function call:\n{function_call}"
                     f"Expected:\n{ref_output}\n"
                     f"Got:\n{user_output}\n"
                 ),
@@ -163,12 +175,15 @@ def _run_single_benchmark(
             )
 
         if user_std_output != ref_std_output:
+            function_call: str = format_args_as_function_call(
+                func_name=benchmark.function_name, args_dict=valid_kwargs
+            )
             return BenchmarkResult(
                 name=run_name,
                 result=last_valid_iteration,
                 error=(
                     f"Mismatch in print-statement output for '{run_name}' "
-                    f"for arguments {valid_kwargs}.\n"
+                    f"for function call:\n{function_call}"
                     f"Expected:\n{ref_std_output}\n"
                     f"Got:\n{user_std_output}\n"
                 ),
