@@ -1,5 +1,6 @@
 import importlib
 import os
+import subprocess
 
 import click
 from typing import Optional
@@ -34,10 +35,16 @@ if os.path.exists(".profanity-filter"):
     help="Serve the benchmark runner as a webserver on port 8421.",
 )
 @click.option(
-    "--workers",
-    default=32,
+    "--processes",
+    default=8,
     type=int,
-    help="Number of workers for the Uvicorn server.",
+    help="Number of processes for the Gunicorn server.",
+)
+@click.option(
+    "--threads",
+    default=4,
+    type=int,
+    help="Number of threads per gunicorn worker.",
 )
 @click.option(
     "--debug",
@@ -47,7 +54,8 @@ if os.path.exists(".profanity-filter"):
 def main(
     benchmark: Optional[list[str]] = None,
     serve: bool = False,
-    workers: int = 32,
+    processes: int = 8,
+    threads: int = 4,
     debug: bool = False,
 ):
     # Always initialise the database on startup
@@ -62,12 +70,28 @@ def main(
             app(debug=True)
         else:
             # Run via Uvicorn with specified number of workers
-            uvicorn.run(
-                "src.webserver:app",
-                host="0.0.0.0",
-                port=8421,
-                timeout_keep_alive=10,
-                workers=workers,
+            # uvicorn.run(
+            #     "src.webserver:app",
+            #     host="0.0.0.0",
+            #     port=8421,
+            #     timeout_keep_alive=10,
+            #     workers=workers,
+            # )
+            subprocess.run(
+                [
+                    "gunicorn",
+                    "-w",
+                    str(processes),  # Number of worker processes
+                    "-k",
+                    "uvicorn.workers.UvicornWorker",
+                    "--threads",
+                    str(threads),  # Number of threads per worker
+                    "src.webserver:app",
+                    "--bind",
+                    "0.0.0.0:8421",
+                    "--access-logfile",
+                    "-",
+                ]
             )
     else:
         config = get_config()
