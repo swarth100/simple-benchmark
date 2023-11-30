@@ -101,7 +101,7 @@ class Benchmark(BaseModel):
         for arg in self.args:
             if not arg.hidden:
                 # Default to 'Any' if type is not specified
-                arg_type = annotations.get(arg.name, "Any")
+                arg_type = _format_type_hint(annotations.get(arg.name, Any))
                 args_with_types.append(f"{arg.name}: {arg_type}")
 
         function_signature += ", ".join(args_with_types)
