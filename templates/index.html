@@ -352,6 +352,26 @@
         document.getElementById('reset-button').disabled = true;
     };
 
+    function resetUI() {
+        var spinner = document.getElementById('loading-spinner');
+        var submitButton = document.getElementById('submit-button');
+
+        // Hide the spinner
+        spinner.classList.add('hidden');
+
+        // Enable the submit button
+        submitButton.classList.remove('is-loading');
+        submitButton.disabled = false;
+    }
+    
+    window.addEventListener('pageshow', function(event) {
+        // The event.persisted property is true if the page was cached by the browser,
+        // so the UI needs to be reset in this case
+        if (event.persisted) {
+            resetUI();
+        }
+    });
+
     // Update the hidden username field in the form whenever the username input changes
     document.getElementById('username').addEventListener('change', function() {
         document.getElementById('form-username').value = this.value;
