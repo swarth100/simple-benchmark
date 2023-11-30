@@ -95,9 +95,9 @@
                         <p>Top Benchmark Results</p>
                     </div>
                     <div class="message-body">
-                        {% if current_user is not defined or current_user == '' %}
+                        {% if "warning" in result %}
                         <div class="notification">
-                            <p><strong>NOTE</strong>: You must set your username to submit to the leaderboards</p>
+                            <p><strong>NOTE</strong>: {{result.warning}}</p>
                         </div>
                         {% endif %}
                         {% from "leaderboard.html" import render_leaderboard as leaderboard_macro %}

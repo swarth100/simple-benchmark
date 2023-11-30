@@ -365,16 +365,25 @@ async def run_user_benchmark(request: Request):
                 ]
                 reference_result = [r for r in benchmark_results if r.is_reference][0]
 
+                result_data = {"output": benchmark_result.result}
+
                 # Persist the result to the database for subsequent collection.
                 # We purposefully decide not to store cases where the user has not set a username.
-                if (username is not None) and (len(username) > 0):
-                    save_benchmark_result(
-                        benchmark=benchmark,
-                        username=username,
-                        benchmark_result=benchmark_result,
-                    )
-
-                result_data = {"output": benchmark_result.result}
+                if benchmark_result.result > 10:
+                    if (username is not None) and (len(username) > 0):
+                        save_benchmark_result(
+                            benchmark=benchmark,
+                            username=username,
+                            benchmark_result=benchmark_result,
+                        )
+                    else:
+                        result_data[
+                            "warning"
+                        ] = "You must set your username to submit to the leaderboards"
+                else:
+                    result_data[
+                        "warning"
+                    ] = "The benchmark result is too low and has not been submitted to the leaderboards"
 
                 if benchmark_result.has_error:
                     result_data["error"] = benchmark_result.error
