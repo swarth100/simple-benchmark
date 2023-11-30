@@ -36,7 +36,13 @@ from src.benchmark import (
     is_benchmark_archived,
 )
 from src.config import BenchmarkResult, UserRank, BenchmarkStatus
-from src.validation import BENCHMARK_CONFIG, Benchmark, Config, TArg
+from src.validation import (
+    BENCHMARK_CONFIG,
+    Benchmark,
+    Config,
+    TArg,
+    format_args_as_function_call,
+)
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -172,7 +178,9 @@ async def run_sandbox(request: Request):
                 # Assume inputs are JSON and need to be converted to Python dict
                 inputs_dict = json.loads(user_inputs)
 
-                result_data["input"] = inputs_dict
+                result_data["input"] = format_args_as_function_call(
+                    func_name=benchmark.function_name, args_dict=inputs_dict
+                )
                 result_data["signature"] = benchmark.generate_function_signature()
 
                 # Run the reference function with the provided inputs

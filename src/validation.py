@@ -95,18 +95,10 @@ class Benchmark(BaseModel):
         """
         Generate a string representing how to call the function with default arguments.
         """
-        default_args_str = ", ".join(
-            f"{arg.name}={repr(arg.example_value)}"
-            for arg in self.args
-            if not arg.hidden
-        )
-        function_call_str = f"{self.function_name}({default_args_str})"
-
-        # Format using black
-        mode = FileMode(line_length=80)
-        formatted_str = format_str(function_call_str, mode=mode)
-
-        return formatted_str
+        default_args = {
+            arg.name: arg.default_value for arg in self.args if not arg.hidden
+        }
+        return format_args_as_function_call(self.function_name, default_args)
 
     def generate_function_signature(self) -> str:
         # Retrieve the argument and return type annotations
@@ -214,6 +206,20 @@ class Config(BaseModel):
 
 
 # ------------------------------------------------------------------------------------------------------------------- #
+
+
+def format_args_as_function_call(func_name: str, args_dict: dict) -> str:
+    """
+    Generate and format a string representing how to call a function with given arguments.
+    """
+    args_str = ", ".join(f"{key}={repr(value)}" for key, value in args_dict.items())
+    function_call_str = f"{func_name}({args_str})"
+
+    # Format using black
+    mode = FileMode(line_length=80)
+    formatted_str = format_str(function_call_str, mode=mode)
+
+    return formatted_str
 
 
 def _format_type_hint(type_hint: type):
