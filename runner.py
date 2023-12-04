@@ -67,16 +67,15 @@ def main(
         if debug:
             # Run FastAPI app in-process (useful for debugging)
             app = importlib.import_module("src.webserver").app
-            app(debug=True)
+            uvicorn.run(
+                "src.webserver:app",
+                host="0.0.0.0",
+                port=8421,
+                timeout_keep_alive=10,
+                workers=1,
+            )
         else:
-            # Run via Uvicorn with specified number of workers
-            # uvicorn.run(
-            #     "src.webserver:app",
-            #     host="0.0.0.0",
-            #     port=8421,
-            #     timeout_keep_alive=10,
-            #     workers=workers,
-            # )
+            # Run via Gunicorn with specified number of workers
             subprocess.run(
                 [
                     "gunicorn",

@@ -22,6 +22,9 @@ gunicorn = "^21.2.0"
 black = "^23.11.0"
 
 
+[tool.poetry.group.dev.dependencies]
+setuptools = "^69.0.2"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

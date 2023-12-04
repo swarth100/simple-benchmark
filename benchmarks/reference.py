@@ -1,5 +1,7 @@
 import math
 
+from pydantic import BaseModel
+
 
 def square(size: int):
     for x in range(size):
@@ -289,3 +291,16 @@ def machine(commands: list[int]):
             print(row)
             row = ""
     print(row, end="")
+
+
+class City(BaseModel):
+    name: str
+    pop: int
+
+
+def smallest_city(cities: list[City]) -> City:
+    smallest = cities[0]
+    for city in cities:
+        if city.pop < smallest.pop:
+            smallest = city
+    return smallest

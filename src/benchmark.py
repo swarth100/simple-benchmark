@@ -1,16 +1,15 @@
 import copy
 import importlib
 import io
-import json
 import multiprocessing
+import random
 import sys
 import time
 from functools import lru_cache
-import random
-from faker import Faker
 from types import ModuleType
 from typing import Dict, Callable, Optional, Tuple, Any, List, Union
 
+from faker import Faker
 from func_timeout import func_set_timeout
 
 from db.database import get_frozen_benchmarks, get_archived_benchmarks
@@ -68,6 +67,36 @@ def get_reference_benchmark_function(function_name: str) -> Callable:
         )
 
     return ref_func
+
+
+@lru_cache
+def get_reference_benchmark_include(object_name: str) -> object:
+    """
+    Given the name of an object to include from the reference module, resolves the python
+    object and returns a reference to it
+
+    :param object_name: Name of the object to include
+    :return: Reference to the object
+    """
+    benchmark_config = get_config()
+    try:
+        ref_module = importlib.import_module(benchmark_config.reference_module)
+    except ImportError:
+        print(
+            f"Error: Reference module '{benchmark_config.reference_module}' not found."
+        )
+        sys.exit(1)
+
+    try:
+        ref_object = getattr(ref_module, object_name)
+    except AttributeError:
+        raise AttributeError(
+            f"Error: Object '{object_name}' not found in "
+            f"reference module '{ref_module.__name__}'.\n"
+            f"Benchmarks cannot reference include objects which do not exist!"
+        )
+
+    return ref_object
 
 
 def get_benchmark_by_name(
@@ -207,10 +236,16 @@ def _run_single_benchmark(
 def _run_single_benchmark_by_module(
     target_module: Union[str, ModuleType], benchmark: Benchmark
 ) -> BenchmarkResult:
+    # Define the extra objects to be injected
+    extra_objects = {
+        include_object_name: get_reference_benchmark_include(include_object_name)
+        for include_object_name in benchmark.include
+    }
+
     try:
         if isinstance(target_module, str):
             if not target_module.startswith("/tmp"):
-                # If the module is specified by string we try to import it normally
+                # Import the module normally using the custom importer
                 target_module = importlib.import_module(target_module)
             else:
                 # In cases where we accept user code we write the module to a tempfile
@@ -219,6 +254,7 @@ def _run_single_benchmark_by_module(
                     "custom_module", target_module
                 )
                 target_module = importlib.util.module_from_spec(spec)
+                target_module.__dict__.update(extra_objects)
                 spec.loader.exec_module(target_module)
     except ImportError:
         benchmark_result: BenchmarkResult = BenchmarkResult(
@@ -237,6 +273,7 @@ def _run_single_benchmark_by_module(
         benchmark_result: BenchmarkResult = _run_single_benchmark(
             target_module=target_module, benchmark=benchmark
         )
+
     return benchmark_result
 
 

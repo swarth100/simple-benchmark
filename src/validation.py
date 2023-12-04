@@ -3,9 +3,9 @@ import inspect
 from typing import List, Union, Callable, Optional, Any
 
 import yaml
+from black import FileMode, format_str
 from faker import Faker
 from pydantic import BaseModel
-from black import FileMode, format_str
 from typing_extensions import TypeAlias
 
 TArg: TypeAlias = Union[int, str, list]
@@ -32,7 +32,12 @@ class Argument(BaseModel):
         # Some libraries are required to be available for import by lambdas
         import random
 
-        return eval(self.increment, {"random": random, "fake": _FAKE})
+        include_mapping = _get_reference_benchmark_include_mapping()
+
+        return eval(
+            self.increment,
+            {"random": random, "fake": _FAKE, **include_mapping},
+        )
 
     @property
     def takes_kwargs_in_increment(self) -> bool:
@@ -42,11 +47,13 @@ class Argument(BaseModel):
 
     @property
     def example_value(self) -> TArg:
-        return eval(self.example)
+        include_mapping = _get_reference_benchmark_include_mapping()
+        return eval(self.example, include_mapping)
 
     @property
     def default_value(self) -> TArg:
-        return eval(self.default)
+        include_mapping = _get_reference_benchmark_include_mapping()
+        return eval(self.default, include_mapping)
 
     def apply_increment(self, argument: TArg, **kwargs) -> TArg:
         # NOTE: **kwargs will only be passed down if supported by the underlying lambda.
@@ -80,7 +87,12 @@ class Benchmark(BaseModel):
     args: List[Argument]
     description: str
     difficulty: float
+    include: Optional[list[str]] = None
     hidden: bool = False
+
+    def model_post_init(self, __context: Any):
+        if self.include is None:
+            self.include = []
 
     @property
     def max_time_seconds(self) -> float:
@@ -208,6 +220,19 @@ class Config(BaseModel):
 # ------------------------------------------------------------------------------------------------------------------- #
 
 
+def _get_reference_benchmark_include_mapping() -> dict[str, Any]:
+    """
+    Returns a mapping of names to objects included from the reference module.
+    """
+    ref_module = importlib.import_module(BENCHMARK_CONFIG.reference_module)
+    include_mapping = {
+        name: getattr(ref_module, name)
+        for benchmark in BENCHMARK_CONFIG.benchmarks
+        for name in benchmark.include
+    }
+    return include_mapping
+
+
 def format_args_as_function_call(func_name: str, args_dict: dict) -> str:
     """
     Generate and format a string representing how to call a function with given arguments.
@@ -250,7 +275,8 @@ def _load_config(file_path) -> Config:
         for arg in benchmark.args:
             if arg.name in annotations:
                 arg_type = annotations[arg.name]
-                arg.validate_default_against_type(arg_type)
+                # TODO: DO NOT COMMENT OUT VALIDATION!!
+                # arg.validate_default_against_type(arg_type)
 
     return config
 

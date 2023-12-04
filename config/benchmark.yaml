@@ -347,3 +347,20 @@ benchmarks:
         description: "A list of integer commands consisting of `0`s, `1`s and `2`s"
         increment: "lambda **kwargs: [random.randint(0, 2) for _ in range(kwargs['x'])] + [2]"
         default: "list([1, 0, 2, 0, 1, 1, 2])"
+
+  - function_name: "smallest_city"
+    description: |
+      Given a list of City objects, return the name of the city with the smallest population.
+    max_time: 5
+    difficulty: 1.0
+    include:
+      - "City"
+    args:
+      - name: "x"
+        increment: "lambda x: x + random.randint(0, 2)"
+        default: "int(1)"
+        hidden: true
+      - name: "cities"
+        description: "A list of City objects."
+        increment: "lambda **kwargs: [City(name=fake.city(), pop=random.randint(1000, 1000000)) for _ in range(kwargs['x'])]"
+        default: "list([City(name='New York', pop=1000000), City(name='Los Angeles', pop=500000), City(name='Chicago', pop=250000)])"

@@ -13,6 +13,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from func_timeout import FunctionTimedOut
+from pydantic import BaseModel, parse_obj_as
 from starlette.responses import FileResponse
 
 from db.database import (
@@ -44,6 +45,14 @@ from src.validation import (
     format_args_as_function_call,
 )
 
+
+class PydanticEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, BaseModel):
+            return obj.dict()
+        return super().default(obj)
+
+
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
@@ -72,7 +81,7 @@ async def read_root(request: Request):
     benchmark_names = [benchmark.function_name for benchmark in sorted_benchmarks]
 
     benchmarks_with_args = {
-        benchmark.function_name: benchmark.example_args
+        benchmark.function_name: json.dumps(benchmark.example_args, cls=PydanticEncoder)
         for benchmark in config.get_all_valid_benchmarks()
     }
 
@@ -176,7 +185,12 @@ async def run_sandbox(request: Request):
                 result_data = {"error": f"Benchmark '{benchmark_name}' does not exist"}
             else:
                 # Assume inputs are JSON and need to be converted to Python dict
-                inputs_dict = json.loads(user_inputs)
+                (arg_types, _) = benchmark.get_function_annotations(BENCHMARK_CONFIG)
+                inputs_dict = {}
+                for arg_name, arg_value in json.loads(user_inputs).items():
+                    # We parse input arguments, validating them against the pydantic schema model
+                    # This ensures we reconstruct Python objects
+                    inputs_dict[arg_name] = parse_obj_as(arg_types[arg_name], arg_value)  # type: ignore
 
                 result_data["input"] = format_args_as_function_call(
                     func_name=benchmark.function_name, args_dict=inputs_dict
@@ -188,7 +202,7 @@ async def run_sandbox(request: Request):
                     benchmark=benchmark, arguments=inputs_dict
                 )
                 if ref_output is not None:
-                    result_data["output"] = ref_output
+                    result_data["output"] = repr(ref_output)
                 if (ref_std_output is not None) and (ref_std_output != ""):
                     result_data["std_output"] = ref_std_output
 
@@ -209,7 +223,7 @@ async def run_sandbox(request: Request):
 
 
 @app.get("/randomize_args")
-async def update_leaderboard(request: Request, benchmark: str) -> dict:
+async def update_leaderboard(request: Request, benchmark: str) -> str:
     try:
         benchmark: Optional[Benchmark] = get_benchmark_by_name(name=benchmark)
         arg_values: dict[str, TArg] = {
@@ -224,14 +238,15 @@ async def update_leaderboard(request: Request, benchmark: str) -> dict:
                 arg_values[arg.name] = arg.apply_increment(
                     arg_values[arg.name], **arg_values
                 )
-        return {
+        encoded_arguments: dict[str, TArg] = {
             arg.name: arg_values[arg.name] for arg in benchmark.args if not arg.hidden
         }
+        return json.dumps(encoded_arguments, cls=PydanticEncoder)
 
     except Exception as e:
         # Handle errors gracefully
         print(traceback.format_exc())
-        return {}
+        return "{}"
 
 
 @app.get("/fetch_benchmark_details")
@@ -256,7 +271,7 @@ async def fetch_benchmark_details(request: Request, benchmark: str):
         )
         result_data: dict[str, str] = dict()
         if example_output is not None:
-            result_data["example_output"] = example_output
+            result_data["example_output"] = repr(example_output)
         if (example_std_output is not None) and (example_std_output != ""):
             result_data["example_std_output"] = example_std_output
 

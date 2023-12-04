@@ -455,10 +455,10 @@
         document.getElementById('leaderboard-benchmark').dispatchEvent(new Event('change'));
     }
 
-    var benchmarksWithArgs = {{ benchmarks_with_args | tojson }};
+    var benchmarksWithArgs = {{ benchmarks_with_args | safe }};
     function updateSandboxInputs() {
         var selectedBenchmark = document.getElementById("sandbox-benchmark").value;
-        var defaultArgs = benchmarksWithArgs[selectedBenchmark];
+        var defaultArgs = JSON.parse(benchmarksWithArgs[selectedBenchmark]);
         // Update CodeMirror instance with new value
         var jsonStr = JSON.stringify(defaultArgs, null, 2);
 
