@@ -304,3 +304,45 @@ def smallest_city(cities: list[City]) -> City:
         if city.pop < smallest.pop:
             smallest = city
     return smallest
+
+
+class Book(BaseModel):
+    title: str
+    pages: int
+
+
+def total_num_pages(books: list[Book]) -> int:
+    total_pages = 0
+    for book in books:
+        total_pages += book.pages
+    return total_pages
+
+
+class Car(BaseModel):
+    license_plate: str
+    is_parked: bool
+
+
+def park_cars(garage: list[Car], license_plates: list[str]) -> int:
+    parked_count = 0
+    for car in garage:
+        if car.license_plate in license_plates and not car.is_parked:
+            car.is_parked = True
+            parked_count += 1
+    return parked_count
+
+
+class Student(BaseModel):
+    name: str
+    grades: list[float]
+
+
+def calculate_gpa(students: list[Student], name: str) -> float:
+    for student in students:
+        if student.name == name:
+            total_grades = sum(student.grades)
+            num_subjects = len(student.grades)
+            if num_subjects == 0:  # To prevent division by zero
+                return 0
+            return total_grades / num_subjects
+    return 0  # If student not found

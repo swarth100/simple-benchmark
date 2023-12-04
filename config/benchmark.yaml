@@ -352,7 +352,7 @@ benchmarks:
     description: |
       Given a list of City objects, return the name of the city with the smallest population.
     max_time: 5
-    difficulty: 1.0
+    difficulty: 1.5
     include:
       - "City"
     args:
@@ -364,3 +364,78 @@ benchmarks:
         description: "A list of City objects."
         increment: "lambda **kwargs: [City(name=fake.city(), pop=random.randint(1000, 1000000)) for _ in range(kwargs['x'])]"
         default: "list([City(name='New York', pop=1000000), City(name='Los Angeles', pop=500000), City(name='Chicago', pop=250000)])"
+
+  - function_name: "total_num_pages"
+    description: |
+      Given a list of Book objects, return the total number of pages across all books.
+    max_time: 5
+    difficulty: 1.0
+    include:
+      - "Book"
+    args:
+      - name: "x"
+        increment: "lambda x: x + random.randint(0, 2)"
+        default: "int(1)"
+        hidden: true
+      - name: "books"
+        description: "A list of Book objects."
+        increment: "lambda **kwargs: [Book(title=fake.sentence(3), pages=random.randint(100, 1000)) for _ in range(kwargs['x'])]"
+        default: "list([Book(title='The Great Gatsby', pages=200), Book(title='The Catcher in the Rye', pages=300), Book(title='To Kill a Mockingbird', pages=400)])"
+
+  - function_name: "park_cars"
+    description: |
+      Given a list of Car objects (`garage`) and a list of license plates, the `park_cars` function should return the number of cars with the matching license plates that are not parked.
+    max_time: 5
+    difficulty: 2.0
+    include:
+      - "Car"
+    args:
+      - name: "x"
+        increment: "lambda x: x + random.randint(0, 2)"
+        default: "int(1)"
+        hidden: true
+      - name: "l"
+        increment: "lambda **kwargs: list({fake.license_plate() for _ in range(kwargs['x'])})"
+        default: "list(['ABC123', 'DEF456', 'GHI789'])"
+        hidden: true
+      - name: "m"
+        increment: "lambda **kwargs: [*kwargs['l']]"
+        default: "list(['ABC123', 'DEF456', 'GHI789'])"
+        hidden: true
+      - name: "garage"
+        description: "A list of Car objects."
+        increment: "lambda **kwargs: [Car(license_plate=kwargs['l'].pop(), is_parked=random.choice([True, False])) for _ in range(len(kwargs['l']))]"
+        default: "list([Car(license_plate='ABC123', is_parked=True), Car(license_plate='DEF456', is_parked=False), Car(license_plate='GHI789', is_parked=False)])"
+      - name: "license_plates"
+        description: "A list of license plates."
+        increment: "lambda **kwargs: list({random.choice(kwargs['m']) for _ in range(kwargs['x'])})"
+        default: "list(['ABC123', 'GHI789'])"
+
+  - function_name: "calculate_gpa"
+    description: |
+      Given a list of Student objects and a student's name, calculate their GPA (assuming each grade is a numerical value), and return the GPA.
+    max_time: 5
+    difficulty: 2.0
+    include:
+      - "Student"
+    args:
+      - name: "x"
+        increment: "lambda x: x + random.randint(0, 2)"
+        default: "int(1)"
+        hidden: true
+      - name: "n"
+        increment: "lambda **kwargs: list({fake.name() for _ in range(kwargs['x'])})"
+        default: "list(['Alice', 'Bob', 'Charlie'])"
+        hidden: true
+      - name: "m"
+        increment: "lambda **kwargs: [*kwargs['n']]"
+        default: "list(['Alice', 'Bob', 'Charlie'])"
+        hidden: true
+      - name: "students"
+        description: "A list of Student objects."
+        increment: "lambda **kwargs: [Student(name=kwargs['n'].pop(), grades=[random.randint(2, 10) for _ in range(random.randint(1, 5))]) for _ in range(len(kwargs['n']))]"
+        default: "list([Student(name='Alice', grades=[9, 8, 7]), Student(name='Bob', grades=[8, 7, 6]), Student(name='Charlie', grades=[7, 6, 5])])"
+      - name: "name"
+        description: "The name of the student."
+        increment: "lambda **kwargs: random.choice(kwargs['m'])"
+        default: "str('Alice')"
