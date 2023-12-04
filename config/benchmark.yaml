@@ -350,7 +350,7 @@ benchmarks:
 
   - function_name: "smallest_city"
     description: |
-      Given a list of City objects, return the name of the city with the smallest population.
+      Given a list of `City` objects, return the name of the city with the smallest population.
     max_time: 5
     difficulty: 1.5
     include:
@@ -367,7 +367,7 @@ benchmarks:
 
   - function_name: "total_num_pages"
     description: |
-      Given a list of Book objects, return the total number of pages across all books.
+      Given a list of `Book` objects, return the total number of pages across all books.
     max_time: 5
     difficulty: 1.0
     include:
@@ -384,7 +384,7 @@ benchmarks:
 
   - function_name: "park_cars"
     description: |
-      Given a list of Car objects (`garage`) and a list of license plates, the `park_cars` function should return the number of cars with the matching license plates that are not parked.
+      Given a list of `Car` objects (`garage`) and a list of license plates, the `park_cars` function should return the number of cars with the matching license plates that are not parked.
     max_time: 5
     difficulty: 2.0
     include:
@@ -413,7 +413,7 @@ benchmarks:
 
   - function_name: "calculate_gpa"
     description: |
-      Given a list of Student objects and a student's name, calculate their GPA (assuming each grade is a numerical value), and return the GPA.
+      Given a list of `Student` objects and a student's name, calculate their GPA (assuming each grade is a numerical value), and return the GPA.
     max_time: 5
     difficulty: 2.0
     include:
