@@ -93,6 +93,9 @@
                 <div class="field">
                     <label class="label" for="code">Submit Your Code:</label>
                     <div class="control">
+                        <pre id="benchmark-include" style="border: 1px solid #ddd; border-bottom: none;">
+                            <!-- Include text will be loaded here -->
+                        </pre>
                         <textarea class="textarea" name="code" id="code" rows="10"></textarea>
                     </div>
                 </div>
@@ -487,6 +490,7 @@
     }
 
     // Save selected benchmarks to local storage
+    var benchmarkIncludes = {{ benchmark_includes | tojson }};
     document.getElementById('benchmark-select').addEventListener('change', function() {
         // Update the lastSelectedBenchmark to the new value
         lastSelectedBenchmark = this.value;
@@ -503,6 +507,15 @@
             }
         } else {
             updateFunctionSignature();
+        }
+
+        var includeText = benchmarkIncludes[this.value];
+        var includeElem = document.getElementById('benchmark-include');
+        if (includeText) {
+            includeElem.innerHTML = includeText.trim();
+            includeElem.style.display = 'block';
+        } else {
+            includeElem.style.display = 'none';
         }
 
         disableSubmitOnFreeze(this.value);

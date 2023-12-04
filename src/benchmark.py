@@ -14,6 +14,7 @@ from func_timeout import func_set_timeout
 
 from db.database import get_frozen_benchmarks, get_archived_benchmarks
 from src.config import BenchmarkResult
+from src.utils import get_reference_benchmark_include
 from src.validation import (
     Config,
     TArg,
@@ -67,36 +68,6 @@ def get_reference_benchmark_function(function_name: str) -> Callable:
         )
 
     return ref_func
-
-
-@lru_cache
-def get_reference_benchmark_include(object_name: str) -> object:
-    """
-    Given the name of an object to include from the reference module, resolves the python
-    object and returns a reference to it
-
-    :param object_name: Name of the object to include
-    :return: Reference to the object
-    """
-    benchmark_config = get_config()
-    try:
-        ref_module = importlib.import_module(benchmark_config.reference_module)
-    except ImportError:
-        print(
-            f"Error: Reference module '{benchmark_config.reference_module}' not found."
-        )
-        sys.exit(1)
-
-    try:
-        ref_object = getattr(ref_module, object_name)
-    except AttributeError:
-        raise AttributeError(
-            f"Error: Object '{object_name}' not found in "
-            f"reference module '{ref_module.__name__}'.\n"
-            f"Benchmarks cannot reference include objects which do not exist!"
-        )
-
-    return ref_object
 
 
 def get_benchmark_by_name(

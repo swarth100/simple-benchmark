@@ -1,12 +1,14 @@
 import importlib
 import inspect
-from typing import List, Union, Callable, Optional, Any
+from typing import List, Union, Callable, Optional, Any, Type
 
 import yaml
 from black import FileMode, format_str
 from faker import Faker
 from pydantic import BaseModel
 from typing_extensions import TypeAlias
+
+from src.utils import serialize_base_model_to_class, get_reference_benchmark_include
 
 TArg: TypeAlias = Union[int, str, list]
 
@@ -137,6 +139,16 @@ class Benchmark(BaseModel):
             function_signature += "):\n    ...\n"
 
         return function_signature
+
+    def generate_include_code(self) -> str:
+        """
+        Generate code to include from the reference module.
+        """
+        include_snippets: list[str] = []
+        for name in self.include:
+            include_object: Type[BaseModel] = get_reference_benchmark_include(name)
+            include_snippets.append(serialize_base_model_to_class(include_object))
+        return "\n".join(include_snippets)
 
     def get_function_annotations(
         self, config: "Config"

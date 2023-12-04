@@ -90,6 +90,11 @@ async def read_root(request: Request):
         for benchmark in config.get_all_valid_benchmarks(include_archived=True)
     }
 
+    benchmark_includes = {
+        benchmark.function_name: benchmark.generate_include_code()
+        for benchmark in config.get_all_valid_benchmarks(include_archived=True)
+    }
+
     frozen_benchmarks: list[str] = [
         benchmark.function_name for benchmark in get_frozen_benchmarks()
     ]
@@ -104,6 +109,7 @@ async def read_root(request: Request):
             "request": request,
             "benchmarks": benchmark_names,
             "benchmark_signatures": benchmark_signatures,
+            "benchmark_includes": benchmark_includes,
             "benchmarks_with_args": benchmarks_with_args,
             "frozen_benchmarks": frozen_benchmarks,
             "archived_benchmarks": archived_benchmarks,
