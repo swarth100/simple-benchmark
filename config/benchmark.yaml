@@ -337,7 +337,7 @@ benchmarks:
       * `1` prints `#`
       * `2` prints a newline.
     max_time: 10
-    difficulty: 1.0
+    difficulty: 1.5
     args:
       - name: "x"
         increment: "lambda x: x + random.randint(1, 3)"
