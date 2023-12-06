@@ -295,13 +295,13 @@ def machine(commands: list[int]):
 
 class City(BaseModel):
     name: str
-    pop: int
+    population: int
 
 
 def smallest_city(cities: list[City]) -> City:
     smallest = cities[0]
     for city in cities:
-        if city.pop < smallest.pop:
+        if city.population < smallest.population:
             smallest = city
     return smallest
 

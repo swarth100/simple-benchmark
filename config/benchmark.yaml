@@ -350,7 +350,7 @@ benchmarks:
 
   - function_name: "smallest_city"
     description: |
-      Given a list of `City` objects, return the name of the city with the smallest population.
+      Given a list of `City` objects, return the instance of the `City` object with the smallest population.
     max_time: 5
     difficulty: 1.5
     include:
@@ -362,8 +362,8 @@ benchmarks:
         hidden: true
       - name: "cities"
         description: "A list of City objects."
-        increment: "lambda **kwargs: [City(name=fake.city(), pop=random.randint(1000, 1000000)) for _ in range(kwargs['x'])]"
-        default: "list([City(name='New York', pop=1000000), City(name='Los Angeles', pop=500000), City(name='Chicago', pop=250000)])"
+        increment: "lambda **kwargs: [City(name=fake.city(), population=random.randint(1000, 1000000)) for _ in range(kwargs['x'])]"
+        default: "list([City(name='New York', population=1000000), City(name='Los Angeles', population=500000), City(name='Chicago', population=250000)])"
 
   - function_name: "total_num_pages"
     description: |
