@@ -439,3 +439,35 @@ benchmarks:
         description: "The name of the student."
         increment: "lambda **kwargs: random.choice(kwargs['m'])"
         default: "str('Alice')"
+
+  - class_name: "Coordinate"
+    description: |
+      A class representing a point in a 2D plane.
+      Implements a `distance` method to calculate the distance from another `Coordinate`.
+    max_time: 50
+    difficulty: 2.0
+    init:
+      - name: "size"
+        increment: "lambda x: x + 1"
+        default: "int(3)"
+        hidden: true
+      - name: "x"
+        description: "The x-axis of the coordinate."
+        increment: "lambda **kwargs: random.randint(-kwargs['size'], kwargs['size'])"
+        default: "int(4)"
+      - name: "y"
+        description: "The y-axis of the coordinate."
+        increment: "lambda **kwargs: random.randint(-kwargs['size'], kwargs['size'])"
+        default: "int(2)"
+    methods:
+      - method_name: "distance"
+        description: "Calculate the distance from another Coordinate."
+        args:
+          - name: "coordinate"
+            description: "The other Coordinate to calculate the distance from."
+            increment: "lambda **kwargs: Coordinate(x=random.randint(-kwargs['size'], kwargs['size']), y=random.randint(-kwargs['size'], kwargs['size']))"
+            default: "Coordinate(x=1, y=1)"
+    evaluation:
+      - "__init__"
+      - "__str__"
+      - "distance"

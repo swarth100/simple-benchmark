@@ -78,21 +78,21 @@ def get_benchmark_by_name(
     for benchmark in benchmark_config.get_all_valid_benchmarks(
         include_archived=include_archived
     ):
-        if benchmark.function_name == name:
+        if benchmark.name == name:
             return benchmark
     return None
 
 
 def is_benchmark_frozen(name: str) -> bool:
     for benchmark in get_frozen_benchmarks():
-        if benchmark.function_name == name:
+        if benchmark.name == name:
             return True
     return False
 
 
 def is_benchmark_archived(name: str) -> bool:
     for benchmark in get_archived_benchmarks():
-        if benchmark.function_name == name:
+        if benchmark.name == name:
             return True
     return False
 
@@ -101,16 +101,16 @@ def _run_single_benchmark(
     target_module: ModuleType, benchmark: Benchmark
 ) -> BenchmarkResult:
     target_module_name: str = target_module.__name__
-    ref_func: Callable = get_reference_benchmark_function(benchmark.function_name)
-    run_name: str = f"{target_module_name}.{benchmark.function_name}"
+    ref_func: Callable = get_reference_benchmark_function(benchmark.name)
+    run_name: str = f"{target_module_name}.{benchmark.name}"
 
     try:
-        user_func = getattr(target_module, benchmark.function_name)
+        user_func = getattr(target_module, benchmark.name)
     except AttributeError:
         return BenchmarkResult(
             name=run_name,
             error=(
-                f"Error: Function '{benchmark.function_name}' not found "
+                f"Error: Function '{benchmark.name}' not found "
                 f"in user module '{target_module_name}'."
             ),
         )
@@ -144,7 +144,7 @@ def _run_single_benchmark(
             user_output, user_std_output = capture_output(user_func, **user_copy)
         except Exception as e:
             function_call: str = format_args_as_function_call(
-                func_name=benchmark.function_name, args_dict=valid_kwargs
+                func_name=benchmark.name, args_dict=valid_kwargs
             )
             return BenchmarkResult(
                 name=run_name,
@@ -160,7 +160,7 @@ def _run_single_benchmark(
 
         if user_output != ref_output:
             function_call: str = format_args_as_function_call(
-                func_name=benchmark.function_name, args_dict=valid_kwargs
+                func_name=benchmark.name, args_dict=valid_kwargs
             )
             return BenchmarkResult(
                 name=run_name,
@@ -176,7 +176,7 @@ def _run_single_benchmark(
 
         if user_std_output != ref_std_output:
             function_call: str = format_args_as_function_call(
-                func_name=benchmark.function_name, args_dict=valid_kwargs
+                func_name=benchmark.name, args_dict=valid_kwargs
             )
             return BenchmarkResult(
                 name=run_name,
@@ -278,7 +278,7 @@ def run_reference_benchmark_with_arguments(
     # After setting common fields we proceed to executing the function
     reference_module_name: str = get_config().reference_module
     reference_module = importlib.import_module(reference_module_name)
-    reference_func = getattr(reference_module, benchmark.function_name)
+    reference_func = getattr(reference_module, benchmark.name)
 
     # Run the reference function with the provided inputs
     ref_output, ref_std_output = capture_output(reference_func, **arguments)
@@ -291,7 +291,7 @@ def run_benchmark_given_config(benchmark_config: Config):
     print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
     for benchmark in benchmark_config.get_all_valid_benchmarks():
-        print(">>> " + benchmark.function_name)
+        print(">>> " + benchmark.name)
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
 
         results: Dict[str, int] = {}

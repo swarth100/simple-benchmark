@@ -79,29 +79,29 @@ async def read_root(request: Request):
     sorted_benchmarks = sorted(
         config.get_all_valid_benchmarks(), key=lambda b: b.difficulty
     )
-    benchmark_names = [benchmark.function_name for benchmark in sorted_benchmarks]
+    benchmark_names = [benchmark.name for benchmark in sorted_benchmarks]
 
     benchmarks_with_args = {
-        benchmark.function_name: json.dumps(benchmark.example_args, cls=PydanticEncoder)
+        benchmark.name: json.dumps(benchmark.example_args, cls=PydanticEncoder)
         for benchmark in config.get_all_valid_benchmarks()
     }
 
     benchmark_signatures = {
-        benchmark.function_name: benchmark.generate_signature()
+        benchmark.name: benchmark.generate_signature()
         for benchmark in config.get_all_valid_benchmarks(include_archived=True)
     }
 
     benchmark_includes = {
-        benchmark.function_name: benchmark.generate_include_code()
+        benchmark.name: benchmark.generate_include_code()
         for benchmark in config.get_all_valid_benchmarks(include_archived=True)
     }
 
     frozen_benchmarks: list[str] = [
-        benchmark.function_name for benchmark in get_frozen_benchmarks()
+        benchmark.name for benchmark in get_frozen_benchmarks()
     ]
 
     archived_benchmarks: list[str] = [
-        benchmark.function_name for benchmark in get_archived_benchmarks()
+        benchmark.name for benchmark in get_archived_benchmarks()
     ]
 
     return templates.TemplateResponse(
@@ -152,8 +152,7 @@ async def fetch_rankings(request: Request, username: str):
         )
 
         benchmark_names: list[str] = [
-            benchmark.function_name
-            for benchmark in BENCHMARK_CONFIG.get_all_valid_benchmarks()
+            benchmark.name for benchmark in BENCHMARK_CONFIG.get_all_valid_benchmarks()
         ]
 
         # Render the rankings data into HTML using Jinja2
@@ -200,7 +199,7 @@ async def run_sandbox(request: Request):
                     inputs_dict[arg_name] = parse_obj_as(arg_types[arg_name], arg_value)  # type: ignore
 
                 result_data["input"] = format_args_as_function_call(
-                    func_name=benchmark.function_name, args_dict=inputs_dict
+                    func_name=benchmark.name, args_dict=inputs_dict
                 )
                 result_data["signature"] = benchmark.generate_function_signature()
 
@@ -502,7 +501,7 @@ async def admin_page(request: Request, show_archived: bool = False):
 
     # Generate difficulty stars HTML for each benchmark
     difficulty_stars: dict[str, str] = {
-        benchmark.function_name: benchmark.generate_difficulty_stars_html()
+        benchmark.name: benchmark.generate_difficulty_stars_html()
         for benchmark in BENCHMARK_CONFIG.benchmarks
     }
 
