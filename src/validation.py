@@ -1,3 +1,4 @@
+import abc
 import importlib
 import inspect
 from typing import List, Union, Callable, Optional, Any, Type
@@ -83,10 +84,8 @@ class Argument(BaseModel):
             )
 
 
-class Benchmark(BaseModel):
-    function_name: str
+class Benchmark(BaseModel, abc.ABC):
     max_time: int
-    args: List[Argument]
     description: str
     difficulty: float
     include: Optional[list[str]] = None
@@ -97,48 +96,37 @@ class Benchmark(BaseModel):
             self.include = []
 
     @property
+    @abc.abstractmethod
+    def name(self) -> str:
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def example_args(self) -> dict[str, TArg]:
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def example_args_as_python_call(self) -> str:
+        """
+        Generate a string representing how to call the benchmark with default arguments.
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def generate_signature(self) -> str:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_annotations(self, config: "Config") -> tuple[dict[str, type], type]:
+        """
+        Retrieve argument and return type annotations from the reference implementation.
+        """
+        raise NotImplementedError
+
+    @property
     def max_time_seconds(self) -> float:
         return self.max_time / 1_000
-
-    @property
-    def example_args(self) -> dict[str, TArg]:
-        return {arg.name: arg.example_value for arg in self.args if not arg.hidden}
-
-    @property
-    def example_args_as_function_call(self) -> str:
-        """
-        Generate a string representing how to call the function with default arguments.
-        """
-        default_args = {
-            arg.name: arg.default_value for arg in self.args if not arg.hidden
-        }
-        return format_args_as_function_call(self.function_name, default_args)
-
-    def generate_function_signature(self) -> str:
-        # Retrieve the argument and return type annotations
-        annotations, return_type = self.get_function_annotations(BENCHMARK_CONFIG)
-
-        # Start with the function name
-        function_signature = f"def {self.function_name}("
-
-        # Add arguments with their type annotations to the function signature
-        args_with_types: list[str] = []
-        for arg in self.args:
-            if not arg.hidden:
-                # Default to 'Any' if type is not specified
-                arg_type = _format_type_hint(annotations.get(arg.name, Any))
-                args_with_types.append(f"{arg.name}: {arg_type}")
-
-        function_signature += ", ".join(args_with_types)
-
-        # Add return type annotation
-        if return_type is not None and return_type != type(None):
-            return_type_annotation = _format_type_hint(return_type)
-            function_signature += f") -> {return_type_annotation}:\n    ...\n"
-        else:
-            function_signature += "):\n    ...\n"
-
-        return function_signature
 
     def generate_include_code(self) -> str:
         """
@@ -149,43 +137,6 @@ class Benchmark(BaseModel):
             include_object: Type[BaseModel] = get_reference_benchmark_include(name)
             include_snippets.append(serialize_base_model_to_class(include_object))
         return "\n".join(include_snippets)
-
-    def get_function_annotations(
-        self, config: "Config"
-    ) -> tuple[dict[str, type], type]:
-        """
-        Retrieve argument and return type annotations from the reference implementation.
-        """
-        reference_module_name = config.reference_module
-        reference_module = importlib.import_module(reference_module_name)
-        reference_func = getattr(reference_module, self.function_name)
-
-        annotations: dict[str, type] = dict(reference_func.__annotations__)
-        return_type: type = annotations.pop("return", None)
-        return annotations, return_type
-
-    def generate_description_md(self) -> str:
-        """
-        Generate Markdown description with type annotations.
-        """
-        annotations, return_type = self.get_function_annotations(BENCHMARK_CONFIG)
-        description_md = self.description + "\n<br>" + "Arguments:\n"
-
-        for arg in self.args:
-            if not arg.hidden:
-                arg_type = annotations.get(arg.name, Any)
-                formatted_arg_type = _format_type_hint(arg_type)
-                description_md += (
-                    f"- **{arg.name}**: `{formatted_arg_type}`. {arg.description}\n"
-                )
-
-        if return_type is not None:
-            return_type_str = f"`{_format_type_hint(return_type)}`"
-        else:
-            return_type_str = "`None` (outputs via `print`)"
-
-        description_md += f"<br>Return Type: {return_type_str}\n"
-        return description_md
 
     def generate_difficulty_stars_html(self) -> str:
         full_stars = int(self.difficulty)
@@ -211,18 +162,127 @@ class Benchmark(BaseModel):
         )
         return stars_html
 
+    def generate_description_md(self) -> str:
+        """
+        Generate Markdown description with type annotations.
+        """
+        annotations, return_type = self.get_annotations(BENCHMARK_CONFIG)
+        description_md = self.description + "\n<br>" + "Arguments:\n"
+
+        for arg in self.args:
+            if not arg.hidden:
+                arg_type = annotations.get(arg.name, Any)
+                formatted_arg_type = _format_type_hint(arg_type)
+                description_md += (
+                    f"- **{arg.name}**: `{formatted_arg_type}`. {arg.description}\n"
+                )
+
+        if return_type is not None:
+            return_type_str = f"`{_format_type_hint(return_type)}`"
+        else:
+            return_type_str = "`None` (outputs via `print`)"
+
+        description_md += f"<br>Return Type: {return_type_str}\n"
+        return description_md
+
+
+class FunctionBenchmark(Benchmark):
+    """
+    A specialized Benchmark implementation for Functions.
+    """
+
+    function_name: str
+    args: List[Argument]
+
+    @property
+    def name(self) -> str:
+        return self.function_name
+
+    @property
+    def example_args(self) -> dict[str, TArg]:
+        return {arg.name: arg.example_value for arg in self.args if not arg.hidden}
+
+    @property
+    def example_args_as_python_call(self) -> str:
+        default_args = {
+            arg.name: arg.default_value for arg in self.args if not arg.hidden
+        }
+        return format_args_as_function_call(self.function_name, default_args)
+
+    def generate_signature(self) -> str:
+        # Retrieve the argument and return type annotations
+        annotations, return_type = self.get_annotations(BENCHMARK_CONFIG)
+
+        # Start with the function name
+        function_signature = f"def {self.function_name}("
+
+        # Add arguments with their type annotations to the function signature
+        args_with_types: list[str] = []
+        for arg in self.args:
+            if not arg.hidden:
+                # Default to 'Any' if type is not specified
+                arg_type = _format_type_hint(annotations.get(arg.name, Any))
+                args_with_types.append(f"{arg.name}: {arg_type}")
+
+        function_signature += ", ".join(args_with_types)
+
+        # Add return type annotation
+        if return_type is not None and return_type != type(None):
+            return_type_annotation = _format_type_hint(return_type)
+            function_signature += f") -> {return_type_annotation}:\n    ...\n"
+        else:
+            function_signature += "):\n    ...\n"
+
+        return function_signature
+
+    def get_annotations(self, config: "Config") -> tuple[dict[str, type], type]:
+        reference_module_name = config.reference_module
+        reference_module = importlib.import_module(reference_module_name)
+        reference_func = getattr(reference_module, self.name)
+
+        annotations: dict[str, type] = dict(reference_func.__annotations__)
+        return_type: type = annotations.pop("return", None)
+        return annotations, return_type
+
+
+class ClassBenchmark(Benchmark):
+    class_name: str
+    init: List[Argument]
+    methods: List[FunctionBenchmark]
+
+    @property
+    def name(self) -> str:
+        return self.class_name
+
+    @property
+    def example_args(self) -> dict[str, TArg]:
+        return {}
+
+    @property
+    def example_args_as_python_call(self) -> str:
+        return ""
+
+    def get_annotations(self, config: "Config") -> tuple[dict[str, type], type]:
+        return {}, type(None)
+
+    def generate_signature(self) -> str:
+        raise ""
+
+
+TBenchmark: TypeAlias = Union[FunctionBenchmark, ClassBenchmark]
+
 
 class Config(BaseModel):
     reference_module: str
     user_modules: List[str]
-    benchmarks: List[Benchmark]
+    benchmarks: List[TBenchmark]
 
     def get_all_valid_benchmarks(
         self, *, include_archived: bool = False
-    ) -> List[Benchmark]:
+    ) -> List[TBenchmark]:
         from db.database import get_enabled_benchmarks, get_archived_benchmarks
 
-        benchmarks: list[Benchmark] = get_enabled_benchmarks()
+        benchmarks: list[TBenchmark] = get_enabled_benchmarks()
         if include_archived:
             benchmarks.extend(get_archived_benchmarks())
 
@@ -283,7 +343,7 @@ def _load_config(file_path) -> Config:
     # Perform validation for each benchmark to ensure a cohesive config before we continue.
     # This code might raise, and that is acceptable: it means the benchmarks are misconfigured!
     for benchmark in config.benchmarks:
-        annotations, _ = benchmark.get_function_annotations(config)
+        annotations, _ = benchmark.get_annotations(config)
         for arg in benchmark.args:
             if arg.name in annotations:
                 arg_type = annotations[arg.name]

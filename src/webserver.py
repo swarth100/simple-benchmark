@@ -43,6 +43,7 @@ from src.validation import (
     Config,
     TArg,
     format_args_as_function_call,
+    TBenchmark,
 )
 
 
@@ -86,7 +87,7 @@ async def read_root(request: Request):
     }
 
     benchmark_signatures = {
-        benchmark.function_name: benchmark.generate_function_signature()
+        benchmark.function_name: benchmark.generate_signature()
         for benchmark in config.get_all_valid_benchmarks(include_archived=True)
     }
 
@@ -258,7 +259,7 @@ async def update_leaderboard(request: Request, benchmark: str) -> str:
 @app.get("/fetch_benchmark_details")
 async def fetch_benchmark_details(request: Request, benchmark: str):
     try:
-        benchmark: Optional[Benchmark] = get_benchmark_by_name(
+        benchmark: Optional[TBenchmark] = get_benchmark_by_name(
             benchmark, include_archived=True
         )
 
@@ -270,7 +271,7 @@ async def fetch_benchmark_details(request: Request, benchmark: str):
         )
 
         example_input: dict[str, TArg] = benchmark.example_args
-        pretty_printed_example_args: str = benchmark.example_args_as_function_call
+        pretty_printed_example_args: str = benchmark.example_args_as_python_call
 
         example_output, example_std_output = run_reference_benchmark_with_arguments(
             benchmark=benchmark, arguments=example_input

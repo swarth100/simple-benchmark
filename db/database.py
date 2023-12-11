@@ -4,7 +4,7 @@ import sqlite3
 from typing import Tuple, Optional
 
 from src.config import BenchmarkResult, UserRank, BenchmarkStatus
-from src.validation import Benchmark, BENCHMARK_CONFIG
+from src.validation import Benchmark, BENCHMARK_CONFIG, TBenchmark
 
 MIGRATIONS_FILE = "db/migrations.sql"
 BENCHMARKS_RESULT_DB: str = "db/benchmark_results.db"
@@ -46,7 +46,7 @@ def save_benchmark_result(
             INSERT INTO benchmark_results (benchmark_name, username, score)
             VALUES (?, ?, ?)
         """,
-            (benchmark.function_name, uppercase_username, benchmark_result.result),
+            (benchmark.name, uppercase_username, benchmark_result.result),
         )
         conn.commit()
 
@@ -60,7 +60,7 @@ def get_top_benchmark_results(benchmark: Benchmark) -> list[Tuple[str, ...]]:
             WHERE benchmark_name = ?
             ORDER BY max_score DESC
             """,
-            (benchmark.function_name,),
+            (benchmark.name,),
         )
         results = cursor.fetchall()
     return results
@@ -85,7 +85,7 @@ def get_rankings(benchmarks: list[Benchmark]) -> list[UserRank]:
                 SELECT MAX(max_score) FROM top_benchmarks
                 WHERE benchmark_name = ?
                 """,
-                (benchmark.function_name,),
+                (benchmark.name,),
             )
             # max_score could be None (if no entry present) or 0 if only invalid inputs are present
             # When read from the database it is returned as a `Optional[str]`
@@ -96,7 +96,7 @@ def get_rankings(benchmarks: list[Benchmark]) -> list[UserRank]:
             # We allow for a 5% variance across repeated benchmark runs
             max_score = max_score * 0.95
 
-            benchmark_max_scores[benchmark.function_name] = max_score
+            benchmark_max_scores[benchmark.name] = max_score
 
         # Query for user scores for each benchmark
         user_scores: dict[str, dict[str, float]] = {}
@@ -106,7 +106,7 @@ def get_rankings(benchmarks: list[Benchmark]) -> list[UserRank]:
                 SELECT username, max_score FROM top_benchmarks
                 WHERE benchmark_name = ?
                 """,
-                (benchmark.function_name,),
+                (benchmark.name,),
             )
             for username, score in cursor.fetchall():
                 if username not in user_scores:
@@ -114,15 +114,13 @@ def get_rankings(benchmarks: list[Benchmark]) -> list[UserRank]:
                 # The scoring system is logarithmic to prevent people with extremely good
                 # implementations from completely skewing the grading curve.
                 # The max score is 10 and the min score is 0
-                scaling_factor: float = (
-                    1 / benchmark_max_scores[benchmark.function_name]
-                )
+                scaling_factor: float = 1 / benchmark_max_scores[benchmark.name]
                 normalized_score: float = math.log(score * scaling_factor + 1, 2) * 10
 
                 # You cannot achieve more than 10 in scoring
                 normalized_score = min(normalized_score, 10.0)
 
-                user_scores[username][benchmark.function_name] = normalized_score
+                user_scores[username][benchmark.name] = normalized_score
 
         # Calculate total score and format results
         results: list[UserRank] = []
@@ -134,7 +132,7 @@ def get_rankings(benchmarks: list[Benchmark]) -> list[UserRank]:
                     rank=0,  # In human terms rank starts from 1, not 0
                     username=username,
                     scores={
-                        benchmark.function_name: scores.get(benchmark.function_name, 0)
+                        benchmark.name: scores.get(benchmark.name, 0)
                         for benchmark in benchmarks
                     },
                     average=average_score,
@@ -153,7 +151,7 @@ def get_rankings(benchmarks: list[Benchmark]) -> list[UserRank]:
 def toggle_benchmark_visibility(benchmark_name: str, is_hidden: bool):
     """
     Toggles the visibility of a given benchmark.
-    Toggling visibility also side-effects frozen status (disabled benchmarks are also frozen)
+    Toggling visibility also side effects frozen status (disabled benchmarks are also frozen)
 
     :param benchmark_name: Name of benchmark to toggle
     :param is_hidden: Hidden status to apply
@@ -199,7 +197,7 @@ def toggle_benchmark_archive_status(benchmark_name: str, is_archive: bool):
         conn.commit()
 
 
-def get_enabled_benchmarks() -> list[Benchmark]:
+def get_enabled_benchmarks() -> list[TBenchmark]:
     with sqlite3.connect(BENCHMARKS_RESULT_DB) as conn:
         cursor = conn.cursor()
         cursor.execute(
@@ -210,15 +208,15 @@ def get_enabled_benchmarks() -> list[Benchmark]:
         )
         benchmark_names: list[str] = [x for x, in cursor.fetchall()]
 
-        enabled_benchmarks: list[Benchmark] = [
+        enabled_benchmarks: list[TBenchmark] = [
             benchmark
             for benchmark in BENCHMARK_CONFIG.benchmarks
-            if benchmark.function_name in benchmark_names
+            if benchmark.name in benchmark_names
         ]
         return enabled_benchmarks
 
 
-def get_frozen_benchmarks() -> list[Benchmark]:
+def get_frozen_benchmarks() -> list[TBenchmark]:
     with sqlite3.connect(BENCHMARKS_RESULT_DB) as conn:
         cursor = conn.cursor()
         cursor.execute(
@@ -229,15 +227,15 @@ def get_frozen_benchmarks() -> list[Benchmark]:
         )
         benchmark_names: list[str] = [x for x, in cursor.fetchall()]
 
-        frozen_benchmarks: list[Benchmark] = [
+        frozen_benchmarks: list[TBenchmark] = [
             benchmark
             for benchmark in BENCHMARK_CONFIG.benchmarks
-            if benchmark.function_name in benchmark_names
+            if benchmark.name in benchmark_names
         ]
         return frozen_benchmarks
 
 
-def get_archived_benchmarks() -> list[Benchmark]:
+def get_archived_benchmarks() -> list[TBenchmark]:
     with sqlite3.connect(BENCHMARKS_RESULT_DB) as conn:
         cursor = conn.cursor()
         cursor.execute(
@@ -248,10 +246,10 @@ def get_archived_benchmarks() -> list[Benchmark]:
         )
         benchmark_names: list[str] = [x for x, in cursor.fetchall()]
 
-        frozen_benchmarks: list[Benchmark] = [
+        frozen_benchmarks: list[TBenchmark] = [
             benchmark
             for benchmark in BENCHMARK_CONFIG.benchmarks
-            if benchmark.function_name in benchmark_names
+            if benchmark.name in benchmark_names
         ]
         return frozen_benchmarks
 
@@ -290,7 +288,7 @@ def upload_benchmark_config(benchmarks: list[Benchmark]):
 
         # Determine benchmarks to add and to remove.
         # NOTE: We care about ordering! Thus keep lists rather than sets!
-        config_benchmarks = [benchmark.function_name for benchmark in benchmarks]
+        config_benchmarks = [benchmark.name for benchmark in benchmarks]
         benchmarks_to_add = [
             b for b in config_benchmarks if b not in existing_benchmarks
         ]
