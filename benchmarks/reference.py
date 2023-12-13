@@ -306,6 +306,15 @@ def smallest_city(cities: list[City]) -> City:
     return smallest
 
 
+class Person(BaseModel):
+    name: str
+    height: int
+
+
+def total_height(person_a: Person, person_b: Person) -> int:
+    return person_a.height + person_b.height
+
+
 class Book(BaseModel):
     title: str
     pages: int

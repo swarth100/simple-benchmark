@@ -365,6 +365,21 @@ benchmarks:
         increment: "lambda **kwargs: [City(name=fake.city(), population=random.randint(1000, 1000000)) for _ in range(kwargs['x'])]"
         default: "list([City(name='New York', population=1000000), City(name='Los Angeles', population=500000), City(name='Chicago', population=250000)])"
 
+  - function_name: "total_height"
+    description: |
+      Given two people, find the sum of their heights.
+    max_time: 1
+    difficulty: 0.5
+    include:
+      - "Person"
+    args:
+      - name: "person_a"
+        increment: "lambda **kwargs: Person(name=fake.name(), height=random.randint(150, 210))"
+        default: "Person(name='Carlo', height=180)"
+      - name: "person_b"
+        increment: "lambda **kwargs: Person(name=fake.name(), height=random.randint(150, 210))"
+        default: "Person(name='Paola', height=165)"
+
   - function_name: "total_num_pages"
     description: |
       Given a list of `Book` objects, return the total number of pages across all books.
@@ -415,7 +430,7 @@ benchmarks:
     description: |
       Given a list of `Student` objects and a student's name, calculate their GPA (assuming each grade is a numerical value), and return the GPA.
     max_time: 5
-    difficulty: 2.0
+    difficulty: 2.5
     include:
       - "Student"
     args:
