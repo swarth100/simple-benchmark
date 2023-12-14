@@ -154,7 +154,10 @@ async def fetch_rankings(request: Request, username: str):
         )
 
         benchmark_names: list[str] = [
-            benchmark.name for benchmark in BENCHMARK_CONFIG.get_all_valid_benchmarks()
+            benchmark.name
+            for benchmark in sorted(
+                BENCHMARK_CONFIG.get_all_valid_benchmarks(), key=lambda b: b.difficulty
+            )
         ]
 
         # Render the rankings data into HTML using Jinja2

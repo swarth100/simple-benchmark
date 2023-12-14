@@ -166,7 +166,7 @@ benchmarks:
   - function_name: "best_student"
     description: Given a dictionary of students and their grades, return the name of the student with the highest average grade.
     max_time: 15
-    difficulty: 2.5
+    difficulty: 3.0
     args:
       - name: "x"
         increment: "lambda x: x + 1"
@@ -375,7 +375,7 @@ benchmarks:
     description: |
       Given an input number `n`, return a list of lists containing the numbers of Pascal's Triangle up to the `n`th row.
     max_time: 100
-    difficulty: 3.0
+    difficulty: 3.5
     args:
       - name: "n"
         description: "The number of rows in Pascal's Triangle to generate."
