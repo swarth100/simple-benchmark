@@ -210,9 +210,28 @@ def can_visit_all_rooms(unlocked: str, rooms: dict[str, list[str]]) -> bool:
     return len(visited) == len(rooms)
 
 
+def smallest_number(x: int, y: int, z: int) -> int:
+    return min(x, y, z)
+
+
 def complementary_dna(sequence: list[str]) -> list[str]:
     complement = {"A": "T", "T": "A", "C": "G", "G": "C"}
     return [complement[nucleotide] for nucleotide in sequence]
+
+
+def calculate_discount(shopping: list[float], discount: int) -> float:
+    total = 0
+    for item in shopping:
+        total += item * (1 - discount / 100)
+    return total
+
+
+def even_numbers(numbers: list[int]) -> list[int]:
+    return [number for number in numbers if number % 2 == 0]
+
+
+def city_life(turin: set[str], milan: set[str]) -> set[str]:
+    return turin.intersection(milan)
 
 
 def prime_factors(number: int) -> list[int]:
@@ -243,7 +262,7 @@ def partitioning_line(
     return [point for point in points if calculate_position(point, start, end) >= 0]
 
 
-def tartaglia_triangle(n: int) -> list[list[int]]:
+def pascal_triangle(n: int) -> list[list[int]]:
     triangle = [[1]]
     for i in range(1, n):
         row = [1]

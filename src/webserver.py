@@ -51,6 +51,8 @@ class PydanticEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, BaseModel):
             return obj.dict()
+        if isinstance(obj, set):
+            return list(obj)
         return super().default(obj)
 
 

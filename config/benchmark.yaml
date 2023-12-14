@@ -185,26 +185,6 @@ benchmarks:
                     }"
         default: "dict({'Alice': [8, 7.5, 8.8],'Bob': [8, 9],'Charlie': [6.2, 7.5]})"
 
-  - function_name: "jobs_counter"
-    description: Return a dictionary with the count of occurrences for each job in a list.
-    max_time: 10
-    difficulty: 1.5
-    args:
-      - name: "x"
-        increment: "lambda x: x + 1"
-        default: "int(3)"
-        hidden: true
-      - name: "elems"
-        increment: "lambda **kwargs: [fake.job() for _ in range(int(kwargs['x'] ** 0.5))]"
-        default: "list(['artist', 'doctor', 'professor'])"
-        hidden: true
-      - name: "jobs"
-        description: "The list of jobs."
-        increment: "lambda **kwargs: [
-                      kwargs['elems'][int(random.randint(0, len(kwargs['elems']) - 1))] for _ in range(int(kwargs['x'] ** 1.15))
-                    ]"
-        default: "list(['doctor', 'professor', 'artist', 'professor', 'professor', 'artist'])"
-
   - function_name: "can_visit_all_rooms"
     description: |
       You are given a dictionary of room names and all the rooms are locked except for the `unlocked` room in the dictionary.
@@ -237,13 +217,52 @@ benchmarks:
                     }"
         default: "dict({'Red': ['Green'], 'Blue': ['Red', 'Green'], 'Green': ['Blue']})"
 
+  - function_name: "jobs_counter"
+    description: Return a dictionary with the count of occurrences for each job in a list.
+    max_time: 10
+    difficulty: 2.0
+    args:
+      - name: "x"
+        increment: "lambda x: x + 1"
+        default: "int(3)"
+        hidden: true
+      - name: "elems"
+        increment: "lambda **kwargs: [fake.job() for _ in range(int(kwargs['x'] ** 0.5))]"
+        default: "list(['artist', 'doctor', 'professor'])"
+        hidden: true
+      - name: "jobs"
+        description: "The list of jobs."
+        increment: "lambda **kwargs: [
+                      kwargs['elems'][int(random.randint(0, len(kwargs['elems']) - 1))] for _ in range(int(kwargs['x'] ** 1.15))
+                    ]"
+        default: "list(['doctor', 'professor', 'artist', 'professor', 'professor', 'artist'])"
+
+  - function_name: "smallest_number"
+    description: |
+      Create a function that given three numbers returns the smallest number of the three.
+    max_time: 2
+    difficulty: 0.5
+    args:
+      - name: "x"
+        increment: "lambda **kwargs: random.randint(-100, 100)"
+        description: "The first number."
+        default: "int(12)"
+      - name: "y"
+        increment: "lambda **kwargs: random.randint(-100, 100)"
+        description: "The second number."
+        default: "int(4)"
+      - name: "z"
+        increment: "lambda **kwargs: random.randint(-100, 100)"
+        description: "The third number."
+        default: "int(87)"
+
   - function_name: "complementary_dna"
     description: |
       Create a function that converts a sequence of nucleotides (*Adenine* `A`, *Cytosine* `C`, *Thymine* `T`, *Guanine* `G`) contained in an input vector of indefinite length into its complementary sequence (`Adenine --> Thymine`, `Thymine --> Adenine`, `Cytosine --> Guanine`, `Guanine --> Cytosine`).<br>
       
       The function returns a list of characters with the converted sequence.
     max_time: 10
-    difficulty: 1.0
+    difficulty: 1.5
     args:
       - name: "x"
         increment: "lambda x: x + 1"
@@ -253,6 +272,63 @@ benchmarks:
         description: "The input list containing the nucleotide sequence as a list of characters."
         increment: "lambda **kwargs: [random.choice(['A', 'T', 'C', 'G']) for _ in range(kwargs['x'])]"
         default: "list(['A','A','C','G','T'])"
+
+  - function_name: "calculate_discount"
+    description: |
+      Create a function that calculates the final price after applying a discount percentage to all the items in the `shopping` list. The function should return the final price which is the sum of all the discounted items in `shopping`.
+    max_time: 3
+    difficulty: 2.5
+    args:
+      - name: "x"
+        increment: "lambda x: x + 1"
+        default: "int(0)"
+        hidden: true
+      - name: "shopping"
+        description: "The list of items to apply the discount to."
+        increment: "lambda **kwargs: [random.randint(1, 1000) / 10 for _ in range(kwargs['x'])]"
+        default: "list([10.5, 8.7, 30])"
+      - name: "discount"
+        description: "The discount percentage to apply to all items."
+        increment: "lambda **kwargs: random.randint(1, 19) * 5"
+        default: "int(20)"
+
+  - function_name: "even_numbers"
+    description: |
+      Create a function that given a list of integers, returns a new list containing only the even numbers from the original list.
+    max_time: 4
+    difficulty: 1.5
+    args:
+      - name: "x"
+        increment: "lambda x: x + 1"
+        default: "int(0)"
+        hidden: true
+      - name: "numbers"
+        description: "The list of integers to filter."
+        increment: "lambda **kwargs: [random.randint(1, 100) for _ in range(kwargs['x'])]"
+        default: "list([1, 2, 3, 4, 5])"
+
+  - function_name: "city_life"
+    description: |
+      Create a function that given two sets of people, the set of people that live in `turin` and the set of people that live in `milan`, returns the `set` of people that live both in `turin` and `milan`.
+    max_time: 2
+    difficulty: 1.0
+    args:
+      - name: "size"
+        increment: "lambda x: x + 1"
+        default: "int(4)"
+        hidden: true
+      - name: "people"
+        increment: "lambda **kwargs: list({fake.first_name() for _ in range(kwargs['size'] * 2)})"
+        default: "set(['Adam', 'Charlie', 'Roger', 'Zethus'])"
+        hidden: true
+      - name: "turin"
+        description: "The set of people that live in Turin."
+        increment: "lambda **kwargs: {random.choice(kwargs['people'])  for _ in range(kwargs['size'])}"
+        default: "set(['Adam', 'Roger', 'Zethus'])"
+      - name: "milan"
+        description: "The set of people that live in Milan."
+        increment: "lambda **kwargs: {random.choice(kwargs['people'])  for _ in range(kwargs['size'])}"
+        default: "set(['Charlie', 'Roger', 'Zethus'])"
 
   - function_name: "prime_factors"
     description: |
@@ -295,14 +371,14 @@ benchmarks:
         increment: "lambda **kwargs: [[random.randint(-kwargs['x']-5, kwargs['x']+5), random.randint(-kwargs['x']-5, kwargs['x']+5)] for _ in range(int(kwargs['x'] ** 0.8))]"
         default: "list([[1, 2], [3, 1], [5, 5]])"
 
-  - function_name: "tartaglia_triangle"
+  - function_name: "pascal_triangle"
     description: |
-      Given an input number `n`, return a list of lists containing the numbers of Tartaglia's Triangle up to the `n`th row.
+      Given an input number `n`, return a list of lists containing the numbers of Pascal's Triangle up to the `n`th row.
     max_time: 100
     difficulty: 3.0
     args:
       - name: "n"
-        description: "The number of rows in Tartaglia's Triangle to generate."
+        description: "The number of rows in Pascal's Triangle to generate."
         increment: "lambda x: x + 1"
         default: "int(1)"
         example: "int(5)"
@@ -374,10 +450,10 @@ benchmarks:
       - "Person"
     args:
       - name: "person_a"
-        increment: "lambda **kwargs: Person(name=fake.name(), height=random.randint(150, 210))"
+        increment: "lambda **kwargs: Person(name=fake.first_name(), height=random.randint(150, 210))"
         default: "Person(name='Carlo', height=180)"
       - name: "person_b"
-        increment: "lambda **kwargs: Person(name=fake.name(), height=random.randint(150, 210))"
+        increment: "lambda **kwargs: Person(name=fake.first_name(), height=random.randint(150, 210))"
         default: "Person(name='Paola', height=165)"
 
   - function_name: "total_num_pages"
@@ -439,7 +515,7 @@ benchmarks:
         default: "int(1)"
         hidden: true
       - name: "n"
-        increment: "lambda **kwargs: list({fake.name() for _ in range(kwargs['x'])})"
+        increment: "lambda **kwargs: list({fake.first_name() for _ in range(kwargs['x'])})"
         default: "list(['Alice', 'Bob', 'Charlie'])"
         hidden: true
       - name: "m"
