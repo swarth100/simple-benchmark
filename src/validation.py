@@ -16,6 +16,8 @@ from src.utils import (
 )
 
 TArg: TypeAlias = Union[int, str, list]
+TArgsDict: TypeAlias = dict[str, TArg]
+TBenchmarkArgs: TypeAlias = dict[str, TArgsDict]
 
 # Global initialization to prevent redundant cost of reinitializing every time
 _FAKE = Faker()
@@ -106,7 +108,13 @@ class Benchmark(BaseModel, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def example_args(self) -> dict[str, TArg]:
+    def example_args(self) -> TBenchmarkArgs:
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def default_args(self) -> TBenchmarkArgs:
+        # NOTE: Default arguments are purposefully not filtered to visible arguments
         raise NotImplementedError
 
     @property
@@ -115,6 +123,15 @@ class Benchmark(BaseModel, abc.ABC):
         """
         Generate a string representing how to call the benchmark with default arguments.
         """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def increment_args(self, arguments: TBenchmarkArgs):
+        # Increment is performed in-place
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def filter_visible_arguments(self, arguments: TBenchmarkArgs) -> TBenchmarkArgs:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -128,6 +145,10 @@ class Benchmark(BaseModel, abc.ABC):
     @property
     def max_time_seconds(self) -> float:
         return self.max_time / 1_000
+
+    @property
+    def example_includes(self) -> list[str]:
+        return self.include
 
     def generate_include_code(self) -> str:
         """
@@ -177,15 +198,34 @@ class FunctionBenchmark(Benchmark):
         return self.function_name
 
     @property
-    def example_args(self) -> dict[str, TArg]:
-        return {arg.name: arg.example_value for arg in self.args if not arg.hidden}
+    def example_args(self) -> TBenchmarkArgs:
+        function_args: TArgsDict = {arg.name: arg.example_value for arg in self.args}
+        return self.filter_visible_arguments({self.function_name: function_args})
+
+    @property
+    def default_args(self) -> TBenchmarkArgs:
+        function_args: TArgsDict = {arg.name: arg.default_value for arg in self.args}
+        return {self.function_name: function_args}
 
     @property
     def example_args_as_python_call(self) -> str:
-        default_args = {
-            arg.name: arg.default_value for arg in self.args if not arg.hidden
+        return format_args_as_function_call(
+            self.function_name, self.default_args[self.function_name]
+        )
+
+    def increment_args(self, arguments: TBenchmarkArgs):
+        function_args: TArgsDict = arguments[self.function_name]
+        for arg in self.args:
+            function_args[arg.name] = arg.apply_increment(
+                function_args[arg.name], **function_args
+            )
+
+    def filter_visible_arguments(self, arguments: TBenchmarkArgs) -> TBenchmarkArgs:
+        function_args: TArgsDict = arguments[self.function_name]
+        visible_args: TArgsDict = {
+            arg.name: function_args[arg.name] for arg in self.args if not arg.hidden
         }
-        return format_args_as_function_call(self.function_name, default_args)
+        return {self.function_name: visible_args}
 
     def generate_signature(self) -> str:
         # Retrieve the argument and return type annotations
@@ -254,15 +294,70 @@ class ClassBenchmark(Benchmark):
         return self.class_name
 
     @property
-    def example_args(self) -> dict[str, TArg]:
-        return {arg.name: arg.example_value for arg in self.init if not arg.hidden}
+    def example_args(self) -> TBenchmarkArgs:
+        class_args: TBenchmarkArgs = {
+            self.class_name: {arg.name: arg.example_value for arg in self.init}
+        }
+        for method in self.methods:
+            class_args[method.method_name] = {
+                arg.name: arg.example_value for arg in method.args
+            }
+        return self.filter_visible_arguments(class_args)
+
+    @property
+    def default_args(self) -> TBenchmarkArgs:
+        class_args: TBenchmarkArgs = {
+            self.class_name: {arg.name: arg.default_value for arg in self.init}
+        }
+        for method in self.methods:
+            class_args[method.method_name] = {
+                arg.name: arg.default_value for arg in method.args
+            }
+        return class_args
 
     @property
     def example_args_as_python_call(self) -> str:
-        default_args = {
-            arg.name: arg.default_value for arg in self.init if not arg.hidden
+        # TODO: Correctly implement for classes and nested methods!
+        return format_args_as_function_call(
+            self.class_name, self.default_args[self.class_name]
+        )
+
+    def increment_args(self, arguments: TBenchmarkArgs):
+        init_arguments: TArgsDict = arguments[self.class_name]
+        for arg in self.init:
+            init_arguments[arg.name] = arg.apply_increment(
+                init_arguments[arg.name], **init_arguments
+            )
+
+        # TODO: Validate if we should generate a full MEO, or if instead we could use self.methods.
+        #       The full MEO would override arguments currently.
+        methods = self.generate_method_evaluation_order(init_arguments)
+        for method in methods:
+            method_arguments: TArgsDict = arguments[method.method_name]
+            for arg in self.args:
+                method_arguments[arg.name] = arg.apply_increment(
+                    method_arguments[arg.name], **method_arguments
+                )
+
+    def filter_visible_arguments(self, arguments: TBenchmarkArgs) -> TBenchmarkArgs:
+        class_args: TBenchmarkArgs = {
+            self.class_name: {
+                arg.name: arguments[self.class_name][arg.name]
+                for arg in self.init
+                if not arg.hidden
+            }
         }
-        return format_args_as_function_call(self.class_name, default_args)
+        for method in self.methods:
+            class_args[method.method_name] = {
+                arg.name: arguments[method.method_name][arg.name]
+                for arg in method.args
+                if not arg.hidden
+            }
+        return class_args
+
+    @property
+    def example_includes(self) -> list[str]:
+        return super().example_includes + [self.class_name]
 
     @property
     def evaluation_lambda(self) -> Callable:
@@ -276,9 +371,7 @@ class ClassBenchmark(Benchmark):
             {"random": random, "fake": _FAKE, **include_mapping},
         )
 
-    def generate_method_evaluation_order(
-        self, arguments: dict[str, TArg]
-    ) -> list[Method]:
+    def generate_method_evaluation_order(self, arguments: TArgsDict) -> list[Method]:
         """
         Generate the order in which methods should be evaluated and return a list of method objects for each one.
         Method objects might be duplicated as a result of this, in case a method is called more than once.
@@ -300,20 +393,17 @@ class ClassBenchmark(Benchmark):
         return ""
 
 
-TBenchmark: TypeAlias = Union[FunctionBenchmark, ClassBenchmark]
-
-
 class Config(BaseModel):
     reference_module: str
     user_modules: List[str]
-    benchmarks: List[TBenchmark]
+    benchmarks: List[Union[FunctionBenchmark, ClassBenchmark]]
 
     def get_all_valid_benchmarks(
         self, *, include_archived: bool = False
-    ) -> List[TBenchmark]:
+    ) -> List[Benchmark]:
         from db.database import get_enabled_benchmarks, get_archived_benchmarks
 
-        benchmarks: list[TBenchmark] = get_enabled_benchmarks()
+        benchmarks: list[Benchmark] = get_enabled_benchmarks()
         if include_archived:
             benchmarks.extend(get_archived_benchmarks())
 
@@ -331,8 +421,9 @@ def _get_reference_benchmark_include_mapping() -> dict[str, Any]:
     include_mapping = {
         name: getattr(ref_module, name)
         for benchmark in BENCHMARK_CONFIG.benchmarks
-        for name in benchmark.include
+        for name in benchmark.example_includes
     }
+
     return include_mapping
 
 

@@ -43,7 +43,9 @@ from src.validation import (
     Config,
     TArg,
     format_args_as_function_call,
-    TBenchmark,
+    Benchmark,
+    TBenchmarkArgs,
+    TArgsDict,
 )
 
 
@@ -195,19 +197,25 @@ async def run_sandbox(request: Request):
             if benchmark is None:
                 result_data = {"error": f"Benchmark '{benchmark_name}' does not exist"}
             else:
-                # Assume inputs are JSON and need to be converted to Python dict
-                (arg_types, _) = get_function_annotations(
-                    benchmark.name, BENCHMARK_CONFIG
-                )
-                inputs_dict = {}
-                for arg_name, arg_value in json.loads(user_inputs).items():
-                    # We parse input arguments, validating them against the pydantic schema model
-                    # This ensures we reconstruct Python objects
-                    inputs_dict[arg_name] = parse_obj_as(arg_types[arg_name], arg_value)  # type: ignore
+                result_data["input"] = dict()
+                inputs_dict: TBenchmarkArgs = json.loads(user_inputs)
 
-                result_data["input"] = format_args_as_function_call(
-                    func_name=benchmark.name, args_dict=inputs_dict
-                )
+                for func_name, args in inputs_dict.items():
+                    # TODO: Generalize to Classes!
+                    (arg_types, _) = get_function_annotations(
+                        func_name, BENCHMARK_CONFIG
+                    )
+                    # Assume inputs are JSON and need to be converted to Python dict
+                    parsed_args = {
+                        arg_name: parse_obj_as(arg_types[arg_name], arg_value)  # type: ignore
+                        for arg_name, arg_value in args.items()
+                    }
+                    inputs_dict[func_name] = parsed_args
+
+                    # TODO: Generalize to Classes!
+                    result_data["input"] = format_args_as_function_call(
+                        func_name=func_name, args_dict=parsed_args
+                    )
                 result_data["signature"] = benchmark.generate_signature()
 
                 # Run the reference function with the provided inputs
@@ -239,21 +247,18 @@ async def run_sandbox(request: Request):
 async def randomize_args(request: Request, benchmark: str) -> str:
     try:
         benchmark: Optional[Benchmark] = get_benchmark_by_name(name=benchmark)
-        arg_values: dict[str, TArg] = {
-            arg.name: arg.default_value for arg in benchmark.args
-        }
+        benchmark_arguments: TBenchmarkArgs = benchmark.default_args
 
+        # TODO: Generalize for Classes
         # We give a sense of randomization but only limit the extent of the range.
         # Too-large of a range and the input would not display well.
         # Random is not seeded so will still yield interesting results.
         for _ in range(randint(1, 7)):
-            for arg in benchmark.args:
-                arg_values[arg.name] = arg.apply_increment(
-                    arg_values[arg.name], **arg_values
-                )
-        encoded_arguments: dict[str, TArg] = {
-            arg.name: arg_values[arg.name] for arg in benchmark.args if not arg.hidden
-        }
+            benchmark.increment_args(benchmark_arguments)
+
+        encoded_arguments: TBenchmarkArgs = benchmark.filter_visible_arguments(
+            benchmark_arguments
+        )
         return json.dumps(encoded_arguments, cls=PydanticEncoder)
 
     except Exception as e:
@@ -265,7 +270,7 @@ async def randomize_args(request: Request, benchmark: str) -> str:
 @app.get("/fetch_benchmark_details")
 async def fetch_benchmark_details(request: Request, benchmark: str):
     try:
-        benchmark: Optional[TBenchmark] = get_benchmark_by_name(
+        benchmark: Optional[Benchmark] = get_benchmark_by_name(
             benchmark, include_archived=True
         )
 
@@ -276,7 +281,7 @@ async def fetch_benchmark_details(request: Request, benchmark: str):
             benchmark.generate_description_md(), extensions=["nl2br"]
         )
 
-        example_input: dict[str, TArg] = benchmark.example_args
+        example_input: TBenchmarkArgs = benchmark.example_args
         pretty_printed_example_args: str = benchmark.example_args_as_python_call
 
         example_output, example_std_output = run_reference_benchmark_with_arguments(

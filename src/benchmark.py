@@ -23,6 +23,8 @@ from src.validation import (
     format_args_as_function_call,
     FunctionBenchmark,
     ClassBenchmark,
+    TBenchmarkArgs,
+    TArgsDict,
 )
 
 
@@ -276,26 +278,34 @@ def run_benchmark_given_modules(
 
 @singledispatch
 def run_reference_benchmark_with_arguments(
-    benchmark: Benchmark, arguments: dict[str, TArg]
+    benchmark: Benchmark, /, *, arguments: TBenchmarkArgs
 ) -> Tuple[str, str]:
     raise NotImplementedError("Unsupported type of benchmark")
 
 
 @run_reference_benchmark_with_arguments.register(FunctionBenchmark)
-def _(benchmark: FunctionBenchmark, arguments: dict[str, TArg]) -> Tuple[str, str]:
+def _(benchmark: FunctionBenchmark, /, *, arguments: TBenchmarkArgs) -> Tuple[str, str]:
+    # TODO: Remove/validate assertions
+    if len(arguments) != 1:
+        raise ValueError(
+            "Instances of function benchmark should only be run with a single function's arguments. "
+            f"Instead found {len(arguments)} arguments for functions {list(arguments.keys())}."
+        )
+
     # After setting common fields we proceed to executing the function
     reference_module_name: str = get_config().reference_module
     reference_module = importlib.import_module(reference_module_name)
     reference_func = getattr(reference_module, benchmark.name)
 
     # Run the reference function with the provided inputs
-    ref_output, ref_std_output = capture_output(reference_func, **arguments)
+    func_args: TArgsDict = arguments[benchmark.name]
+    ref_output, ref_std_output = capture_output(reference_func, **func_args)
 
     return ref_output, ref_std_output
 
 
 @run_reference_benchmark_with_arguments.register(ClassBenchmark)
-def _(benchmark: ClassBenchmark, arguments: dict[str, TArg]) -> Tuple[str, str]:
+def _(benchmark: ClassBenchmark, /, *, arguments: TBenchmarkArgs) -> Tuple[str, str]:
     reference_module_name: str = get_config().reference_module
     reference_module = importlib.import_module(reference_module_name)
     reference_class = getattr(reference_module, benchmark.name)
@@ -303,13 +313,28 @@ def _(benchmark: ClassBenchmark, arguments: dict[str, TArg]) -> Tuple[str, str]:
     # Step 1 is to construct the object
     obj = reference_class(**arguments)
 
+    # Init arguments are specified via benchmark name, if not present we must raise
+    if benchmark.name not in arguments:
+        raise ValueError(
+            f"Class '{benchmark.name}' is missing from the supplied arguments with keys {list(arguments.keys())}."
+        )
+
+    init_arguments: TArgsDict = arguments[benchmark.name]
+
     # Step 2 is to run the methods in the evaluation order specified
-    method_evaluation_order = benchmark.generate_method_evaluation_order(arguments)
+    method_evaluation_order = benchmark.generate_method_evaluation_order(init_arguments)
     ref_output, ref_std_output = "", ""
     for method in method_evaluation_order:
-        # TODO: Handle additional arguments required by the method
+        # We must check if the method has arguments supplied or raise otherwise
+        if method.method_name not in arguments:
+            raise ValueError(
+                f"Method '{method.method_name}' is missing from the arguments for class '{benchmark.name}'. "
+                f"The present keys are {list(arguments.keys())}."
+            )
+
+        func_args: TArgsDict = arguments[method.method_name]
         valid_kwargs: dict[str, TArg] = {
-            arg.name: arguments[arg.name] for arg in method.args if not arg.hidden
+            arg.name: func_args[arg.name] for arg in method.args if not arg.hidden
         }
 
         method_func = getattr(obj, method.method_name)

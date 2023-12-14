@@ -376,10 +376,10 @@ def calculate_gpa(students: list[Student], name: str) -> float:
     return 0  # If student not found
 
 
-class Coordinate:
-    def __init__(self, x: int, y: int):
-        self.x = x
-        self.y = y
+class Coordinate(BaseModel):
+    # def __init__(self, x: int, y: int):
+    #     self.x = x
+    #     self.y = y
 
     def distance(self, other: "Coordinate") -> float:
         return math.sqrt((self.x - other.x) ** 2 + (self.y - other.y) ** 2)

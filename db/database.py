@@ -1,10 +1,10 @@
 # Initialize SQLite database
 import math
 import sqlite3
-from typing import Tuple, Optional
+from typing import Tuple
 
 from src.config import BenchmarkResult, UserRank, BenchmarkStatus
-from src.validation import Benchmark, BENCHMARK_CONFIG, TBenchmark
+from src.validation import BENCHMARK_CONFIG, Benchmark
 
 MIGRATIONS_FILE = "db/migrations.sql"
 BENCHMARKS_RESULT_DB: str = "db/benchmark_results.db"
@@ -197,7 +197,7 @@ def toggle_benchmark_archive_status(benchmark_name: str, is_archive: bool):
         conn.commit()
 
 
-def get_enabled_benchmarks() -> list[TBenchmark]:
+def get_enabled_benchmarks() -> list[Benchmark]:
     with sqlite3.connect(BENCHMARKS_RESULT_DB) as conn:
         cursor = conn.cursor()
         cursor.execute(
@@ -208,7 +208,7 @@ def get_enabled_benchmarks() -> list[TBenchmark]:
         )
         benchmark_names: list[str] = [x for x, in cursor.fetchall()]
 
-        enabled_benchmarks: list[TBenchmark] = [
+        enabled_benchmarks: list[Benchmark] = [
             benchmark
             for benchmark in BENCHMARK_CONFIG.benchmarks
             if benchmark.name in benchmark_names
@@ -216,7 +216,7 @@ def get_enabled_benchmarks() -> list[TBenchmark]:
         return enabled_benchmarks
 
 
-def get_frozen_benchmarks() -> list[TBenchmark]:
+def get_frozen_benchmarks() -> list[Benchmark]:
     with sqlite3.connect(BENCHMARKS_RESULT_DB) as conn:
         cursor = conn.cursor()
         cursor.execute(
@@ -227,7 +227,7 @@ def get_frozen_benchmarks() -> list[TBenchmark]:
         )
         benchmark_names: list[str] = [x for x, in cursor.fetchall()]
 
-        frozen_benchmarks: list[TBenchmark] = [
+        frozen_benchmarks: list[Benchmark] = [
             benchmark
             for benchmark in BENCHMARK_CONFIG.benchmarks
             if benchmark.name in benchmark_names
@@ -235,7 +235,7 @@ def get_frozen_benchmarks() -> list[TBenchmark]:
         return frozen_benchmarks
 
 
-def get_archived_benchmarks() -> list[TBenchmark]:
+def get_archived_benchmarks() -> list[Benchmark]:
     with sqlite3.connect(BENCHMARKS_RESULT_DB) as conn:
         cursor = conn.cursor()
         cursor.execute(
@@ -246,7 +246,7 @@ def get_archived_benchmarks() -> list[TBenchmark]:
         )
         benchmark_names: list[str] = [x for x, in cursor.fetchall()]
 
-        frozen_benchmarks: list[TBenchmark] = [
+        frozen_benchmarks: list[Benchmark] = [
             benchmark
             for benchmark in BENCHMARK_CONFIG.benchmarks
             if benchmark.name in benchmark_names
