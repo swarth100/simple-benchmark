@@ -2,10 +2,33 @@ import importlib
 import inspect
 import sys
 from functools import lru_cache
-from typing import get_type_hints, Type
+from typing import get_type_hints, Type, TYPE_CHECKING
 
 from pydantic import BaseModel
 from pydantic.fields import FieldInfo
+
+if TYPE_CHECKING:
+    from src.validation import Config
+
+
+def get_function_annotations(
+    function_name: str, config: "Config"
+) -> tuple[dict[str, type], type]:
+    """
+    Given the name of a function to include from the reference module, resolves the python type annotations for the
+    function's arguments and return type
+
+    :param function_name: Name of the function to include
+    :param config: Configuration object
+    :return: Annotations and return type of the function
+    """
+    reference_module_name = config.reference_module
+    reference_module = importlib.import_module(reference_module_name)
+    reference_func = getattr(reference_module, function_name)
+
+    annotations: dict[str, type] = dict(reference_func.__annotations__)
+    return_type: type = annotations.pop("return", None)
+    return annotations, return_type
 
 
 def serialize_base_model_to_class(base_model_instance: Type[BaseModel]) -> str:

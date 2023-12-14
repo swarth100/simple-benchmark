@@ -482,7 +482,4 @@ benchmarks:
             description: "The other Coordinate to calculate the distance from."
             increment: "lambda **kwargs: Coordinate(x=random.randint(-kwargs['size'], kwargs['size']), y=random.randint(-kwargs['size'], kwargs['size']))"
             default: "Coordinate(x=1, y=1)"
-    evaluation:
-      - "__init__"
-      - "__str__"
-      - "distance"
+    evaluation: "lambda **kwargs: list(['distance'])"

@@ -5,7 +5,7 @@ import multiprocessing
 import random
 import sys
 import time
-from functools import lru_cache
+from functools import lru_cache, singledispatch
 from types import ModuleType
 from typing import Dict, Callable, Optional, Tuple, Any, List, Union
 
@@ -21,6 +21,8 @@ from src.validation import (
     Benchmark,
     BENCHMARK_CONFIG,
     format_args_as_function_call,
+    FunctionBenchmark,
+    ClassBenchmark,
 )
 
 
@@ -272,9 +274,15 @@ def run_benchmark_given_modules(
     return benchmark_results
 
 
+@singledispatch
 def run_reference_benchmark_with_arguments(
     benchmark: Benchmark, arguments: dict[str, TArg]
 ) -> Tuple[str, str]:
+    raise NotImplementedError("Unsupported type of benchmark")
+
+
+@run_reference_benchmark_with_arguments.register(FunctionBenchmark)
+def _(benchmark: FunctionBenchmark, arguments: dict[str, TArg]) -> Tuple[str, str]:
     # After setting common fields we proceed to executing the function
     reference_module_name: str = get_config().reference_module
     reference_module = importlib.import_module(reference_module_name)
@@ -282,6 +290,30 @@ def run_reference_benchmark_with_arguments(
 
     # Run the reference function with the provided inputs
     ref_output, ref_std_output = capture_output(reference_func, **arguments)
+
+    return ref_output, ref_std_output
+
+
+@run_reference_benchmark_with_arguments.register(ClassBenchmark)
+def _(benchmark: ClassBenchmark, arguments: dict[str, TArg]) -> Tuple[str, str]:
+    reference_module_name: str = get_config().reference_module
+    reference_module = importlib.import_module(reference_module_name)
+    reference_class = getattr(reference_module, benchmark.name)
+
+    # Step 1 is to construct the object
+    obj = reference_class(**arguments)
+
+    # Step 2 is to run the methods in the evaluation order specified
+    method_evaluation_order = benchmark.generate_method_evaluation_order(arguments)
+    ref_output, ref_std_output = "", ""
+    for method in method_evaluation_order:
+        # TODO: Handle additional arguments required by the method
+        valid_kwargs: dict[str, TArg] = {
+            arg.name: arguments[arg.name] for arg in method.args if not arg.hidden
+        }
+
+        method_func = getattr(obj, method.method_name)
+        ref_output, ref_std_output = capture_output(method_func, **valid_kwargs)
 
     return ref_output, ref_std_output
 

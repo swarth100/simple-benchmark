@@ -9,7 +9,11 @@ from faker import Faker
 from pydantic import BaseModel
 from typing_extensions import TypeAlias
 
-from src.utils import serialize_base_model_to_class, get_reference_benchmark_include
+from src.utils import (
+    serialize_base_model_to_class,
+    get_reference_benchmark_include,
+    get_function_annotations,
+)
 
 TArg: TypeAlias = Union[int, str, list]
 
@@ -118,10 +122,7 @@ class Benchmark(BaseModel, abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_annotations(self, config: "Config") -> tuple[dict[str, type], type]:
-        """
-        Retrieve argument and return type annotations from the reference implementation.
-        """
+    def generate_description_md(self) -> str:
         raise NotImplementedError
 
     @property
@@ -162,29 +163,6 @@ class Benchmark(BaseModel, abc.ABC):
         )
         return stars_html
 
-    def generate_description_md(self) -> str:
-        """
-        Generate Markdown description with type annotations.
-        """
-        annotations, return_type = self.get_annotations(BENCHMARK_CONFIG)
-        description_md = self.description + "\n<br>" + "Arguments:\n"
-
-        for arg in self.args:
-            if not arg.hidden:
-                arg_type = annotations.get(arg.name, Any)
-                formatted_arg_type = _format_type_hint(arg_type)
-                description_md += (
-                    f"- **{arg.name}**: `{formatted_arg_type}`. {arg.description}\n"
-                )
-
-        if return_type is not None:
-            return_type_str = f"`{_format_type_hint(return_type)}`"
-        else:
-            return_type_str = "`None` (outputs via `print`)"
-
-        description_md += f"<br>Return Type: {return_type_str}\n"
-        return description_md
-
 
 class FunctionBenchmark(Benchmark):
     """
@@ -211,7 +189,7 @@ class FunctionBenchmark(Benchmark):
 
     def generate_signature(self) -> str:
         # Retrieve the argument and return type annotations
-        annotations, return_type = self.get_annotations(BENCHMARK_CONFIG)
+        annotations, return_type = get_function_annotations(self.name, BENCHMARK_CONFIG)
 
         # Start with the function name
         function_signature = f"def {self.function_name}("
@@ -235,14 +213,28 @@ class FunctionBenchmark(Benchmark):
 
         return function_signature
 
-    def get_annotations(self, config: "Config") -> tuple[dict[str, type], type]:
-        reference_module_name = config.reference_module
-        reference_module = importlib.import_module(reference_module_name)
-        reference_func = getattr(reference_module, self.name)
+    def generate_description_md(self) -> str:
+        """
+        Generate Markdown description with type annotations.
+        """
+        annotations, return_type = get_function_annotations(self.name, BENCHMARK_CONFIG)
+        description_md = self.description + "\n<br>" + "Arguments:\n"
 
-        annotations: dict[str, type] = dict(reference_func.__annotations__)
-        return_type: type = annotations.pop("return", None)
-        return annotations, return_type
+        for arg in self.args:
+            if not arg.hidden:
+                arg_type = annotations.get(arg.name, Any)
+                formatted_arg_type = _format_type_hint(arg_type)
+                description_md += (
+                    f"- **{arg.name}**: `{formatted_arg_type}`. {arg.description}\n"
+                )
+
+        if return_type is not None:
+            return_type_str = f"`{_format_type_hint(return_type)}`"
+        else:
+            return_type_str = "`None` (outputs via `print`)"
+
+        description_md += f"<br>Return Type: {return_type_str}\n"
+        return description_md
 
 
 class Method(BaseModel):
@@ -255,7 +247,7 @@ class ClassBenchmark(Benchmark):
     class_name: str
     init: List[Argument]
     methods: List[Method]
-    evaluation: List[str]
+    evaluation: str
 
     @property
     def name(self) -> str:
@@ -263,16 +255,48 @@ class ClassBenchmark(Benchmark):
 
     @property
     def example_args(self) -> dict[str, TArg]:
-        return {}
+        return {arg.name: arg.example_value for arg in self.init if not arg.hidden}
 
     @property
     def example_args_as_python_call(self) -> str:
-        return ""
+        default_args = {
+            arg.name: arg.default_value for arg in self.init if not arg.hidden
+        }
+        return format_args_as_function_call(self.class_name, default_args)
 
-    def get_annotations(self, config: "Config") -> tuple[dict[str, type], type]:
-        return {}, type(None)
+    @property
+    def evaluation_lambda(self) -> Callable:
+        # Some libraries are required to be available for import by lambdas
+        import random
+
+        include_mapping = _get_reference_benchmark_include_mapping()
+
+        return eval(
+            self.evaluation,
+            {"random": random, "fake": _FAKE, **include_mapping},
+        )
+
+    def generate_method_evaluation_order(
+        self, arguments: dict[str, TArg]
+    ) -> list[Method]:
+        """
+        Generate the order in which methods should be evaluated and return a list of method objects for each one.
+        Method objects might be duplicated as a result of this, in case a method is called more than once.
+        """
+        method_order: list[Method] = []
+        method_names: list[str] = self.evaluation_lambda(**arguments)
+
+        for method_name in method_names:
+            for method in self.methods:
+                if method.method_name == method_name:
+                    method_order.append(method)
+
+        return method_order
 
     def generate_signature(self) -> str:
+        return ""
+
+    def generate_description_md(self) -> str:
         return ""
 
 

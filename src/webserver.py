@@ -31,12 +31,12 @@ from src.benchmark import (
     run_benchmark_given_modules,
     get_benchmark_by_name,
     get_config,
-    capture_output,
     is_benchmark_frozen,
     run_reference_benchmark_with_arguments,
     is_benchmark_archived,
 )
 from src.config import BenchmarkResult, UserRank, BenchmarkStatus
+from src.utils import get_function_annotations
 from src.validation import (
     BENCHMARK_CONFIG,
     Benchmark,
@@ -191,7 +191,9 @@ async def run_sandbox(request: Request):
                 result_data = {"error": f"Benchmark '{benchmark_name}' does not exist"}
             else:
                 # Assume inputs are JSON and need to be converted to Python dict
-                (arg_types, _) = benchmark.get_function_annotations(BENCHMARK_CONFIG)
+                (arg_types, _) = get_function_annotations(
+                    benchmark.name, BENCHMARK_CONFIG
+                )
                 inputs_dict = {}
                 for arg_name, arg_value in json.loads(user_inputs).items():
                     # We parse input arguments, validating them against the pydantic schema model
@@ -201,11 +203,11 @@ async def run_sandbox(request: Request):
                 result_data["input"] = format_args_as_function_call(
                     func_name=benchmark.name, args_dict=inputs_dict
                 )
-                result_data["signature"] = benchmark.generate_function_signature()
+                result_data["signature"] = benchmark.generate_signature()
 
                 # Run the reference function with the provided inputs
                 ref_output, ref_std_output = run_reference_benchmark_with_arguments(
-                    benchmark=benchmark, arguments=inputs_dict
+                    benchmark, arguments=inputs_dict
                 )
                 if ref_output is not None:
                     result_data["output"] = repr(ref_output)
@@ -229,7 +231,7 @@ async def run_sandbox(request: Request):
 
 
 @app.get("/randomize_args")
-async def update_leaderboard(request: Request, benchmark: str) -> str:
+async def randomize_args(request: Request, benchmark: str) -> str:
     try:
         benchmark: Optional[Benchmark] = get_benchmark_by_name(name=benchmark)
         arg_values: dict[str, TArg] = {
@@ -273,7 +275,7 @@ async def fetch_benchmark_details(request: Request, benchmark: str):
         pretty_printed_example_args: str = benchmark.example_args_as_python_call
 
         example_output, example_std_output = run_reference_benchmark_with_arguments(
-            benchmark=benchmark, arguments=example_input
+            benchmark, arguments=example_input
         )
         result_data: dict[str, str] = dict()
         if example_output is not None:
