@@ -387,7 +387,11 @@ class ClassBenchmark(Benchmark):
         return method_order
 
     def generate_signature(self) -> str:
-        return ""
+        class_object: Type[BaseModel] = get_reference_benchmark_include(self.class_name)
+        methods_to_exclude: list[str] = [method.method_name for method in self.methods]
+        return serialize_base_model_to_class(
+            base_model_instance=class_object, methods_to_exclude=methods_to_exclude
+        )
 
     def generate_description_md(self) -> str:
         return ""

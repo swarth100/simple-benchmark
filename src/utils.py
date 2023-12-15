@@ -2,7 +2,7 @@ import importlib
 import inspect
 import sys
 from functools import lru_cache
-from typing import get_type_hints, Type, TYPE_CHECKING
+from typing import get_type_hints, Type, TYPE_CHECKING, Optional
 
 from pydantic import BaseModel
 from pydantic.fields import FieldInfo
@@ -12,26 +12,43 @@ if TYPE_CHECKING:
 
 
 def get_function_annotations(
-    function_name: str, config: "Config"
+    object_name: str, config: "Config", *, method_name: Optional[str] = None
 ) -> tuple[dict[str, type], type]:
     """
     Given the name of a function to include from the reference module, resolves the python type annotations for the
     function's arguments and return type
 
-    :param function_name: Name of the function to include
+    :param object_name: Name of the function to include
     :param config: Configuration object
+    :param method_name: (Optional) If present, the name of the method to look up the signature for
     :return: Annotations and return type of the function
     """
     reference_module_name = config.reference_module
     reference_module = importlib.import_module(reference_module_name)
-    reference_func = getattr(reference_module, function_name)
+    reference_object = getattr(reference_module, object_name)
 
-    annotations: dict[str, type] = dict(reference_func.__annotations__)
+    if method_name is not None:
+        reference_object = getattr(reference_object, method_name)
+
+    annotations: dict[str, type] = dict(reference_object.__annotations__)
     return_type: type = annotations.pop("return", None)
     return annotations, return_type
 
 
-def serialize_base_model_to_class(base_model_instance: Type[BaseModel]) -> str:
+def serialize_base_model_to_class(
+    base_model_instance: Type[BaseModel],
+    *,
+    methods_to_exclude: Optional[list[str]] = None,
+) -> str:
+    """
+    Given a pydantic BaseModel, serializes it to a class definition
+    :param base_model_instance: The pydantic BaseModel to serialize
+    :param methods_to_exclude: List of methods to exclude from the serialization
+    :return: The stringified class definition of the BaseModel
+    """
+    if methods_to_exclude is None:
+        methods_to_exclude = []
+
     class_name = base_model_instance.__name__
     fields: dict[str, FieldInfo] = base_model_instance.__fields__  # type: ignore
 
@@ -56,8 +73,12 @@ def serialize_base_model_to_class(base_model_instance: Type[BaseModel]) -> str:
     for method in methods:
         method_func = getattr(base_model_instance, method)
         try:
-            method_source = inspect.getsource(method_func)
-            methods_str += f"\n{method_source}\n"
+            if method not in methods_to_exclude:
+                method_source = inspect.getsource(method_func)
+            else:
+                method_signature = inspect.signature(method_func)
+                method_source = f"    def {method}{method_signature}\n        ..."
+            methods_str += f"\n\n{method_source}"
         except TypeError:
             # This can happen if the method is not a regular function (e.g., built-in)
             pass
