@@ -2,13 +2,15 @@ import importlib
 import inspect
 import sys
 from functools import lru_cache
-from typing import get_type_hints, Type, TYPE_CHECKING, Optional
+from typing import get_type_hints, Type, TYPE_CHECKING, Optional, Any
 
 from pydantic import BaseModel
 from pydantic.fields import FieldInfo
 
 if TYPE_CHECKING:
-    from src.validation import Config
+    from src.validation import Config, Argument
+
+TABBED_MD_SPACING: str = "&nbsp;" * 4
 
 
 def get_function_annotations(
@@ -91,6 +93,27 @@ def serialize_base_model_to_class(
     return class_def
 
 
+def format_arguments_as_md(
+    args: list["Argument"], annotations: dict[str, type], *, pre_spacing: int = 0
+) -> str:
+    """
+    Given a list of arguments and their annotations, formats them as a markdown list
+    :param args: List of arguments to format
+    :param annotations: Dict of annotations
+    :param pre_spacing: Number of spaces to prefix the output with
+    :return: Markdown-formatted list of arguments
+    """
+    output_md: str = ""
+    spacing: str = "&nbsp;" * pre_spacing
+    for arg in args:
+        if not arg.hidden:
+            arg_type = annotations.get(arg.name, Any)
+            formatted_arg_type = _format_type_hint(arg_type)
+            output_md += f"{spacing} - **{arg.name}**: `{formatted_arg_type}`. {arg.description}\n"
+
+    return output_md
+
+
 @lru_cache
 def get_reference_benchmark_include(object_name: str) -> Type[BaseModel]:
     """
@@ -121,3 +144,19 @@ def get_reference_benchmark_include(object_name: str) -> Type[BaseModel]:
         )
 
     return ref_object
+
+
+def _format_type_hint(type_hint: type):
+    """
+    Format a type hint into a readable string.
+    Handles complex types like generics.
+    """
+    if hasattr(type_hint, "__origin__"):
+        # Handle generic types (e.g., List[int], Dict[str, int])
+        base = type_hint.__origin__.__name__
+        args = ", ".join(_format_type_hint(arg) for arg in type_hint.__args__)
+        return f"{base}[{args}]"
+    elif isinstance(type_hint, type):
+        # Handle simple types (e.g., int, str)
+        return type_hint.__name__
+    return str(type_hint)

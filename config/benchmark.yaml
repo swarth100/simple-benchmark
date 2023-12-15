@@ -533,8 +533,8 @@ benchmarks:
 
   - class_name: "Coordinate"
     description: |
-      A class representing a point in a 2D plane.
-      Implements a `distance` method to calculate the distance from another `Coordinate`.
+      Within a class `Coordinate` representing a point in a 2D plane.
+      Implement a `distance` method to calculate the distance from another `Coordinate`.
     max_time: 50
     difficulty: 2.0
     init:

@@ -13,6 +13,9 @@ from src.utils import (
     serialize_base_model_to_class,
     get_reference_benchmark_include,
     get_function_annotations,
+    _format_type_hint,
+    format_arguments_as_md,
+    TABBED_MD_SPACING,
 )
 
 TArg: TypeAlias = Union[int, str, list]
@@ -260,14 +263,7 @@ class FunctionBenchmark(Benchmark):
         """
         annotations, return_type = get_function_annotations(self.name, BENCHMARK_CONFIG)
         description_md = self.description + "\n<br>" + "Arguments:\n"
-
-        for arg in self.args:
-            if not arg.hidden:
-                arg_type = annotations.get(arg.name, Any)
-                formatted_arg_type = _format_type_hint(arg_type)
-                description_md += (
-                    f"- **{arg.name}**: `{formatted_arg_type}`. {arg.description}\n"
-                )
+        description_md += format_arguments_as_md(self.args, annotations, pre_spacing=4)
 
         if return_type is not None:
             return_type_str = f"`{_format_type_hint(return_type)}`"
@@ -396,7 +392,29 @@ class ClassBenchmark(Benchmark):
         )
 
     def generate_description_md(self) -> str:
-        return ""
+        annotations, _ = get_function_annotations(self.name, BENCHMARK_CONFIG)
+        description_md = self.description + "\n<br>" + "Constructor arguments:\n"
+        description_md += format_arguments_as_md(self.init, annotations, pre_spacing=4)
+
+        for method in self.methods:
+            method_annotations, method_return_type = get_function_annotations(
+                self.name, BENCHMARK_CONFIG, method_name=method.method_name
+            )
+
+            description_md += f"\n<br>Method `{method.method_name}`:\n"
+            description_md += f"{TABBED_MD_SPACING}- Arguments:\n"
+            description_md += format_arguments_as_md(
+                method.args, method_annotations, pre_spacing=8
+            )
+
+            if method_return_type is not None:
+                return_type_str = f"`{_format_type_hint(method_return_type)}`"
+            else:
+                return_type_str = "`None` (outputs via `print`)"
+
+            description_md += f"{TABBED_MD_SPACING}- Return Type: {return_type_str}\n"
+
+        return description_md
 
 
 class Config(BaseModel):
@@ -445,22 +463,6 @@ def format_args_as_function_call(func_name: str, args_dict: dict) -> str:
     formatted_str = format_str(function_call_str, mode=mode)
 
     return formatted_str
-
-
-def _format_type_hint(type_hint: type):
-    """
-    Format a type hint into a readable string.
-    Handles complex types like generics.
-    """
-    if hasattr(type_hint, "__origin__"):
-        # Handle generic types (e.g., List[int], Dict[str, int])
-        base = type_hint.__origin__.__name__
-        args = ", ".join(_format_type_hint(arg) for arg in type_hint.__args__)
-        return f"{base}[{args}]"
-    elif isinstance(type_hint, type):
-        # Handle simple types (e.g., int, str)
-        return type_hint.__name__
-    return str(type_hint)
 
 
 def _load_config(file_path) -> Config:
