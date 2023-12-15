@@ -311,15 +311,14 @@ def _(benchmark: ClassBenchmark, /, *, arguments: TBenchmarkArgs) -> Tuple[str, 
     reference_class = getattr(reference_module, benchmark.name)
 
     # Step 1 is to construct the object
-    obj = reference_class(**arguments)
+    init_arguments: TArgsDict = arguments[benchmark.name]
+    obj = reference_class(**init_arguments)
 
     # Init arguments are specified via benchmark name, if not present we must raise
     if benchmark.name not in arguments:
         raise ValueError(
             f"Class '{benchmark.name}' is missing from the supplied arguments with keys {list(arguments.keys())}."
         )
-
-    init_arguments: TArgsDict = arguments[benchmark.name]
 
     # Step 2 is to run the methods in the evaluation order specified
     method_evaluation_order = benchmark.generate_method_evaluation_order(init_arguments)
