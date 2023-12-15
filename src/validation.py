@@ -209,8 +209,9 @@ class FunctionBenchmark(Benchmark):
 
     @property
     def example_args_as_python_call(self) -> str:
+        filtered_args = self.filter_visible_arguments(self.default_args)
         return format_args_as_function_call(
-            self.function_name, self.default_args[self.function_name]
+            self.function_name, filtered_args[self.function_name]
         )
 
     def increment_args(self, arguments: TBenchmarkArgs):
@@ -318,8 +319,9 @@ class ClassBenchmark(Benchmark):
     @property
     def example_args_as_python_call(self) -> str:
         # TODO: Correctly implement for classes and nested methods!
+        filtered_args = self.filter_visible_arguments(self.default_args)
         return format_args_as_function_call(
-            self.class_name, self.default_args[self.class_name]
+            self.class_name, filtered_args[self.class_name]
         )
 
     def increment_args(self, arguments: TBenchmarkArgs):
