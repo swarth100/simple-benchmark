@@ -79,7 +79,7 @@ def serialize_base_model_to_class(
                 method_source = inspect.getsource(method_func)
             else:
                 method_signature = inspect.signature(method_func)
-                method_source = f"    def {method}{method_signature}\n        ..."
+                method_source = f"    def {method}{method_signature}:\n        ..."
             methods_str += f"\n\n{method_source}"
         except TypeError:
             # This can happen if the method is not a regular function (e.g., built-in)

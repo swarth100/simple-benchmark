@@ -535,7 +535,7 @@ benchmarks:
     description: |
       Within a class `Coordinate` representing a point in a 2D plane.
       Implement a `distance` method to calculate the distance from another `Coordinate`.
-    max_time: 50
+    max_time: 5
     difficulty: 2.0
     init:
       - name: "size"
@@ -554,6 +554,10 @@ benchmarks:
       - method_name: "distance"
         description: "Calculate the distance from another Coordinate."
         args:
+          - name: "size"
+            increment: "lambda x: x + 1"
+            default: "int(3)"
+            hidden: true
           - name: "other"
             description: "The other Coordinate to calculate the distance from."
             increment: "lambda **kwargs: Coordinate(x=random.randint(-kwargs['size'], kwargs['size']), y=random.randint(-kwargs['size'], kwargs['size']))"

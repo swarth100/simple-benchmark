@@ -1,6 +1,7 @@
 import abc
 import importlib
 import inspect
+from types import ModuleType
 from typing import List, Union, Callable, Optional, Any, Type
 
 import yaml
@@ -332,7 +333,7 @@ class ClassBenchmark(Benchmark):
         methods = self.generate_method_evaluation_order(init_arguments)
         for method in methods:
             method_arguments: TArgsDict = arguments[method.method_name]
-            for arg in self.args:
+            for arg in method.args:
                 method_arguments[arg.name] = arg.apply_increment(
                     method_arguments[arg.name], **method_arguments
                 )
@@ -421,6 +422,10 @@ class Config(BaseModel):
     reference_module: str
     user_modules: List[str]
     benchmarks: List[Union[FunctionBenchmark, ClassBenchmark]]
+
+    @property
+    def reference_module_object(self) -> ModuleType:
+        return importlib.import_module(self.reference_module)
 
     def get_all_valid_benchmarks(
         self, *, include_archived: bool = False

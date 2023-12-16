@@ -4,6 +4,7 @@ import json
 import tempfile
 import traceback
 from random import randint
+from types import ModuleType
 from typing import Optional, Any
 
 import markdown
@@ -32,8 +33,9 @@ from src.benchmark import (
     get_benchmark_by_name,
     get_config,
     is_benchmark_frozen,
-    run_reference_benchmark_with_arguments,
+    run_benchmark_with_arguments,
     is_benchmark_archived,
+    BenchmarkRunInfo,
 )
 from src.config import BenchmarkResult, UserRank, BenchmarkStatus
 from src.utils import get_function_annotations
@@ -197,7 +199,6 @@ async def run_sandbox(request: Request):
             if benchmark is None:
                 result_data = {"error": f"Benchmark '{benchmark_name}' does not exist"}
             else:
-                result_data["input"] = dict()
                 inputs_dict: TBenchmarkArgs = json.loads(user_inputs)
 
                 for func_name, args in inputs_dict.items():
@@ -213,15 +214,20 @@ async def run_sandbox(request: Request):
                     inputs_dict[func_name] = parsed_args
 
                     # TODO: Generalize to Classes!
+                    # Currently we override with the last entry in the dict
                     result_data["input"] = format_args_as_function_call(
                         func_name=func_name, args_dict=parsed_args
                     )
                 result_data["signature"] = benchmark.generate_signature()
 
+                # Sandbox is always run against the reference module
+                ref_module: ModuleType = get_config().reference_module_object
+
                 # Run the reference function with the provided inputs
-                ref_output, ref_std_output = run_reference_benchmark_with_arguments(
-                    benchmark, arguments=inputs_dict
+                ref_result: BenchmarkRunInfo = run_benchmark_with_arguments(
+                    benchmark, module=ref_module, arguments=inputs_dict
                 )
+                (ref_output, ref_std_output, _) = ref_result
                 if ref_output is not None:
                     result_data["output"] = repr(ref_output)
                 if (ref_std_output is not None) and (ref_std_output != ""):
@@ -284,9 +290,14 @@ async def fetch_benchmark_details(request: Request, benchmark: str):
         example_input: TBenchmarkArgs = benchmark.example_args
         pretty_printed_example_args: str = benchmark.example_args_as_python_call
 
-        example_output, example_std_output = run_reference_benchmark_with_arguments(
-            benchmark, arguments=example_input
+        # Benchmark details are always fetched from the reference module
+        ref_module: ModuleType = get_config().reference_module_object
+
+        example_result: BenchmarkRunInfo = run_benchmark_with_arguments(
+            benchmark, module=ref_module, arguments=example_input
         )
+        (example_output, example_std_output, _) = example_result
+
         result_data: dict[str, str] = dict()
         if example_output is not None:
             result_data["example_output"] = repr(example_output)
