@@ -26,6 +26,7 @@ class BenchmarkResult:
 
 class UserRank(TypedDict):
     rank: int
+    multiplier: float
     username: str
     scores: dict[str, float]
     total: float

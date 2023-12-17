@@ -1,6 +1,7 @@
 # Initialize SQLite database
 import math
 import sqlite3
+from collections import defaultdict
 from typing import Tuple
 
 from src.config import BenchmarkResult, UserRank, BenchmarkStatus
@@ -67,6 +68,28 @@ def get_top_benchmark_results(benchmark: Benchmark) -> list[Tuple[str, ...]]:
     return results
 
 
+def get_user_multipliers(usernames: list[str]) -> dict[str, float]:
+    with sqlite3.connect(BENCHMARKS_RESULT_DB) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT username, multiplier FROM user_info
+            WHERE username IN ({})
+            """.format(
+                ",".join("?" * len(usernames))
+            ),
+            usernames,
+        )
+        results = cursor.fetchall()
+
+    # We use a defaultdict as certain users might not have a multiplier set
+    user_multipliers: dict[str, float] = defaultdict(lambda: 1.0)
+    for username, multiplier in results:
+        user_multipliers[username] = multiplier
+
+    return user_multipliers
+
+
 def get_rankings(benchmarks: list[Benchmark]) -> list[UserRank]:
     """
     Get a list of user rankings based on all available benchmarks.
@@ -123,14 +146,20 @@ def get_rankings(benchmarks: list[Benchmark]) -> list[UserRank]:
 
                 user_scores[username][benchmark.name] = normalized_score
 
+        user_multipliers: dict[str, float] = get_user_multipliers(
+            list(user_scores.keys())
+        )
+
         # Calculate total score and format results
         results: list[UserRank] = []
         for idx, (username, scores) in enumerate(user_scores.items()):
-            total_score = sum(scores.values())
+            multiplier: float = user_multipliers[username]
+            total_score = sum(scores.values()) * multiplier
 
             results.append(
                 UserRank(
                     rank=0,  # In human terms rank starts from 1, not 0
+                    multiplier=multiplier,
                     username=username,
                     scores={
                         benchmark.name: scores.get(benchmark.name, 0)

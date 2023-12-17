@@ -2,22 +2,24 @@
     <table class="table is-fullwidth is-striped is-hoverable">
         <thead>
         <tr>
-            <th>Rank (#)</th>
-            <th>User</th>
-            <th>Total</th>
+            <th class="has-text-centered">Rank (#)</th>
+            <th class="has-text-centered">User</th>
+            <th class="has-text-centered">Multiplier</th>
+            <th class="has-text-centered">Total</th>
             {% for benchmark in benchmarks %}
-            <th>{{ benchmark }}</th>
+            <th class="has-text-centered">{{ benchmark }}</th>
             {% endfor %}
         </tr>
         </thead>
         <tbody>
         {% for user_data in rankings %}
         <tr class="{{ 'is-selected' if user_data.username == current_user }}">
-            <td>{{ user_data.rank }}</td>
-            <td>{{ user_data.username }}</td>
-            <td class="has-text-weight-bold">{{ user_data.total | round(1) }}</td>
+            <td class="has-text-centered">{{ user_data.rank }}</td>
+            <td class="has-text-centered">{{ user_data.username }}</td>
+            <td class="has-text-centered has-text-weight-bold is-italic">x {{ user_data.multiplier }}</td>
+            <td class="has-text-centered has-text-weight-bold">{{ user_data.total | round(1) }}</td>
             {% for benchmark in benchmarks %}
-            <td>{{ user_data.scores[benchmark] | default(0) | round(1) }}</td>
+            <td class="has-text-centered">{{ user_data.scores[benchmark] | default(0) | round(1) }}</td>
             {% endfor %}
         </tr>
         {% endfor %}
