@@ -94,6 +94,7 @@ class Argument(BaseModel):
 
 
 class Benchmark(BaseModel, abc.ABC):
+    # max_time is in microseconds
     max_time: int
     description: str
     difficulty: float
@@ -172,7 +173,7 @@ class Benchmark(BaseModel, abc.ABC):
 
     @property
     def max_time_seconds(self) -> float:
-        return self.max_time / 1_000
+        return self.max_time / 1_000_000
 
     @property
     def example_includes(self) -> list[str]:
