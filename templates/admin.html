@@ -48,7 +48,7 @@
                     {{ 'Hidden' if is_hidden else 'Visible' }}
                 </td>
                 <td class="{{ 'has-text-info' if (is_frozen and not is_hidden) else 'has-text-black' }}">
-                    {{ '--' if is_hidden else 'Frozen' if is_frozen else 'Open' }}
+                    {{ '--' if (is_hidden or _is_archive) else 'Frozen' if is_frozen else 'Open' }}
                 </td>
                 <td class="{{ 'has-text-success' if is_archive else 'has-text-black' }}">
                     {{ 'Archived' if is_archive else '--' }}
@@ -58,18 +58,16 @@
                             data-benchmark="{{ benchmark }}" data-is-hidden="{{ is_hidden }}">
                         {{ 'Enable' if is_hidden else 'Disable' }}
                     </button>
-                    {% if not is_hidden %}
+                    {% if not is_hidden and not is_archive %}
                     <button class="button is-small {{ 'is-info' if (not is_frozen and not is_hidden) else 'is-black' }} toggle-freeze"
-                            data-benchmark="{{ benchmark }}" data-is-frozen="{{ is_frozen }}" {{ 'disabled' if is_hidden }}>
+                            data-benchmark="{{ benchmark }}" data-is-frozen="{{ is_frozen }}" {{ 'disabled' if is_hidden or is_archive }}>
                         {{ 'Freeze' if not is_frozen else 'Unfreeze' }}
                     </button>
                     {% endif %}
-                    {% if is_hidden %}
                     <button class="button is-small {{ 'is-primary' if not is_archive else 'is-black' }} toggle-archive"
-                        data-benchmark="{{ benchmark }}" data-is-archive="{{ is_archive }}" {{ 'disabled' if not is_hidden }}>
+                        data-benchmark="{{ benchmark }}" data-is-archive="{{ is_archive }}">
                         {{ 'Archive' if not is_archive else 'Unarchive' }}
                     </button>
-                    {% endif %}
                 </td>
             </tr>
             {% endfor %}

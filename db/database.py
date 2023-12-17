@@ -162,7 +162,7 @@ def toggle_benchmark_visibility(benchmark_name: str, is_hidden: bool):
         cursor.execute(
             """
             UPDATE benchmarks
-            SET is_hidden = ?, is_frozen = ?, is_archive = FALSE
+            SET is_hidden = ?, is_frozen = ?
             WHERE name = ?
             """,
             (is_hidden, is_hidden, benchmark_name),
@@ -204,7 +204,7 @@ def get_enabled_benchmarks() -> list[Benchmark]:
         cursor.execute(
             """
             SELECT name FROM benchmarks
-            WHERE NOT is_hidden
+            WHERE NOT is_hidden AND NOT is_archive
             """
         )
         benchmark_names: list[str] = [x for x, in cursor.fetchall()]
@@ -242,7 +242,7 @@ def get_archived_benchmarks() -> list[Benchmark]:
         cursor.execute(
             """
             SELECT name FROM benchmarks
-            WHERE is_archive
+            WHERE is_archive AND NOT is_hidden
             """
         )
         benchmark_names: list[str] = [x for x, in cursor.fetchall()]

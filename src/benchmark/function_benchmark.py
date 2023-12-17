@@ -36,8 +36,8 @@ class FunctionBenchmark(Benchmark):
 
     @property
     def icon_unicode(self) -> str:
-        # Gears Icon
-        return "f013"
+        # Wrench Icon
+        return "f0ad"
 
     @property
     def example_args(self) -> TBenchmarkArgs:

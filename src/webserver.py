@@ -506,10 +506,20 @@ async def run_user_benchmark(request: Request):
 
 @app.get("/admin", response_class=HTMLResponse)
 async def admin_page(request: Request, show_archived: bool = False):
+    # Create a mapping of benchmark names to their difficulty levels
+    benchmark_difficulties: dict[str, float] = {
+        benchmark.name: benchmark.difficulty for benchmark in get_config().benchmarks
+    }
+
+    # Get the benchmark visibility status
     benchmark_status: list[BenchmarkStatus] = get_benchmark_visibility_status()
 
+    # Filter out archived benchmarks if not showing archived
     if not show_archived:
         benchmark_status = [item for item in benchmark_status if not item.is_archive]
+
+    # Sort benchmark_status by difficulty using the mapping
+    benchmark_status.sort(key=lambda b: benchmark_difficulties.get(b.name, 0))
 
     benchmark_icons: dict[str, str] = {
         benchmark.name: benchmark.icon_unicode for benchmark in get_config().benchmarks
