@@ -1,13 +1,11 @@
 import math
-from typing import TYPE_CHECKING, Annotated
 
 from pydantic import BaseModel
 
-if TYPE_CHECKING:
-    from src.utils import PrintsToConsole
+from benchmarks.utils import Print
 
 
-def square(size: int) -> "Annotated[None, PrintsToConsole]":
+def square(size: int) -> Print:
     for x in range(size):
         if (x == 0) or (x == size - 1):
             print("*" * size)
@@ -15,7 +13,7 @@ def square(size: int) -> "Annotated[None, PrintsToConsole]":
             print("*" + ("." * (size - 2)) + "*")
 
 
-def triangle(size: int) -> "Annotated[None, PrintsToConsole]":
+def triangle(size: int) -> Print:
     for x in range(1, size + 1):
         n_stars = x
         n_dots = size - n_stars
@@ -24,7 +22,7 @@ def triangle(size: int) -> "Annotated[None, PrintsToConsole]":
         print(dots + stars)
 
 
-def rhombus(size: int) -> "Annotated[None, PrintsToConsole]":
+def rhombus(size: int) -> Print:
     limit = (size + 1) // 2
     for start, end, step in [(0, limit, 1), (limit - 1 - (size % 2), -1, -1)]:
         for x in range(start, end, step):
@@ -34,7 +32,7 @@ def rhombus(size: int) -> "Annotated[None, PrintsToConsole]":
             print(row)
 
 
-def histogram(nums: list[int]) -> "Annotated[None, PrintsToConsole]":
+def histogram(nums: list[int]) -> Print:
     max_height = max(nums)
 
     # Printing the histogram from top to bottom
@@ -49,9 +47,7 @@ def histogram(nums: list[int]) -> "Annotated[None, PrintsToConsole]":
     print("+" + "-" * len(nums))
 
 
-def scatter(
-    size: int, points: list[tuple[int, int]]
-) -> "Annotated[None, PrintsToConsole]":
+def scatter(size: int, points: list[tuple[int, int]]) -> Print:
     # Create a set of points for faster lookup.
     # This step is optional, a list works as well.
     points_set = set((x, y) for x, y in points)
@@ -111,9 +107,7 @@ def dividing_numbers(left: int, right: int) -> list[int]:
     return result
 
 
-def generate_trajectory(
-    velocity: int, angle: int, size: list[int]
-) -> "Annotated[None, PrintsToConsole]":
+def generate_trajectory(velocity: int, angle: int, size: list[int]) -> Print:
     g = 9.81  # Acceleration due to gravity (m/s^2)
     angle_rad = math.radians(angle)  # Convert angle to radians
 
@@ -281,7 +275,7 @@ def pascal_triangle(n: int) -> list[list[int]]:
     return triangle
 
 
-def missing_triangle(sides: dict) -> "Annotated[None, PrintsToConsole]":
+def missing_triangle(sides: dict) -> Print:
     c1 = sides.get("cathetus1")
     c2 = sides.get("cathetus2")
     h = sides.get("hypotenuse")
@@ -307,7 +301,7 @@ def missing_triangle(sides: dict) -> "Annotated[None, PrintsToConsole]":
         print(dots + stars)
 
 
-def machine(commands: list[int]) -> "Annotated[None, PrintsToConsole]":
+def machine(commands: list[int]) -> Print:
     row = ""
     for command in commands:
         if command == 0:

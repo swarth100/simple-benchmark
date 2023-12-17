@@ -14,11 +14,13 @@ from typing import (
     Annotated,
     get_args,
 )
+from typing_extensions import TypeAlias
 
 from black import FileMode, format_str
 from pydantic import BaseModel
 from pydantic.fields import FieldInfo
 
+from benchmarks.utils import PrintsToConsole
 from src.config import BenchmarkRunInfo
 
 if TYPE_CHECKING:
@@ -26,10 +28,6 @@ if TYPE_CHECKING:
     from src.benchmark.config import Config
 
 TABBED_MD_SPACING: str = "&nbsp;" * 4
-
-
-class PrintsToConsole:
-    pass
 
 
 def get_annotations(
