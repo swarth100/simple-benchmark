@@ -120,14 +120,6 @@ class Benchmark(BaseModel, abc.ABC):
         # NOTE: Default arguments are purposefully not filtered to visible arguments
         raise NotImplementedError
 
-    @property
-    @abc.abstractmethod
-    def example_args_as_python_call(self) -> str:
-        """
-        Generate a string representing how to call the benchmark with default arguments.
-        """
-        raise NotImplementedError
-
     @abc.abstractmethod
     def increment_args(self, arguments: TBenchmarkArgs):
         # Increment is performed in-place
@@ -148,6 +140,25 @@ class Benchmark(BaseModel, abc.ABC):
 
         :return: BenchmarkRunInfo containing the result of the benchmark
         :raises ModuleAccessException: If the module cannot be accessed or does not exist
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def parse_arguments_from_dict(self, raw_arguments: dict) -> TBenchmarkArgs:
+        """
+        Given a dictionary of arguments, parses them into a valid benchmark arguments object.
+        :param raw_arguments: Dictionary of arguments to parse
+        :return: Valid benchmark arguments object
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def generate_python_call(self, arguments: TBenchmarkArgs) -> str:
+        """
+        Generate a string representing how to call the benchmark with given arguments.
+
+        :param arguments: Arguments to use in the call
+        :return: String representing how to call the benchmark with given arguments
         """
         raise NotImplementedError
 

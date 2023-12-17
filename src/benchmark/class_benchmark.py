@@ -104,14 +104,6 @@ class ClassBenchmark(Benchmark):
 
         return class_args
 
-    @property
-    def example_args_as_python_call(self) -> str:
-        # TODO: Correctly implement for classes and nested methods!
-        filtered_args = self.filter_visible_arguments(self.default_args)
-        return format_args_as_function_call(
-            self.class_name, filtered_args[self.class_name]
-        )
-
     def increment_args(self, arguments: TBenchmarkArgs):
         init_arguments: TArgsDict = arguments[self.class_name]
         for arg in self.init:
@@ -121,7 +113,7 @@ class ClassBenchmark(Benchmark):
 
         # TODO: Validate if we should generate a full MEO, or if instead we could use self.methods.
         #       The full MEO would override arguments currently.
-        methods = self.generate_method_evaluation_order(init_arguments)
+        methods = self._generate_method_evaluation_order(init_arguments)
         meo_arguments: list[TArgsDict] = []
         for method in methods:
             method_increment_arguments: TArgsDict = init_arguments
@@ -210,20 +202,16 @@ class ClassBenchmark(Benchmark):
     def example_includes(self) -> list[str]:
         return super().example_includes + [self.class_name]
 
-    def generate_method_evaluation_order(self, arguments: TArgsDict) -> list[Method]:
-        """
-        Generate the order in which methods should be evaluated and return a list of method objects for each one.
-        Method objects might be duplicated as a result of this, in case a method is called more than once.
-        """
-        method_order: list[Method] = []
-        method_names: list[str] = self.evaluation.evaluation_lambda(**arguments)
+    def parse_arguments_from_dict(self, raw_arguments: dict) -> TBenchmarkArgs:
+        # TODO: Correctly implement!
+        return raw_arguments
 
-        for method_name in method_names:
-            for method in self.methods:
-                if method.method_name == method_name:
-                    method_order.append(method)
-
-        return method_order
+    def generate_python_call(self, arguments: TBenchmarkArgs) -> str:
+        # TODO: Correctly implement for classes and nested methods!
+        filtered_args = self.filter_visible_arguments(self.default_args)
+        return format_args_as_function_call(
+            self.class_name, filtered_args[self.class_name]
+        )
 
     def generate_signature(self) -> str:
         class_object: Type[BaseModel] = get_reference_benchmark_include(self.class_name)
@@ -256,3 +244,18 @@ class ClassBenchmark(Benchmark):
             description_md += f"{TABBED_MD_SPACING}- Return Type: {return_type_str}\n"
 
         return description_md
+
+    def _generate_method_evaluation_order(self, arguments: TArgsDict) -> list[Method]:
+        """
+        Generate the order in which methods should be evaluated and return a list of method objects for each one.
+        Method objects might be duplicated as a result of this, in case a method is called more than once.
+        """
+        method_order: list[Method] = []
+        method_names: list[str] = self.evaluation.evaluation_lambda(**arguments)
+
+        for method_name in method_names:
+            for method in self.methods:
+                if method.method_name == method_name:
+                    method_order.append(method)
+
+        return method_order

@@ -1,6 +1,7 @@
 import copy
 from types import ModuleType
 from typing import List, Any
+from pydantic import BaseModel, parse_obj_as
 
 from src.benchmark.core import (
     Benchmark,
@@ -42,11 +43,6 @@ class FunctionBenchmark(Benchmark):
         function_args: TArgsDict = {arg.name: arg.default_value for arg in self.args}
         return function_args
 
-    @property
-    def example_args_as_python_call(self) -> str:
-        filtered_args = self.filter_visible_arguments(self.default_args)
-        return format_args_as_function_call(self.function_name, filtered_args)
-
     def increment_args(self, arguments: TBenchmarkArgs):
         for arg in self.args:
             arguments[arg.name] = arg.apply_increment(arguments[arg.name], **arguments)
@@ -73,6 +69,18 @@ class FunctionBenchmark(Benchmark):
         res: BenchmarkRunInfo = capture_output(func, **valid_kwargs)
 
         return res
+
+    def parse_arguments_from_dict(self, raw_arguments: dict) -> TBenchmarkArgs:
+        (arg_types, _) = get_function_annotations(self.name)
+        filtered_args = {
+            arg_name: parse_obj_as(arg_types[arg_name], arg_value)  # type: ignore
+            for arg_name, arg_value in raw_arguments.items()
+        }
+        return filtered_args
+
+    def generate_python_call(self, arguments: TBenchmarkArgs) -> str:
+        filtered_args = self.filter_visible_arguments(arguments)
+        return format_args_as_function_call(self.function_name, filtered_args)
 
     def generate_signature(self) -> str:
         # Retrieve the argument and return type annotations

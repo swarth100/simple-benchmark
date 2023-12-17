@@ -191,23 +191,14 @@ async def run_sandbox(request: Request):
             if benchmark is None:
                 result_data = {"error": f"Benchmark '{benchmark_name}' does not exist"}
             else:
-                inputs_dict: TBenchmarkArgs = json.loads(user_inputs)
+                raw_input: dict = json.loads(user_inputs)
+                inputs_dict: TBenchmarkArgs = benchmark.parse_arguments_from_dict(
+                    raw_arguments=raw_input
+                )
 
-                for func_name, args in inputs_dict.items():
-                    # TODO: Generalize to Classes!
-                    (arg_types, _) = get_function_annotations(func_name)
-                    # Assume inputs are JSON and need to be converted to Python dict
-                    parsed_args = {
-                        arg_name: parse_obj_as(arg_types[arg_name], arg_value)  # type: ignore
-                        for arg_name, arg_value in args.items()
-                    }
-                    inputs_dict[func_name] = parsed_args
-
-                    # TODO: Generalize to Classes!
-                    # Currently we override with the last entry in the dict
-                    result_data["input"] = format_args_as_function_call(
-                        func_name=func_name, args_dict=parsed_args
-                    )
+                result_data["input"] = benchmark.generate_python_call(
+                    arguments=inputs_dict
+                )
                 result_data["signature"] = benchmark.generate_signature()
 
                 # Sandbox is always run against the reference module
@@ -278,7 +269,9 @@ async def fetch_benchmark_details(request: Request, benchmark: str):
         )
 
         example_input: TBenchmarkArgs = benchmark.example_args
-        pretty_printed_example_args: str = benchmark.example_args_as_python_call
+        pretty_printed_example_args: str = benchmark.generate_python_call(
+            arguments=example_input
+        )
 
         # Benchmark details are always fetched from the reference module
         ref_module: ModuleType = get_config().reference_module_object
