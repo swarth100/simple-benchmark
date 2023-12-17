@@ -89,7 +89,7 @@ def serialize_base_model_to_class(
         methods_to_exclude = []
 
     class_name = base_model_instance.__name__
-    fields: dict[str, FieldInfo] = base_model_instance.__fields__  # type: ignore
+    fields: dict[str, FieldInfo] = base_model_instance.__dataclass_fields__  # type: ignore
 
     base_methods = set(dir(BaseModel))
     subclass_methods = set(dir(base_model_instance)) - base_methods

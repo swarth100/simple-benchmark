@@ -1,6 +1,6 @@
 import math
 
-from pydantic import BaseModel
+from pydantic.dataclasses import dataclass
 
 from benchmarks.utils import Print
 
@@ -314,7 +314,8 @@ def machine(commands: list[int]) -> Print:
     print(row, end="")
 
 
-class City(BaseModel):
+@dataclass
+class City:
     name: str
     population: int
 
@@ -327,7 +328,8 @@ def smallest_city(cities: list[City]) -> City:
     return smallest
 
 
-class Person(BaseModel):
+@dataclass
+class Person:
     name: str
     height: int
 
@@ -336,7 +338,8 @@ def total_height(person_a: Person, person_b: Person) -> int:
     return person_a.height + person_b.height
 
 
-class Book(BaseModel):
+@dataclass
+class Book:
     title: str
     pages: int
 
@@ -351,7 +354,8 @@ def total_num_pages(books: list[Book]) -> int:
     return total_pages
 
 
-class Car(BaseModel):
+@dataclass
+class Car:
     license_plate: str
     is_parked: bool
 
@@ -365,7 +369,8 @@ def park_cars(garage: list[Car], license_plates: list[str]) -> int:
     return parked_count
 
 
-class Student(BaseModel):
+@dataclass
+class Student:
     name: str
     grades: list[float]
 
@@ -381,7 +386,8 @@ def calculate_gpa(students: list[Student], name: str) -> float:
     return 0  # If student not found
 
 
-class Coordinate(BaseModel):
+@dataclass
+class Coordinate:
     x: int
     y: int
 
@@ -389,7 +395,8 @@ class Coordinate(BaseModel):
         return math.sqrt((self.x - other.x) ** 2 + (self.y - other.y) ** 2)
 
 
-class Warehouse(BaseModel):
+@dataclass
+class Warehouse:
     products: int
 
     def add_products(self, amount: int):
@@ -402,7 +409,8 @@ class Warehouse(BaseModel):
         return self.products
 
 
-class BookStore(BaseModel):
+@dataclass
+class BookStore:
     books: list[Book]
 
     def add_book(self, book: Book):
@@ -416,16 +424,19 @@ class BookStore(BaseModel):
         return count
 
 
-class Point(BaseModel):
+@dataclass
+class Point:
     x: int
     y: int
 
 
-class Obstacle(BaseModel):
+@dataclass
+class Obstacle:
     position: Point
 
 
-class SimpleCar(BaseModel):
+@dataclass
+class SimpleCar:
     position: Point
     obstacles: list[Obstacle]
 

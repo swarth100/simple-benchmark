@@ -3,6 +3,7 @@ import inspect
 import json
 import tempfile
 import traceback
+from dataclasses import asdict
 from random import randint
 from types import ModuleType
 from typing import Optional, Any
@@ -15,6 +16,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from func_timeout import FunctionTimedOut
 from pydantic import BaseModel, parse_obj_as
+from pydantic.dataclasses import is_pydantic_dataclass
 from starlette.responses import FileResponse
 
 from db.database import (
@@ -47,8 +49,12 @@ class PydanticEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, BaseModel):
             return obj.dict()
+        if is_pydantic_dataclass(type(obj)):
+            return asdict(obj)
         if isinstance(obj, set):
             return list(obj)
+        print(obj)
+        print(type(obj))
         return super().default(obj)
 
 
