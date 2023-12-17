@@ -19,7 +19,8 @@ if TYPE_CHECKING:
 
 TArg: TypeAlias = Union[int, str, list]
 TArgsDict: TypeAlias = dict[str, TArg]
-TBenchmarkArgs: TypeAlias = dict[str, TArgsDict]
+# Every benchmark implementation is allowed to have a different structure and representation for arguments
+TBenchmarkArgs: TypeAlias = dict[str, Union[TArgsDict, list[TArg], list[TArgsDict]]]
 
 # Global initialization to prevent redundant cost of reinitializing every time
 _FAKE = Faker()

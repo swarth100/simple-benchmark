@@ -26,7 +26,8 @@ from src.utils import (
 )
 
 # Argument name used to inject method evaluation order into argument lists
-MEO_ARG_NAME = "methods"
+MEO_NAMES = "method_names"
+MEO_ARGS = "method_arguments"
 
 
 class Method(BaseModel):
@@ -70,23 +71,37 @@ class ClassBenchmark(Benchmark):
     @property
     def example_args(self) -> TBenchmarkArgs:
         class_args: TBenchmarkArgs = {
-            self.class_name: {arg.name: arg.example_value for arg in self.init}
+            self.class_name: {arg.name: arg.example_value for arg in self.init},
+            MEO_NAMES: self.evaluation.default_value,
         }
-        for method in self.methods:
-            class_args[method.method_name] = {
-                arg.name: arg.example_value for arg in method.args
-            }
+
+        meo_arguments: list[TArgsDict] = []
+        for method_name in class_args[MEO_NAMES]:
+            for method in self.methods:
+                if method.method_name == method_name:
+                    meo_arguments.append(
+                        {arg.name: arg.example_value for arg in method.args}
+                    )
+        class_args[MEO_ARGS] = meo_arguments
+
         return self.filter_visible_arguments(class_args)
 
     @property
     def default_args(self) -> TBenchmarkArgs:
         class_args: TBenchmarkArgs = {
-            self.class_name: {arg.name: arg.default_value for arg in self.init}
+            self.class_name: {arg.name: arg.default_value for arg in self.init},
+            MEO_NAMES: self.evaluation.default_value,
         }
-        for method in self.methods:
-            class_args[method.method_name] = {
-                arg.name: arg.default_value for arg in method.args
-            }
+
+        meo_arguments: list[TArgsDict] = []
+        for method_name in class_args[MEO_NAMES]:
+            for method in self.methods:
+                if method.method_name == method_name:
+                    meo_arguments.append(
+                        {arg.name: arg.default_value for arg in method.args}
+                    )
+        class_args[MEO_ARGS] = meo_arguments
+
         return class_args
 
     @property
@@ -107,12 +122,21 @@ class ClassBenchmark(Benchmark):
         # TODO: Validate if we should generate a full MEO, or if instead we could use self.methods.
         #       The full MEO would override arguments currently.
         methods = self.generate_method_evaluation_order(init_arguments)
+        meo_arguments: list[TArgsDict] = []
         for method in methods:
-            method_arguments: TArgsDict = arguments[method.method_name]
-            for arg in method.args:
-                method_arguments[arg.name] = arg.apply_increment(
-                    method_arguments[arg.name], **method_arguments
+            method_increment_arguments: TArgsDict = init_arguments
+
+            # We purpusefully pass down `None` to guarantee it's not used in the increment
+            method_arguments: TArgsDict = {
+                arg.name: arg.apply_increment(
+                    None, **method_increment_arguments  # type: ignore
                 )
+                for arg in method.args
+            }
+            meo_arguments.append(method_arguments)
+
+        arguments[MEO_NAMES] = [method.method_name for method in methods]
+        arguments[MEO_ARGS] = meo_arguments
 
     def filter_visible_arguments(self, arguments: TBenchmarkArgs) -> TBenchmarkArgs:
         class_args: TBenchmarkArgs = {
@@ -120,14 +144,25 @@ class ClassBenchmark(Benchmark):
                 arg.name: arguments[self.class_name][arg.name]
                 for arg in self.init
                 if not arg.hidden
-            }
+            },
+            MEO_NAMES: arguments[MEO_NAMES],
         }
-        for method in self.methods:
-            class_args[method.method_name] = {
-                arg.name: arguments[method.method_name][arg.name]
-                for arg in method.args
-                if not arg.hidden
-            }
+
+        method_args: list[TArgsDict] = []
+        for method_name, method_arguments in zip(
+            arguments[MEO_NAMES], arguments[MEO_ARGS]
+        ):
+            for method in self.methods:
+                if method.method_name == method_name:
+                    method_args.append(
+                        {
+                            arg.name: method_arguments[arg.name]
+                            for arg in method.args
+                            if not arg.hidden
+                        }
+                    )
+        class_args[MEO_ARGS] = method_args
+
         return class_args
 
     def run_with_arguments(
@@ -154,23 +189,20 @@ class ClassBenchmark(Benchmark):
             )
 
         # Step 2 is to run the methods in the evaluation order specified
-        method_evaluation_order = self.generate_method_evaluation_order(init_arguments)
         res: BenchmarkRunInfo = BenchmarkRunInfo("", "", 0)
-        for method in method_evaluation_order:
-            # We must check if the method has arguments supplied or raise otherwise
-            if method.method_name not in valid_kwargs:
-                raise ValueError(
-                    f"Method '{method.method_name}' is missing from the arguments for class '{self.name}'. "
-                    f"The present keys are {list(valid_kwargs.keys())}."
-                )
+        for method_name, method_args in zip(arguments[MEO_NAMES], arguments[MEO_ARGS]):
+            for method in self.methods:
+                if method.method_name == method_name:
+                    valid_func_kwargs: TArgsDict = {
+                        arg.name: method_args[arg.name]
+                        for arg in method.args
+                        if not arg.hidden
+                    }
 
-            func_args: TArgsDict = valid_kwargs[method.method_name]
-            valid_func_kwargs: TArgsDict = {
-                arg.name: func_args[arg.name] for arg in method.args if not arg.hidden
-            }
-
-            method_func = getattr(obj, method.method_name)
-            res: BenchmarkRunInfo = capture_output(method_func, **valid_func_kwargs)
+                    method_func = getattr(obj, method.method_name)
+                    res: BenchmarkRunInfo = capture_output(
+                        method_func, **valid_func_kwargs
+                    )
 
         return res
 

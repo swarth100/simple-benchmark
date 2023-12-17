@@ -35,44 +35,31 @@ class FunctionBenchmark(Benchmark):
     @property
     def example_args(self) -> TBenchmarkArgs:
         function_args: TArgsDict = {arg.name: arg.example_value for arg in self.args}
-        return self.filter_visible_arguments({self.function_name: function_args})
+        return self.filter_visible_arguments(function_args)
 
     @property
     def default_args(self) -> TBenchmarkArgs:
         function_args: TArgsDict = {arg.name: arg.default_value for arg in self.args}
-        return {self.function_name: function_args}
+        return function_args
 
     @property
     def example_args_as_python_call(self) -> str:
         filtered_args = self.filter_visible_arguments(self.default_args)
-        return format_args_as_function_call(
-            self.function_name, filtered_args[self.function_name]
-        )
+        return format_args_as_function_call(self.function_name, filtered_args)
 
     def increment_args(self, arguments: TBenchmarkArgs):
-        function_args: TArgsDict = arguments[self.function_name]
         for arg in self.args:
-            function_args[arg.name] = arg.apply_increment(
-                function_args[arg.name], **function_args
-            )
+            arguments[arg.name] = arg.apply_increment(arguments[arg.name], **arguments)
 
     def filter_visible_arguments(self, arguments: TBenchmarkArgs) -> TBenchmarkArgs:
-        function_args: TArgsDict = arguments[self.function_name]
         visible_args: TArgsDict = {
-            arg.name: function_args[arg.name] for arg in self.args if not arg.hidden
+            arg.name: arguments[arg.name] for arg in self.args if not arg.hidden
         }
-        return {self.function_name: visible_args}
+        return visible_args
 
     def run_with_arguments(
         self, *, module: ModuleType, arguments: TBenchmarkArgs
     ) -> BenchmarkRunInfo:
-        # TODO: Remove/validate assertions
-        if len(arguments) != 1:
-            raise ValueError(
-                "Instances of function benchmark should only be run with a single function's arguments. "
-                f"Instead found {len(arguments)} arguments for functions {list(arguments.keys())}."
-            )
-
         # After setting common fields we proceed to executing the function
         try:
             func = getattr(module, self.name)
@@ -83,8 +70,7 @@ class FunctionBenchmark(Benchmark):
         valid_kwargs: TBenchmarkArgs = copy.deepcopy(
             self.filter_visible_arguments(arguments)
         )
-        func_args: TArgsDict = valid_kwargs[self.name]
-        res: BenchmarkRunInfo = capture_output(func, **func_args)
+        res: BenchmarkRunInfo = capture_output(func, **valid_kwargs)
 
         return res
 

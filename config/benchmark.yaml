@@ -554,10 +554,6 @@ benchmarks:
       - method_name: "distance"
         description: "Calculate the distance from another Coordinate."
         args:
-          - name: "size"
-            increment: "lambda x: x + 1"
-            default: "int(3)"
-            hidden: true
           - name: "other"
             description: "The other Coordinate to calculate the distance from."
             increment: "lambda **kwargs: Coordinate(x=random.randint(-kwargs['size'], kwargs['size']), y=random.randint(-kwargs['size'], kwargs['size']))"
