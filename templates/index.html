@@ -17,44 +17,48 @@
 </head>
 <body>
 
-<div class="tabs is-boxed is-medium">
-    <ul>
-        <li class="is-active">
-            <a onclick="openTab('benchmark-tab', this)">
-                <span class="icon is-small"><i class="fas fa-running" aria-hidden="true"></i></span>
-                <span>Benchmark Runner</span>
-            </a>
-        </li>
-        <li>
-            <a onclick="openTab('sandbox-tab', this); updateSandboxInputs()">
-                <span class="icon is-small"><i class="fas fa-flask-vial" aria-hidden="true"></i></span>
-                <span>Sandbox Mode</span>
-            </a>
-        </li>
-        <li>
-            <a onclick="openTab('rankings-tab', this)">
-                <span class="icon is-small"><i class="fas fa-chart-line" aria-hidden="true"></i></span>
-                <span>Rankings</span>
-            </a>
-        </li>
-        <li>
-            <a onclick="openTab('archive-tab', this)">
-                <span class="icon is-small"><i class="fas fa-archive" aria-hidden="true"></i></span>
-                <span>Archive</span>
-            </a>
-        </li>
-
-
-        <!-- Inline username input field -->
-        <li class="navbar-item" style="margin-left: auto; padding-right: 20px;">
-            <div class="field">
-                <p class="control">
-                    <input class="input is-info" type="text" placeholder="Username" id="username" name="username">
-                </p>
+<nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
+    <div class="navbar-menu" style="width: 100%">
+        <div class="navbar-start" style="width: 100%">
+            <div class="tabs is-boxed is-medium" style="width: 100%">
+                <ul>
+                    <li class="is-active">
+                        <a onclick="openTab('benchmark-tab', this)">
+                            <span class="icon is-small"><i class="fas fa-running" aria-hidden="true"></i></span>
+                            <span>Benchmark Runner</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a onclick="openTab('sandbox-tab', this); updateSandboxInputs()">
+                            <span class="icon is-small"><i class="fas fa-flask-vial" aria-hidden="true"></i></span>
+                            <span>Sandbox Mode</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a onclick="openTab('rankings-tab', this)">
+                            <span class="icon is-small"><i class="fas fa-chart-line" aria-hidden="true"></i></span>
+                            <span>Rankings</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a onclick="openTab('archive-tab', this)">
+                            <span class="icon is-small"><i class="fas fa-archive" aria-hidden="true"></i></span>
+                            <span>Archive</span>
+                        </a>
+                    </li>
+                    <!-- Inline username input field -->
+                    <div class="navbar-item" style="margin-left: auto; padding-right: 20px;">
+                        <div class="field">
+                            <p class="control">
+                                <input class="input is-info" type="text" placeholder="Username" id="username" name="username">
+                            </p>
+                        </div>
+                    </div>
+                </ul>
             </div>
-        </li>
-    </ul>
-</div>
+        </div>
+    </div>
+</nav>
 
 <div id="benchmark-tab" class="tab active-tab">
     <div class="columns">

@@ -7,7 +7,7 @@
  * It prevents flashes on initial load too. */
 .tab {
     display: none;
-    padding: 0 20px;
+    padding: 70px 20px 0 20px
 }
 
 /* Override footer color to always be transparent */
