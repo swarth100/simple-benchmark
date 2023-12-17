@@ -18,6 +18,7 @@ from src.config import BenchmarkResult, BenchmarkRunInfo
 from src.utils import (
     get_reference_benchmark_include,
     format_args_as_function_call,
+    is_equal_with_precision,
 )
 
 
@@ -100,7 +101,7 @@ def _run_single_benchmark(
                 f"{function_call}{e}",
             )
 
-        if user_output != ref_output:
+        if not is_equal_with_precision(user_output, ref_output):
             function_call: str = benchmark.generate_python_call(arguments=arg_values)
             return BenchmarkResult(
                 name=run_name,
@@ -114,7 +115,7 @@ def _run_single_benchmark(
                 details=execution_details,
             )
 
-        if user_std_output != ref_std_output:
+        if not is_equal_with_precision(user_std_output, ref_std_output):
             function_call: str = benchmark.generate_python_call(arguments=arg_values)
             return BenchmarkResult(
                 name=run_name,

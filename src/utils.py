@@ -41,7 +41,8 @@ def get_annotations(
     if method_name is not None:
         reference_object = getattr(reference_object, method_name)
 
-    # annotations: dict[str, type] = dict(reference_object.__annotations__)
+    # We specify the current raw object as a locals reference in case there are any
+    # annotations which reference the object itself (e.g., return type)
     annotations = get_type_hints(reference_object, localns={object_name: raw_obj})
     return_type: type = annotations.pop("return", None)
     return annotations, return_type
@@ -203,3 +204,17 @@ def capture_output(func, *args, **kwargs) -> BenchmarkRunInfo:
         sys.stdout = original_stdout
 
     return BenchmarkRunInfo(output, new_stdout.getvalue().rstrip(), time_diff)
+
+
+def is_equal_with_precision(lhs, rhs, precision=4):
+    """
+    Compare two values with a given precision.
+    :param lhs: LHS value to compare
+    :param rhs: RHS value to compare
+    :param precision: (Optional) Precision to use in case of floats
+    :return: True if the values are equal, False otherwise
+    """
+    if isinstance(lhs, float) and isinstance(rhs, float):
+        return round(lhs, precision) == round(rhs, precision)
+    else:
+        return lhs == rhs
