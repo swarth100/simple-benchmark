@@ -208,10 +208,19 @@ class ClassBenchmark(Benchmark):
 
     def generate_python_call(self, arguments: TBenchmarkArgs) -> str:
         # TODO: Correctly implement for classes and nested methods!
-        filtered_args = self.filter_visible_arguments(self.default_args)
-        return format_args_as_function_call(
+        filtered_args = self.filter_visible_arguments(arguments)
+        obj_name: str = self.class_name.lower()
+        constructor: str = format_args_as_function_call(
             self.class_name, filtered_args[self.class_name]
         )
+        output_code: str = f"{obj_name} = {constructor}"
+
+        for method_name, method_args in zip(arguments[MEO_NAMES], arguments[MEO_ARGS]):
+            output_code += format_args_as_function_call(
+                f"{obj_name}.{method_name}", method_args
+            )
+
+        return output_code.rstrip()
 
     def generate_signature(self) -> str:
         class_object: Type[BaseModel] = get_reference_benchmark_include(self.class_name)
