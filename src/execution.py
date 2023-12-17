@@ -76,9 +76,7 @@ def _run_single_benchmark(
             )
             user_output, user_std_output, time_diff = user_result
         except Exception as e:
-            function_call: str = format_args_as_function_call(
-                func_name=benchmark.name, args_dict=arg_values
-            )
+            function_call: str = benchmark.generate_python_call(arguments=arg_values)
             return BenchmarkResult(
                 name=run_name,
                 result=last_valid_iteration,
@@ -94,9 +92,7 @@ def _run_single_benchmark(
             )
             (ref_output, ref_std_output, _) = ref_result
         except Exception as e:
-            function_call: str = format_args_as_function_call(
-                func_name=benchmark.name, args_dict=arg_values
-            )
+            function_call: str = benchmark.generate_python_call(arguments=arg_values)
             return BenchmarkResult(
                 name=run_name,
                 result=last_valid_iteration,
@@ -105,9 +101,7 @@ def _run_single_benchmark(
             )
 
         if user_output != ref_output:
-            function_call: str = format_args_as_function_call(
-                func_name=benchmark.name, args_dict=arg_values
-            )
+            function_call: str = benchmark.generate_python_call(arguments=arg_values)
             return BenchmarkResult(
                 name=run_name,
                 result=last_valid_iteration,
@@ -121,9 +115,7 @@ def _run_single_benchmark(
             )
 
         if user_std_output != ref_std_output:
-            function_call: str = format_args_as_function_call(
-                func_name=benchmark.name, args_dict=arg_values
-            )
+            function_call: str = benchmark.generate_python_call(arguments=arg_values)
             return BenchmarkResult(
                 name=run_name,
                 result=last_valid_iteration,

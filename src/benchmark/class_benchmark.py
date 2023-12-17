@@ -243,7 +243,7 @@ class ClassBenchmark(Benchmark):
                 f"{obj_name}.{method_name}", method_args
             )
 
-        return output_code.rstrip()
+        return output_code
 
     def generate_signature(self) -> str:
         class_object: Type[BaseModel] = get_reference_benchmark_include(self.class_name)
