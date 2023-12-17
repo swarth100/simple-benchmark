@@ -23,6 +23,7 @@ from src.utils import (
     _format_type_hint,
     format_args_as_function_call,
     capture_output,
+    PrintsToConsole,
 )
 
 # Argument name used to inject method evaluation order into argument lists
@@ -263,15 +264,18 @@ class ClassBenchmark(Benchmark):
             )
 
             description_md += f"\n<br>Method `{method.method_name}`:\n"
-            description_md += f"{TABBED_MD_SPACING}- Arguments:\n"
-            description_md += format_arguments_as_md(
-                method.args, method_annotations, pre_spacing=8
-            )
+            if len(method.args) > 0:
+                description_md += f"{TABBED_MD_SPACING}- Arguments:\n"
+                description_md += format_arguments_as_md(
+                    method.args, method_annotations, pre_spacing=8
+                )
 
-            if method_return_type is not None:
+            if method_return_type is PrintsToConsole:
+                return_type_str = "`None` (outputs via `print`)"
+            elif method_return_type is not None:
                 return_type_str = f"`{_format_type_hint(method_return_type)}`"
             else:
-                return_type_str = "`None` (outputs via `print`)"
+                return_type_str = "`None` (does **not** return)"
 
             description_md += f"{TABBED_MD_SPACING}- Return Type: {return_type_str}\n"
 

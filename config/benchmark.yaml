@@ -561,3 +561,42 @@ benchmarks:
     evaluation:
       increment: "lambda **kwargs: list(['distance'])"
       default: "list(['distance'])"
+
+  - class_name: "Warehouse"
+    description: |
+      You are given a class `Warehouse` representing a warehouse with number of products.
+      You must implement a `add_products` method that adds a given amount of products to the warehouse.
+      You must also implement a `remove_products` method that removes a given amount of products from the warehouse.
+      You must implement a `get_products` method that returns the number of products in the warehouse.
+    max_time: 5
+    difficulty: 1.0
+    init:
+      - name: "size"
+        increment: "lambda x: x + 1"
+        default: "int(3)"
+        hidden: true
+      - name: "products"
+        description: "The number of products in the warehouse."
+        increment: "lambda **kwargs: random.randint(0, kwargs['size'])"
+        default: "int(4)"
+    methods:
+      - method_name: "add_products"
+        description: "Add a given amount of products to the warehouse."
+        args:
+          - name: "amount"
+            description: "The amount of products to add."
+            increment: "lambda **kwargs: random.randint(0, kwargs['size'])"
+            default: "int(45)"
+      - method_name: "remove_products"
+        description: "Remove a given amount of products from the warehouse."
+        args:
+          - name: "amount"
+            description: "The amount of products to remove. **NOTE**: The amount of products may not go negative."
+            increment: "lambda **kwargs: random.randint(0, kwargs['size'])"
+            default: "int(18)"
+      - method_name: "get_products"
+        description: "Get the number of products in the warehouse."
+        args: [ ]
+    evaluation:
+      increment: "lambda **kwargs: [random.choice(['add_products', 'remove_products']) for _ in range(kwargs['size'])] + ['get_products']"
+      default: "list(['add_products', 'remove_products', 'get_products'])"

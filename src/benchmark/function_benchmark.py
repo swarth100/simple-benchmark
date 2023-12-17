@@ -18,6 +18,7 @@ from src.utils import (
     format_arguments_as_md,
     format_args_as_function_call,
     capture_output,
+    PrintsToConsole,
 )
 
 
@@ -116,10 +117,12 @@ class FunctionBenchmark(Benchmark):
         description_md = self.description + "\n<br>" + "Arguments:\n"
         description_md += format_arguments_as_md(self.args, annotations, pre_spacing=4)
 
-        if return_type is not None:
+        if return_type is PrintsToConsole:
+            return_type_str = "`None` (outputs via `print`)"
+        elif return_type is not None:
             return_type_str = f"`{_format_type_hint(return_type)}`"
         else:
-            return_type_str = "`None` (outputs via `print`)"
+            return_type_str = "`None` (does **not** return)"
 
         description_md += f"<br>Return Type: {return_type_str}\n"
         return description_md

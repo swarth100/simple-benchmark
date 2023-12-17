@@ -4,7 +4,16 @@ import io
 import sys
 import time
 from functools import lru_cache
-from typing import get_type_hints, Type, TYPE_CHECKING, Optional, Any
+from typing import (
+    get_type_hints,
+    Type,
+    TYPE_CHECKING,
+    Optional,
+    Any,
+    get_origin,
+    Annotated,
+    get_args,
+)
 
 from black import FileMode, format_str
 from pydantic import BaseModel
@@ -17,6 +26,10 @@ if TYPE_CHECKING:
     from src.benchmark.config import Config
 
 TABBED_MD_SPACING: str = "&nbsp;" * 4
+
+
+class PrintsToConsole:
+    pass
 
 
 def get_annotations(
@@ -43,8 +56,23 @@ def get_annotations(
 
     # We specify the current raw object as a locals reference in case there are any
     # annotations which reference the object itself (e.g., return type)
-    annotations = get_type_hints(reference_object, localns={object_name: raw_obj})
+    annotations = get_type_hints(
+        reference_object,
+        localns={object_name: raw_obj},
+        globalns=globals(),
+        include_extras=True,
+    )
     return_type: type = annotations.pop("return", None)
+
+    # Check if the return type is Annotated and if it is un-pack the annotation overriding
+    # the return type
+    if get_origin(return_type) is Annotated:
+        # Handle annotated types, we look at the RHS of the annotation always
+        # This does mean we assume the LHS is annotated as None
+        annotation = get_args(return_type)[1]
+        if issubclass(annotation, PrintsToConsole):
+            return_type = PrintsToConsole
+
     return annotations, return_type
 
 
