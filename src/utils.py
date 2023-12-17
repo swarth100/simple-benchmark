@@ -127,6 +127,15 @@ def serialize_base_model_to_class(
         {init_body}{methods_str}
     """
 
+    # We could have accidentally leaked a symbolic reference to the module of the class declarations
+    # We remove it to ensure the class definition is valid in the user code
+    class_module: str = base_model_instance.__module__
+    class_def = class_def.replace(f"{class_module}.", "")
+
+    # We format with black the class_Def to ensure a consistent output
+    mode = FileMode(line_length=80)
+    class_def = format_str(class_def, mode=mode)
+
     return class_def
 
 
