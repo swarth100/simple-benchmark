@@ -28,27 +28,21 @@ from db.database import (
     toggle_benchmark_archive_status,
     get_archived_benchmarks,
 )
-from src.benchmark import (
+from src.execution import (
     run_benchmark_given_modules,
     get_benchmark_by_name,
-    get_config,
     is_benchmark_frozen,
     run_benchmark_with_arguments,
     is_benchmark_archived,
     BenchmarkRunInfo,
 )
 from src.config import BenchmarkResult, UserRank, BenchmarkStatus
-from src.utils import get_function_annotations
-from src.validation import (
-    BENCHMARK_CONFIG,
-    Benchmark,
-    Config,
-    TArg,
-    format_args_as_function_call,
+from src.utils import get_function_annotations, format_args_as_function_call
+from src.benchmark.core import (
     Benchmark,
     TBenchmarkArgs,
-    TArgsDict,
 )
+from src.benchmark.config import Config, BENCHMARK_CONFIG, get_config
 
 
 class PydanticEncoder(json.JSONEncoder):
@@ -203,9 +197,7 @@ async def run_sandbox(request: Request):
 
                 for func_name, args in inputs_dict.items():
                     # TODO: Generalize to Classes!
-                    (arg_types, _) = get_function_annotations(
-                        func_name, BENCHMARK_CONFIG
-                    )
+                    (arg_types, _) = get_function_annotations(func_name)
                     # Assume inputs are JSON and need to be converted to Python dict
                     parsed_args = {
                         arg_name: parse_obj_as(arg_types[arg_name], arg_value)  # type: ignore

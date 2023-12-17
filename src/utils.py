@@ -4,17 +4,19 @@ import sys
 from functools import lru_cache
 from typing import get_type_hints, Type, TYPE_CHECKING, Optional, Any
 
+from black import FileMode, format_str
 from pydantic import BaseModel
 from pydantic.fields import FieldInfo
 
 if TYPE_CHECKING:
-    from src.validation import Config, Argument
+    from src.benchmark.core import Argument
+    from src.benchmark.config import Config
 
 TABBED_MD_SPACING: str = "&nbsp;" * 4
 
 
 def get_function_annotations(
-    object_name: str, config: "Config", *, method_name: Optional[str] = None
+    object_name: str, *, method_name: Optional[str] = None
 ) -> tuple[dict[str, type], type]:
     """
     Given the name of a function to include from the reference module, resolves the python type annotations for the
@@ -25,6 +27,10 @@ def get_function_annotations(
     :param method_name: (Optional) If present, the name of the method to look up the signature for
     :return: Annotations and return type of the function
     """
+    from src.benchmark.config import get_config
+
+    config: Config = get_config()
+
     reference_module_name = config.reference_module
     reference_module = importlib.import_module(reference_module_name)
     reference_object = getattr(reference_module, object_name)
@@ -123,7 +129,7 @@ def get_reference_benchmark_include(object_name: str) -> Type[BaseModel]:
     :param object_name: Name of the object to include
     :return: Reference to the object
     """
-    from src.benchmark import get_config
+    from src.benchmark.config import get_config
 
     benchmark_config = get_config()
     try:
@@ -160,3 +166,17 @@ def _format_type_hint(type_hint: type):
         # Handle simple types (e.g., int, str)
         return type_hint.__name__
     return str(type_hint)
+
+
+def format_args_as_function_call(func_name: str, args_dict: dict) -> str:
+    """
+    Generate and format a string representing how to call a function with given arguments.
+    """
+    args_str = ", ".join(f"{key}={repr(value)}" for key, value in args_dict.items())
+    function_call_str = f"{func_name}({args_str})"
+
+    # Format using black
+    mode = FileMode(line_length=80)
+    formatted_str = format_str(function_call_str, mode=mode)
+
+    return formatted_str

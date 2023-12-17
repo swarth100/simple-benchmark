@@ -4,7 +4,8 @@ import sqlite3
 from typing import Tuple
 
 from src.config import BenchmarkResult, UserRank, BenchmarkStatus
-from src.validation import BENCHMARK_CONFIG, Benchmark
+from src.benchmark.core import Benchmark
+from src.benchmark.config import BENCHMARK_CONFIG
 
 MIGRATIONS_FILE = "db/migrations.sql"
 BENCHMARKS_RESULT_DB: str = "db/benchmark_results.db"

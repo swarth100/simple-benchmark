@@ -5,34 +5,25 @@ import multiprocessing
 import random
 import sys
 import time
-from functools import lru_cache, singledispatch
+from functools import singledispatch
 from types import ModuleType
-from typing import Dict, Callable, Optional, Tuple, Any, List, Union, NamedTuple
+from typing import Dict, Optional, Tuple, Any, List, Union, NamedTuple
 
 from faker import Faker
 from func_timeout import func_set_timeout
 
 from db.database import get_frozen_benchmarks, get_archived_benchmarks
+from src.benchmark.class_benchmark import ClassBenchmark
+from src.benchmark.function_benchmark import FunctionBenchmark
 from src.config import BenchmarkResult
 from src.exceptions import ModuleAccessException
-from src.utils import get_reference_benchmark_include
-from src.validation import (
-    Config,
-    TArg,
+from src.utils import get_reference_benchmark_include, format_args_as_function_call
+from src.benchmark.core import (
     Benchmark,
-    BENCHMARK_CONFIG,
-    format_args_as_function_call,
-    FunctionBenchmark,
-    ClassBenchmark,
     TBenchmarkArgs,
     TArgsDict,
 )
-
-
-@lru_cache
-def get_config() -> Config:
-    benchmark_config: Config = BENCHMARK_CONFIG
-    return benchmark_config
+from src.benchmark.config import Config, get_config
 
 
 class BenchmarkRunInfo(NamedTuple):

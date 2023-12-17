@@ -7,9 +7,9 @@ from typing import Optional
 import uvicorn
 from better_profanity import profanity
 
-from src.benchmark import run_benchmark_given_config, get_config
+from src.execution import run_benchmark_given_config
 from db.database import init_db, upload_benchmark_config
-from src.validation import BENCHMARK_CONFIG
+from src.benchmark.config import BENCHMARK_CONFIG, get_config
 
 # Check if the .profanity-filter file exists and if it does we use its contents
 # as an additional dictionary of possible profane words.
