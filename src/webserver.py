@@ -32,11 +32,9 @@ from src.execution import (
     run_benchmark_given_modules,
     get_benchmark_by_name,
     is_benchmark_frozen,
-    run_benchmark_with_arguments,
     is_benchmark_archived,
-    BenchmarkRunInfo,
 )
-from src.config import BenchmarkResult, UserRank, BenchmarkStatus
+from src.config import BenchmarkResult, UserRank, BenchmarkStatus, BenchmarkRunInfo
 from src.utils import get_function_annotations, format_args_as_function_call
 from src.benchmark.core import (
     Benchmark,
@@ -216,8 +214,8 @@ async def run_sandbox(request: Request):
                 ref_module: ModuleType = get_config().reference_module_object
 
                 # Run the reference function with the provided inputs
-                ref_result: BenchmarkRunInfo = run_benchmark_with_arguments(
-                    benchmark, module=ref_module, arguments=inputs_dict
+                ref_result: BenchmarkRunInfo = benchmark.run_with_arguments(
+                    module=ref_module, arguments=inputs_dict
                 )
                 (ref_output, ref_std_output, _) = ref_result
                 if ref_output is not None:
@@ -285,8 +283,8 @@ async def fetch_benchmark_details(request: Request, benchmark: str):
         # Benchmark details are always fetched from the reference module
         ref_module: ModuleType = get_config().reference_module_object
 
-        example_result: BenchmarkRunInfo = run_benchmark_with_arguments(
-            benchmark, module=ref_module, arguments=example_input
+        example_result: BenchmarkRunInfo = benchmark.run_with_arguments(
+            module=ref_module, arguments=example_input
         )
         (example_output, example_std_output, _) = example_result
 

@@ -1,54 +1,24 @@
-import copy
 import importlib
-import io
+import importlib
 import multiprocessing
 import random
-import sys
-import time
-from functools import singledispatch
 from types import ModuleType
-from typing import Dict, Optional, Tuple, Any, List, Union, NamedTuple
+from typing import Dict, Optional, Tuple, List, Union
 
 from faker import Faker
 from func_timeout import func_set_timeout
 
 from db.database import get_frozen_benchmarks, get_archived_benchmarks
-from src.benchmark.class_benchmark import ClassBenchmark
-from src.benchmark.function_benchmark import FunctionBenchmark
-from src.config import BenchmarkResult
-from src.exceptions import ModuleAccessException
-from src.utils import get_reference_benchmark_include, format_args_as_function_call
+from src.benchmark.config import Config, get_config
 from src.benchmark.core import (
     Benchmark,
     TBenchmarkArgs,
-    TArgsDict,
 )
-from src.benchmark.config import Config, get_config
-
-
-class BenchmarkRunInfo(NamedTuple):
-    return_value: Any
-    std_output: str
-    exec_time: float
-
-
-def capture_output(func, *args, **kwargs) -> BenchmarkRunInfo:
-    original_stdout = sys.stdout  # Save a reference to the original standard output
-    new_stdout = io.StringIO()
-    sys.stdout = new_stdout  # Redirect standard output to the new StringIO object
-
-    try:
-        start_time: float = time.perf_counter()
-        output = func(*args, **kwargs)
-        time_diff: float = time.perf_counter() - start_time
-    except Exception:
-        # Reraise all exceptions to allow for outer handling
-        raise
-    finally:
-        # Whatever happens, reset standard output to its original value
-        sys.stdout = original_stdout
-
-    return BenchmarkRunInfo(output, new_stdout.getvalue().rstrip(), time_diff)
+from src.config import BenchmarkResult, BenchmarkRunInfo
+from src.utils import (
+    get_reference_benchmark_include,
+    format_args_as_function_call,
+)
 
 
 def get_benchmark_by_name(
@@ -101,8 +71,8 @@ def _run_single_benchmark(
 
     while elapsed_time < max_time:
         try:
-            user_result: BenchmarkRunInfo = run_benchmark_with_arguments(
-                benchmark, module=target_module, arguments=arg_values
+            user_result: BenchmarkRunInfo = benchmark.run_with_arguments(
+                module=target_module, arguments=arg_values
             )
             user_output, user_std_output, time_diff = user_result
         except Exception as e:
@@ -119,8 +89,8 @@ def _run_single_benchmark(
         elapsed_time += time_diff
 
         try:
-            ref_result: BenchmarkRunInfo = run_benchmark_with_arguments(
-                benchmark, module=ref_module, arguments=arg_values
+            ref_result: BenchmarkRunInfo = benchmark.run_with_arguments(
+                module=ref_module, arguments=arg_values
             )
             (ref_output, ref_std_output, _) = ref_result
         except Exception as e:
@@ -243,95 +213,6 @@ def run_benchmark_given_modules(
         )
 
     return benchmark_results
-
-
-@singledispatch
-def run_benchmark_with_arguments(
-    benchmark: Benchmark, /, *, module: ModuleType, arguments: TBenchmarkArgs
-) -> BenchmarkRunInfo:
-    """
-    Given a benchmark and a module, runs the benchmark with the provided arguments.
-    :param benchmark: Benchmark to run
-    :param module: Module to run the benchmark on
-    :param arguments: Arguments to run the benchmark with
-
-    :return: BenchmarkRunInfo containing the result of the benchmark
-    :raises ModuleAccessException: If the module cannot be accessed or does not exist
-    """
-    raise NotImplementedError("Unsupported type of benchmark")
-
-
-@run_benchmark_with_arguments.register(FunctionBenchmark)
-def _(
-    benchmark: FunctionBenchmark, /, *, module: ModuleType, arguments: TBenchmarkArgs
-) -> BenchmarkRunInfo:
-    # TODO: Remove/validate assertions
-    if len(arguments) != 1:
-        raise ValueError(
-            "Instances of function benchmark should only be run with a single function's arguments. "
-            f"Instead found {len(arguments)} arguments for functions {list(arguments.keys())}."
-        )
-
-    # After setting common fields we proceed to executing the function
-    try:
-        func = getattr(module, benchmark.name)
-    except AttributeError:
-        raise ModuleAccessException(module=module)
-
-    # Run the reference function with the provided inputs
-    valid_kwargs: TBenchmarkArgs = copy.deepcopy(
-        benchmark.filter_visible_arguments(arguments)
-    )
-    func_args: TArgsDict = valid_kwargs[benchmark.name]
-    res: BenchmarkRunInfo = capture_output(func, **func_args)
-
-    return res
-
-
-@run_benchmark_with_arguments.register(ClassBenchmark)
-def _(
-    benchmark: ClassBenchmark, /, *, module: ModuleType, arguments: TBenchmarkArgs
-) -> Tuple[str, str]:
-    try:
-        klass = getattr(module, benchmark.name)
-    except AttributeError:
-        raise ModuleAccessException(module=module)
-
-    # Step 0: We must deep-clone the input arguments to ensure that we don't mutate them
-    valid_kwargs: TBenchmarkArgs = copy.deepcopy(
-        benchmark.filter_visible_arguments(arguments)
-    )
-
-    # Step 1 is to construct the object
-    init_arguments: TArgsDict = valid_kwargs[benchmark.name]
-    obj = klass(**init_arguments)
-
-    # Init arguments are specified via benchmark name, if not present we must raise
-    if benchmark.name not in valid_kwargs:
-        raise ValueError(
-            f"Class '{benchmark.name}' is missing from the supplied arguments with keys {list(arguments.keys())}."
-        )
-
-    # Step 2 is to run the methods in the evaluation order specified
-    method_evaluation_order = benchmark.generate_method_evaluation_order(init_arguments)
-    res: BenchmarkRunInfo = BenchmarkRunInfo("", "", 0)
-    for method in method_evaluation_order:
-        # We must check if the method has arguments supplied or raise otherwise
-        if method.method_name not in valid_kwargs:
-            raise ValueError(
-                f"Method '{method.method_name}' is missing from the arguments for class '{benchmark.name}'. "
-                f"The present keys are {list(valid_kwargs.keys())}."
-            )
-
-        func_args: TArgsDict = valid_kwargs[method.method_name]
-        valid_func_kwargs: TArgsDict = {
-            arg.name: func_args[arg.name] for arg in method.args if not arg.hidden
-        }
-
-        method_func = getattr(obj, method.method_name)
-        res: BenchmarkRunInfo = capture_output(method_func, **valid_func_kwargs)
-
-    return res
 
 
 def run_benchmark_given_config(benchmark_config: Config):

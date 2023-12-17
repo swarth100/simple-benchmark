@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, List, Tuple, TypedDict, NamedTuple
+from typing import Optional, List, Tuple, TypedDict, NamedTuple, Any
 
 
 @dataclass
@@ -36,3 +36,9 @@ class BenchmarkStatus(NamedTuple):
     is_hidden: bool
     is_frozen: bool
     is_archive: bool
+
+
+class BenchmarkRunInfo(NamedTuple):
+    return_value: Any
+    std_output: str
+    exec_time: float

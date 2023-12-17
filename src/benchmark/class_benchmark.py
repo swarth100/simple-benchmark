@@ -1,3 +1,5 @@
+import copy
+from types import ModuleType
 from typing import List, Callable, Type
 
 from pydantic import BaseModel
@@ -10,6 +12,8 @@ from src.benchmark.core import (
     _FAKE,
     _get_reference_benchmark_include_mapping,
 )
+from src.config import BenchmarkRunInfo
+from src.exceptions import ModuleAccessException
 from src.utils import (
     get_reference_benchmark_include,
     serialize_base_model_to_class,
@@ -18,6 +22,7 @@ from src.utils import (
     TABBED_MD_SPACING,
     _format_type_hint,
     format_args_as_function_call,
+    capture_output,
 )
 
 
@@ -99,6 +104,50 @@ class ClassBenchmark(Benchmark):
                 if not arg.hidden
             }
         return class_args
+
+    def run_with_arguments(
+        self, *, module: ModuleType, arguments: TBenchmarkArgs
+    ) -> BenchmarkRunInfo:
+        try:
+            klass = getattr(module, self.name)
+        except AttributeError:
+            raise ModuleAccessException(module=module)
+
+        # Step 0: We must deep-clone the input arguments to ensure that we don't mutate them
+        valid_kwargs: TBenchmarkArgs = copy.deepcopy(
+            self.filter_visible_arguments(arguments)
+        )
+
+        # Step 1 is to construct the object
+        init_arguments: TArgsDict = valid_kwargs[self.name]
+        obj = klass(**init_arguments)
+
+        # Init arguments are specified via benchmark name, if not present we must raise
+        if self.name not in valid_kwargs:
+            raise ValueError(
+                f"Class '{self.name}' is missing from the supplied arguments with keys {list(arguments.keys())}."
+            )
+
+        # Step 2 is to run the methods in the evaluation order specified
+        method_evaluation_order = self.generate_method_evaluation_order(init_arguments)
+        res: BenchmarkRunInfo = BenchmarkRunInfo("", "", 0)
+        for method in method_evaluation_order:
+            # We must check if the method has arguments supplied or raise otherwise
+            if method.method_name not in valid_kwargs:
+                raise ValueError(
+                    f"Method '{method.method_name}' is missing from the arguments for class '{self.name}'. "
+                    f"The present keys are {list(valid_kwargs.keys())}."
+                )
+
+            func_args: TArgsDict = valid_kwargs[method.method_name]
+            valid_func_kwargs: TArgsDict = {
+                arg.name: func_args[arg.name] for arg in method.args if not arg.hidden
+            }
+
+            method_func = getattr(obj, method.method_name)
+            res: BenchmarkRunInfo = capture_output(method_func, **valid_func_kwargs)
+
+        return res
 
     @property
     def example_includes(self) -> list[str]:

@@ -1,12 +1,14 @@
 import abc
 import importlib
 import inspect
+from types import ModuleType
 from typing import Union, Callable, Optional, Any, Type, TYPE_CHECKING
 
 from faker import Faker
 from pydantic import BaseModel
 from typing_extensions import TypeAlias
 
+from src.config import BenchmarkRunInfo
 from src.utils import (
     serialize_base_model_to_class,
     get_reference_benchmark_include,
@@ -132,6 +134,20 @@ class Benchmark(BaseModel, abc.ABC):
 
     @abc.abstractmethod
     def filter_visible_arguments(self, arguments: TBenchmarkArgs) -> TBenchmarkArgs:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def run_with_arguments(
+        self, *, module: ModuleType, arguments: TBenchmarkArgs
+    ) -> BenchmarkRunInfo:
+        """
+        Given a benchmark and a module, runs the benchmark with the provided arguments.
+        :param module: Module to run the benchmark on
+        :param arguments: Arguments to run the benchmark with
+
+        :return: BenchmarkRunInfo containing the result of the benchmark
+        :raises ModuleAccessException: If the module cannot be accessed or does not exist
+        """
         raise NotImplementedError
 
     @abc.abstractmethod

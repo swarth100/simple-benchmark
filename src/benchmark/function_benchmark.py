@@ -1,3 +1,5 @@
+import copy
+from types import ModuleType
 from typing import List, Any
 
 from src.benchmark.core import (
@@ -6,12 +8,15 @@ from src.benchmark.core import (
     TBenchmarkArgs,
     TArgsDict,
 )
+from src.config import BenchmarkRunInfo
+from src.exceptions import ModuleAccessException
 
 from src.utils import (
     get_function_annotations,
     _format_type_hint,
     format_arguments_as_md,
     format_args_as_function_call,
+    capture_output,
 )
 
 
@@ -57,6 +62,31 @@ class FunctionBenchmark(Benchmark):
             arg.name: function_args[arg.name] for arg in self.args if not arg.hidden
         }
         return {self.function_name: visible_args}
+
+    def run_with_arguments(
+        self, *, module: ModuleType, arguments: TBenchmarkArgs
+    ) -> BenchmarkRunInfo:
+        # TODO: Remove/validate assertions
+        if len(arguments) != 1:
+            raise ValueError(
+                "Instances of function benchmark should only be run with a single function's arguments. "
+                f"Instead found {len(arguments)} arguments for functions {list(arguments.keys())}."
+            )
+
+        # After setting common fields we proceed to executing the function
+        try:
+            func = getattr(module, self.name)
+        except AttributeError:
+            raise ModuleAccessException(module=module)
+
+        # Run the reference function with the provided inputs
+        valid_kwargs: TBenchmarkArgs = copy.deepcopy(
+            self.filter_visible_arguments(arguments)
+        )
+        func_args: TArgsDict = valid_kwargs[self.name]
+        res: BenchmarkRunInfo = capture_output(func, **func_args)
+
+        return res
 
     def generate_signature(self) -> str:
         # Retrieve the argument and return type annotations

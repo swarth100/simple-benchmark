@@ -1,12 +1,16 @@
 import importlib
 import inspect
+import io
 import sys
+import time
 from functools import lru_cache
 from typing import get_type_hints, Type, TYPE_CHECKING, Optional, Any
 
 from black import FileMode, format_str
 from pydantic import BaseModel
 from pydantic.fields import FieldInfo
+
+from src.config import BenchmarkRunInfo
 
 if TYPE_CHECKING:
     from src.benchmark.core import Argument
@@ -180,3 +184,22 @@ def format_args_as_function_call(func_name: str, args_dict: dict) -> str:
     formatted_str = format_str(function_call_str, mode=mode)
 
     return formatted_str
+
+
+def capture_output(func, *args, **kwargs) -> BenchmarkRunInfo:
+    original_stdout = sys.stdout  # Save a reference to the original standard output
+    new_stdout = io.StringIO()
+    sys.stdout = new_stdout  # Redirect standard output to the new StringIO object
+
+    try:
+        start_time: float = time.perf_counter()
+        output = func(*args, **kwargs)
+        time_diff: float = time.perf_counter() - start_time
+    except Exception:
+        # Reraise all exceptions to allow for outer handling
+        raise
+    finally:
+        # Whatever happens, reset standard output to its original value
+        sys.stdout = original_stdout
+
+    return BenchmarkRunInfo(output, new_stdout.getvalue().rstrip(), time_diff)
