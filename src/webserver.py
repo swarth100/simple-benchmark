@@ -35,7 +35,7 @@ from src.execution import (
     is_benchmark_archived,
 )
 from src.config import BenchmarkResult, UserRank, BenchmarkStatus, BenchmarkRunInfo
-from src.utils import get_function_annotations, format_args_as_function_call
+from src.utils import get_annotations, format_args_as_function_call
 from src.benchmark.core import (
     Benchmark,
     TBenchmarkArgs,

@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 TABBED_MD_SPACING: str = "&nbsp;" * 4
 
 
-def get_function_annotations(
+def get_annotations(
     object_name: str, *, method_name: Optional[str] = None
 ) -> tuple[dict[str, type], type]:
     """
@@ -27,7 +27,6 @@ def get_function_annotations(
     function's arguments and return type
 
     :param object_name: Name of the function to include
-    :param config: Configuration object
     :param method_name: (Optional) If present, the name of the method to look up the signature for
     :return: Annotations and return type of the function
     """
@@ -37,12 +36,13 @@ def get_function_annotations(
 
     reference_module_name = config.reference_module
     reference_module = importlib.import_module(reference_module_name)
-    reference_object = getattr(reference_module, object_name)
+    raw_obj = reference_object = getattr(reference_module, object_name)
 
     if method_name is not None:
         reference_object = getattr(reference_object, method_name)
 
-    annotations: dict[str, type] = dict(reference_object.__annotations__)
+    # annotations: dict[str, type] = dict(reference_object.__annotations__)
+    annotations = get_type_hints(reference_object, localns={object_name: raw_obj})
     return_type: type = annotations.pop("return", None)
     return annotations, return_type
 

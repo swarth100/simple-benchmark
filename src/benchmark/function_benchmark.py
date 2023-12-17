@@ -1,7 +1,8 @@
 import copy
 from types import ModuleType
 from typing import List, Any
-from pydantic import BaseModel, parse_obj_as
+
+from pydantic import parse_obj_as
 
 from src.benchmark.core import (
     Benchmark,
@@ -11,9 +12,8 @@ from src.benchmark.core import (
 )
 from src.config import BenchmarkRunInfo
 from src.exceptions import ModuleAccessException
-
 from src.utils import (
-    get_function_annotations,
+    get_annotations,
     _format_type_hint,
     format_arguments_as_md,
     format_args_as_function_call,
@@ -71,7 +71,7 @@ class FunctionBenchmark(Benchmark):
         return res
 
     def parse_arguments_from_dict(self, raw_arguments: dict) -> TBenchmarkArgs:
-        (arg_types, _) = get_function_annotations(self.name)
+        (arg_types, _) = get_annotations(self.name)
         filtered_args = {
             arg_name: parse_obj_as(arg_types[arg_name], arg_value)  # type: ignore
             for arg_name, arg_value in raw_arguments.items()
@@ -84,7 +84,7 @@ class FunctionBenchmark(Benchmark):
 
     def generate_signature(self) -> str:
         # Retrieve the argument and return type annotations
-        annotations, return_type = get_function_annotations(self.name)
+        annotations, return_type = get_annotations(self.name)
 
         # Start with the function name
         function_signature = f"def {self.function_name}("
@@ -112,7 +112,7 @@ class FunctionBenchmark(Benchmark):
         """
         Generate Markdown description with type annotations.
         """
-        annotations, return_type = get_function_annotations(self.name)
+        annotations, return_type = get_annotations(self.name)
         description_md = self.description + "\n<br>" + "Arguments:\n"
         description_md += format_arguments_as_md(self.args, annotations, pre_spacing=4)
 

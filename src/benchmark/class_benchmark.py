@@ -2,7 +2,7 @@ import copy
 from types import ModuleType
 from typing import List, Callable, Type
 
-from pydantic import BaseModel
+from pydantic import BaseModel, parse_obj_as
 
 from src.benchmark.core import (
     Benchmark,
@@ -17,7 +17,7 @@ from src.exceptions import ModuleAccessException
 from src.utils import (
     get_reference_benchmark_include,
     serialize_base_model_to_class,
-    get_function_annotations,
+    get_annotations,
     format_arguments_as_md,
     TABBED_MD_SPACING,
     _format_type_hint,
@@ -203,11 +203,34 @@ class ClassBenchmark(Benchmark):
         return super().example_includes + [self.class_name]
 
     def parse_arguments_from_dict(self, raw_arguments: dict) -> TBenchmarkArgs:
-        # TODO: Correctly implement!
-        return raw_arguments
+        (constructor_types, _) = get_annotations(self.name)
+        filtered_args = {
+            self.class_name: {
+                arg_name: parse_obj_as(constructor_types[arg_name], arg_value)  # type: ignore
+                for arg_name, arg_value in raw_arguments[self.class_name].items()
+            }
+        }
+
+        filtered_method_args: list[TArgsDict] = []
+        for method_name, method_args in zip(
+            raw_arguments[MEO_NAMES], raw_arguments[MEO_ARGS]
+        ):
+            for method in self.methods:
+                if method.method_name == method_name:
+                    method_types, _ = get_annotations(
+                        self.name, method_name=method.method_name
+                    )
+                    filtered_method_args.append(
+                        {
+                            arg_name: parse_obj_as(method_types[arg_name], arg_value)  # type: ignore
+                            for arg_name, arg_value in method_args.items()
+                        }
+                    )
+        filtered_args[MEO_NAMES] = raw_arguments[MEO_NAMES]
+        filtered_args[MEO_ARGS] = filtered_method_args
+        return filtered_args
 
     def generate_python_call(self, arguments: TBenchmarkArgs) -> str:
-        # TODO: Correctly implement for classes and nested methods!
         filtered_args = self.filter_visible_arguments(arguments)
         obj_name: str = self.class_name.lower()
         constructor: str = format_args_as_function_call(
@@ -230,12 +253,12 @@ class ClassBenchmark(Benchmark):
         )
 
     def generate_description_md(self) -> str:
-        annotations, _ = get_function_annotations(self.name)
+        annotations, _ = get_annotations(self.name)
         description_md = self.description + "\n<br>" + "Constructor arguments:\n"
         description_md += format_arguments_as_md(self.init, annotations, pre_spacing=4)
 
         for method in self.methods:
-            method_annotations, method_return_type = get_function_annotations(
+            method_annotations, method_return_type = get_annotations(
                 self.name, method_name=method.method_name
             )
 
