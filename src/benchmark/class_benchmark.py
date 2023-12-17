@@ -70,6 +70,11 @@ class ClassBenchmark(Benchmark):
         return self.class_name
 
     @property
+    def icon_unicode(self) -> str:
+        # Shapes Icon
+        return "f61f"
+
+    @property
     def example_args(self) -> TBenchmarkArgs:
         class_args: TBenchmarkArgs = {
             self.class_name: {arg.name: arg.example_value for arg in self.init},

@@ -573,7 +573,7 @@ benchmarks:
     init:
       - name: "size"
         increment: "lambda x: x + 1"
-        default: "int(3)"
+        default: "int(1)"
         hidden: true
       - name: "products"
         description: "The number of products in the warehouse."
@@ -600,7 +600,7 @@ benchmarks:
         description: "Get the number of products in the warehouse."
         args: [ ]
     evaluation:
-      increment: "lambda **kwargs: [random.choice(['add_products', 'remove_products']) for _ in range(kwargs['size'])] + ['get_products']"
+      increment: "lambda **kwargs: [random.choice(['add_products', 'remove_products']) for _ in range(kwargs['size'] // 2)] + ['get_products']"
       default: "list(['add_products', 'remove_products', 'get_products'])"
 
   - class_name: "BookStore"
@@ -615,7 +615,7 @@ benchmarks:
     init:
       - name: "size"
         increment: "lambda x: x + 1"
-        default: "int(2)"
+        default: "int(1)"
         hidden: true
       - name: "all_books"
         description: "The universe all all books."
@@ -645,5 +645,5 @@ benchmarks:
             increment: "lambda **kwargs: random.choice(kwargs['all_books'])"
             default: "Book(title='The Great Gatsby', pages=200)"
     evaluation:
-      increment: "lambda **kwargs: ['add_book'] * (kwargs['size'] * 2) + ['get_num_copies']"
+      increment: "lambda **kwargs: ['add_book'] * (int(kwargs['size'] ** 1.15)) + ['get_num_copies']"
       default: "list(['add_book', 'get_num_copies'])"

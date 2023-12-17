@@ -67,7 +67,9 @@
                         <div class="select">
                             <select name="benchmark" id="benchmark-select" hx-get="/fetch_benchmark_details" hx-trigger="change" hx-target="#benchmark-details" hx-include="#benchmark-select">
                                 {% for benchmark in benchmarks %}
-                                <option value="{{ benchmark }}">{{ benchmark }}</option>
+                                <option value="{{ benchmark }}">
+                                    &#x{{ benchmark_icons[benchmark] | safe }};&nbsp;&nbsp; {{ benchmark }}
+                                </option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -133,7 +135,9 @@
                         <div class="select">
                             <select name="benchmark" id="sandbox-benchmark" onchange="updateSandboxInputs()">
                                 {% for benchmark in benchmarks %}
-                                <option value="{{ benchmark }}">{{ benchmark }}</option>
+                                <option value="{{ benchmark }}">
+                                    &#x{{ benchmark_icons[benchmark] | safe }};&nbsp;&nbsp; {{ benchmark }}
+                                </option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -188,7 +192,9 @@
                 <div class="select">
                     <select name="benchmark" id="leaderboard-benchmark" hx-get="/fetch_leaderboard" hx-trigger="change, tab-activated" hx-swap="innerHTML" hx-target="#leaderboard-content" hx-include="#username">
                         {% for benchmark in benchmarks %}
-                        <option value="{{ benchmark }}">{{ benchmark }}</option>
+                        <option value="{{ benchmark }}">
+                            &#x{{ benchmark_icons[benchmark] | safe }};&nbsp;&nbsp; {{ benchmark }}
+                        </option>
                         {% endfor %}
                     </select>
                 </div>
@@ -221,7 +227,9 @@
                         <div class="select">
                             <select name="benchmark" id="archive-benchmark" hx-get="/fetch_benchmark_details" hx-trigger="change, tab-activated" hx-target="#archive-benchmark-details" hx-include="#archive-benchmark">
                                 {% for benchmark in archived_benchmarks %}
-                                <option value="{{ benchmark }}">{{ benchmark }}</option>
+                                <option value="{{ benchmark }}">
+                                    &#x{{ benchmark_icons[benchmark] | safe }};&nbsp;&nbsp; {{ benchmark }}
+                                </option>
                                 {% endfor %}
                             </select>
                         </div>

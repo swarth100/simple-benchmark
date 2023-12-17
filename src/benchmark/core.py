@@ -112,6 +112,11 @@ class Benchmark(BaseModel, abc.ABC):
 
     @property
     @abc.abstractmethod
+    def icon_unicode(self) -> str:
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
     def example_args(self) -> TBenchmarkArgs:
         raise NotImplementedError
 

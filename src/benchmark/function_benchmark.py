@@ -35,6 +35,11 @@ class FunctionBenchmark(Benchmark):
         return self.function_name
 
     @property
+    def icon_unicode(self) -> str:
+        # Gears Icon
+        return "f013"
+
+    @property
     def example_args(self) -> TBenchmarkArgs:
         function_args: TArgsDict = {arg.name: arg.example_value for arg in self.args}
         return self.filter_visible_arguments(function_args)

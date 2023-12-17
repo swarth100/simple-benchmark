@@ -396,7 +396,7 @@ class Warehouse(BaseModel):
         self.products += amount
 
     def remove_products(self, amount: int):
-        self.products -= amount
+        self.products -= min(amount, self.products)
 
     def get_products(self) -> int:
         return self.products

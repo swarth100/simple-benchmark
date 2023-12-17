@@ -94,6 +94,11 @@ async def read_root(request: Request):
         for benchmark in config.get_all_valid_benchmarks(include_archived=True)
     }
 
+    benchmark_icons: dict[str, str] = {
+        benchmark.name: benchmark.icon_unicode
+        for benchmark in config.get_all_valid_benchmarks(include_archived=True)
+    }
+
     frozen_benchmarks: list[str] = [
         benchmark.name for benchmark in get_frozen_benchmarks()
     ]
@@ -109,6 +114,7 @@ async def read_root(request: Request):
             "benchmarks": benchmark_names,
             "benchmark_signatures": benchmark_signatures,
             "benchmark_includes": benchmark_includes,
+            "benchmark_icons": benchmark_icons,
             "benchmarks_with_args": benchmarks_with_args,
             "frozen_benchmarks": frozen_benchmarks,
             "archived_benchmarks": archived_benchmarks,
