@@ -470,7 +470,7 @@ benchmarks:
         hidden: true
       - name: "books"
         description: "A list of Book objects."
-        increment: "lambda **kwargs: [Book(title=fake.sentence(3), pages=random.randint(100, 1000)) for _ in range(kwargs['x'])]"
+        increment: "lambda **kwargs: [Book(title=fake.sentence(3, , variable_nb_words=False), pages=random.randint(100, 1000)) for _ in range(kwargs['x'])]"
         default: "list([Book(title='The Great Gatsby', pages=200), Book(title='The Catcher in the Rye', pages=300), Book(title='To Kill a Mockingbird', pages=400)])"
 
   - function_name: "park_cars"
@@ -569,7 +569,7 @@ benchmarks:
       You must also implement a `remove_products` method that removes a given amount of products from the warehouse.
       You must implement a `get_products` method that returns the number of products in the warehouse.
     max_time: 200
-    difficulty: 1.0
+    difficulty: 1.5
     init:
       - name: "size"
         increment: "lambda x: x + 1"
@@ -588,10 +588,12 @@ benchmarks:
             increment: "lambda **kwargs: random.randint(0, kwargs['size'])"
             default: "int(45)"
       - method_name: "remove_products"
-        description: "Remove a given amount of products from the warehouse."
+        description: |
+          Remove a given amount of products from the warehouse.
+          **NOTE**: The amount of products may not go negative.
         args:
           - name: "amount"
-            description: "The amount of products to remove. **NOTE**: The amount of products may not go negative."
+            description: "The amount of products to remove."
             increment: "lambda **kwargs: random.randint(0, kwargs['size'])"
             default: "int(18)"
       - method_name: "get_products"
@@ -604,10 +606,10 @@ benchmarks:
   - class_name: "BookStore"
     description: |
       You are given a class `BookStore` representing a bookstore with a list of `Books`.
-      You must implement a `add_book` method that adds a given `Book` object to the bookstore. You may get duplicate copies of the same book.
+      You must implement a `add_book` method that adds a given `Book` object to the bookstore. You may get duplicate copies of the same `Book`.
       You must implement a `get_num_copies` method that returns the number of copies of the specified `Book` stored in the bookstore.
     max_time: 3000
-    difficulty: 1.5
+    difficulty: 2.0
     include:
       - "Book"
     init:
@@ -617,7 +619,7 @@ benchmarks:
         hidden: true
       - name: "all_books"
         description: "The universe all all books."
-        increment: "lambda **kwargs: [Book(title=fake.sentence(3), pages=random.randint(100, 1000)) for _ in range(kwargs['size'])]"
+        increment: "lambda **kwargs: [Book(title=fake.sentence(3, variable_nb_words=False), pages=random.randint(100, 1000)) for _ in range(kwargs['size'])]"
         default: "list([Book(title='The Great Gatsby', pages=200), Book(title='The Catcher in the Rye', pages=300), Book(title='To Kill a Mockingbird', pages=400)])"
         hidden: true
       - name: "books"
@@ -633,10 +635,13 @@ benchmarks:
             increment: "lambda **kwargs: random.choice(kwargs['all_books'])"
             default: "Book(title='To Kill a Mockingbird', pages=400)"
       - method_name: "get_num_copies"
-        description: "Get the number of copies of the specified Book stored in the bookstore."
+        description: |
+          Get the number of copies of the specified Book stored in the bookstore. 
+          **NOTE**: The `Book` object may not be in the bookstore.
+          **NOTE2**: There may me duplicates of the same `Book`.
         args:
           - name: "book"
-            description: "The Book object to get the number of copies of. **NOTE**: The `Book` object may not be in the bookstore, or there may me duplicates of the same `Book`."
+            description: "The Book object to get the number of copies of. "
             increment: "lambda **kwargs: random.choice(kwargs['all_books'])"
             default: "Book(title='The Great Gatsby', pages=200)"
     evaluation:

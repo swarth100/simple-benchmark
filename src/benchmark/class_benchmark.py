@@ -264,6 +264,10 @@ class ClassBenchmark(Benchmark):
             )
 
             description_md += f"\n<br>Method `{method.method_name}`:\n"
+            method_description_md = method.description.rstrip().replace(
+                "\n", f"\n{TABBED_MD_SPACING}"
+            )
+            description_md += TABBED_MD_SPACING + method_description_md + "\n"
             if len(method.args) > 0:
                 description_md += f"{TABBED_MD_SPACING}- Arguments:\n"
                 description_md += format_arguments_as_md(
