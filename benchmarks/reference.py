@@ -414,3 +414,43 @@ class BookStore(BaseModel):
             if b.title == book.title:
                 count += 1
         return count
+
+
+class Point(BaseModel):
+    x: int
+    y: int
+
+
+class Obstacle(BaseModel):
+    position: Point
+
+
+class SimpleCar(BaseModel):
+    position: Point
+    obstacles: list[Obstacle]
+
+    def move_up(self):
+        new_position = Point(x=self.position.x, y=self.position.y + 1)
+        if not self._is_obstacle(new_position):
+            self.position = new_position
+
+    def move_down(self):
+        new_position = Point(x=self.position.x, y=self.position.y - 1)
+        if not self._is_obstacle(new_position):
+            self.position = new_position
+
+    def move_left(self):
+        new_position = Point(x=self.position.x - 1, y=self.position.y)
+        if not self._is_obstacle(new_position):
+            self.position = new_position
+
+    def move_right(self):
+        new_position = Point(x=self.position.x + 1, y=self.position.y)
+        if not self._is_obstacle(new_position):
+            self.position = new_position
+
+    def get_position(self) -> Point:
+        return self.position
+
+    def _is_obstacle(self, new_position: Point) -> bool:
+        return any(obstacle.position == new_position for obstacle in self.obstacles)

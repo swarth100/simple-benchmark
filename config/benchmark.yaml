@@ -644,3 +644,50 @@ benchmarks:
     evaluation:
       increment: "lambda **kwargs: ['add_book'] * (int(kwargs['size'] ** 1.15)) + ['get_num_copies']"
       default: "list(['add_book', 'get_num_copies'])"
+
+  - class_name: "SimpleCar"
+    description: |
+      You are given a class `SimpleCar` representing on a 2D plane.
+      The car starts at a given `position` and can move in four directions: `up`, `down`, `left` and `right`.
+      There are obstacles on the plane that the car cannot pass through.
+    max_time: 200
+    difficulty: 4.0
+    include:
+      - "Obstacle"
+      - "Point"
+    init:
+      - name: "x"
+        increment: "lambda x: x + 1"
+        default: "int(4)"
+        hidden: true
+      - name: "size"
+        increment: "lambda **kwargs: int(kwargs['x'] ** 0.5)"
+        default: "int(2)"
+        hidden: true
+      - name: "position"
+        description: "The initial position of the car."
+        increment: "lambda **kwargs: Point(x=random.randint(-kwargs['size']//2, kwargs['size']//2), y=random.randint(-kwargs['size']//2, kwargs['size']//2))"
+        default: "Point(x=0, y=0)"
+      - name: "obstacles"
+        description: "The list of obstacles on the plane."
+        increment: "lambda **kwargs: [Obstacle(position=Point(x=random.randint(-kwargs['size'], kwargs['size']), y=random.randint(-kwargs['size'], kwargs['size']))) for _ in range(int(kwargs['size'] ** 1.5))]"
+        default: "list([Obstacle(position=Point(x=1, y=1)), Obstacle(position=Point(x=-1, y=0))])"
+    methods:
+      - method_name: "move_up"
+        description: "Move the car up by one unit."
+        args: [ ]
+      - method_name: "move_down"
+        description: "Move the car down by one unit."
+        args: [ ]
+      - method_name: "move_left"
+        description: "Move the car left by one unit."
+        args: [ ]
+      - method_name: "move_right"
+        description: "Move the car right by one unit."
+        args: [ ]
+      - method_name: "get_position"
+        description: "Get the current position of the car."
+        args: [ ]
+    evaluation:
+      increment: "lambda **kwargs: [random.choice(['move_up', 'move_down', 'move_left', 'move_right']) for _ in range(kwargs['size'] * 4)] + ['get_position']"
+      default: "list(['move_up', 'move_right', 'move_left', 'move_down', 'get_position'])"

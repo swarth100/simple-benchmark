@@ -106,7 +106,9 @@ def serialize_base_model_to_class(
             for name in fields
         ]
     )
-    init_body: str = "\n        ".join([f"self.{name} = {name}" for name in fields])
+    init_body: str = "..."
+    if len(fields) > 0:
+        init_body = "\n        ".join([f"self.{name} = {name}" for name in fields])
 
     methods_str = ""
     for method in methods:
