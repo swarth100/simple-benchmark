@@ -638,7 +638,7 @@ benchmarks:
         description: |
           Get the number of copies of the specified Book stored in the bookstore. 
           **NOTE**: The `Book` object may not be in the bookstore.
-          **NOTE2**: There may me duplicates of the same `Book`.
+          **NOTE 2**: There may me duplicates of the same `Book`.
         args:
           - name: "book"
             description: "The Book object to get the number of copies of. "
