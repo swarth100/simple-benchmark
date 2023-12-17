@@ -465,3 +465,87 @@ class SimpleCar:
 
     def _is_obstacle(self, new_position: Point) -> bool:
         return any(obstacle.position == new_position for obstacle in self.obstacles)
+
+
+CIPHER_MAPPING: dict[str, int] = {
+    "a": 0,
+    "b": 1,
+    "c": 2,
+    "d": 3,
+    "e": 4,
+    "f": 5,
+    "g": 6,
+    "h": 7,
+    "i": 8,
+    "j": 9,
+    "k": 10,
+    "l": 11,
+    "m": 12,
+    "n": 13,
+    "o": 14,
+    "p": 15,
+    "q": 16,
+    "r": 17,
+    "s": 18,
+    "t": 19,
+    "u": 20,
+    "v": 21,
+    "w": 22,
+    "x": 23,
+    "y": 24,
+    "z": 25,
+    " ": 26,
+    ",": 27,
+    ".": 28,
+    "!": 29,
+    "?": 30,
+}
+
+
+@dataclass
+class Cipher:
+    key: int
+    message: str
+
+    def encrypt(self):
+        # Convert message to numbers based on the alphabet
+        vector = [CIPHER_MAPPING[char] for char in self.message]
+
+        # Calculate shift amount
+        shift = (
+            self.key % len(CIPHER_MAPPING)
+            if self.key > len(CIPHER_MAPPING)
+            else self.key
+        )
+
+        # Shift each number in the vector
+        vector = [(num + shift) % len(CIPHER_MAPPING) for num in vector]
+
+        # Convert numbers back to letters
+        letters = list(CIPHER_MAPPING.keys())
+        encrypted_message = "".join(letters[num] for num in vector)
+
+        self.message = encrypted_message
+
+    def decrypt(self):
+        # Convert encrypted message to numbers
+        vector = [CIPHER_MAPPING[char] for char in self.message]
+
+        # Calculate shift amount
+        shift = (
+            self.key % len(CIPHER_MAPPING)
+            if self.key > len(CIPHER_MAPPING)
+            else self.key
+        )
+
+        # Reverse shift for each number
+        vector = [(num - shift) % len(CIPHER_MAPPING) for num in vector]
+
+        # Convert numbers back to letters
+        letters = list(CIPHER_MAPPING.keys())
+        decrypted_message = "".join(letters[num] for num in vector)
+
+        self.message = decrypted_message
+
+    def get_message(self) -> str:
+        return self.message

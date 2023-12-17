@@ -191,7 +191,9 @@ class Benchmark(BaseModel, abc.ABC):
         include_snippets: list[str] = []
         for name in self.include:
             include_object: Type[BaseModel] = get_reference_benchmark_include(name)
-            include_snippets.append(serialize_base_model_to_class(include_object))
+            include_snippets.append(
+                serialize_base_model_to_class(include_object, name=name)
+            )
         return "\n".join(include_snippets)
 
     def generate_difficulty_stars_html(self) -> str:

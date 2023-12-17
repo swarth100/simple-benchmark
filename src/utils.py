@@ -14,10 +14,10 @@ from typing import (
     Annotated,
     get_args,
 )
-from typing_extensions import TypeAlias
 
 from black import FileMode, format_str
 from pydantic import BaseModel
+from pydantic.dataclasses import is_pydantic_dataclass
 from pydantic.fields import FieldInfo
 
 from benchmarks.utils import PrintsToConsole
@@ -74,21 +74,36 @@ def get_annotations(
     return annotations, return_type
 
 
+def _retrieve_name(var):
+    # CCourtesy of:
+    # https://stackoverflow.com/a/18425523
+    callers_local_vars = inspect.currentframe().f_back.f_locals.items()
+    return [var_name for var_name, var_val in callers_local_vars if var_val is var]
+
+
 def serialize_base_model_to_class(
     base_model_instance: Type[BaseModel],
     *,
     methods_to_exclude: Optional[list[str]] = None,
+    name: Optional[str] = None,
 ) -> str:
     """
     Given a pydantic BaseModel, serializes it to a class definition
     :param base_model_instance: The pydantic BaseModel to serialize
     :param methods_to_exclude: List of methods to exclude from the serialization
+    :param name: (Optional) Name to use for the class
     :return: The stringified class definition of the BaseModel
     """
     if methods_to_exclude is None:
         methods_to_exclude = []
 
-    class_name = base_model_instance.__name__
+    if not is_pydantic_dataclass(base_model_instance):
+        mode = FileMode(line_length=80)
+        var_name: str = name or _retrieve_name(base_model_instance)[-1]
+        body: str = format_str(var_name + " = " + str(base_model_instance), mode=mode)
+        return body
+
+    class_name = name or base_model_instance.__name__
     fields: dict[str, FieldInfo] = base_model_instance.__dataclass_fields__  # type: ignore
 
     base_methods = set(dir(BaseModel))

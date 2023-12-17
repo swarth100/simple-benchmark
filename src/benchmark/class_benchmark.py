@@ -35,6 +35,7 @@ class Method(BaseModel):
     method_name: str
     description: str
     args: List[Argument]
+    hidden: bool = True
 
 
 class MethodEvaluationOrder(BaseModel):
@@ -253,7 +254,9 @@ class ClassBenchmark(Benchmark):
 
     def generate_signature(self) -> str:
         class_object: Type[BaseModel] = get_reference_benchmark_include(self.class_name)
-        methods_to_exclude: list[str] = [method.method_name for method in self.methods]
+        methods_to_exclude: list[str] = [
+            method.method_name for method in self.methods if method.hidden
+        ]
         return serialize_base_model_to_class(
             base_model_instance=class_object, methods_to_exclude=methods_to_exclude
         )

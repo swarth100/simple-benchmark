@@ -691,3 +691,43 @@ benchmarks:
     evaluation:
       increment: "lambda **kwargs: [random.choice(['move_up', 'move_down', 'move_left', 'move_right']) for _ in range(kwargs['size'] * 2)] + ['get_position']"
       default: "list(['move_up', 'move_right', 'move_left', 'move_down', 'get_position'])"
+
+  - class_name: "Cipher"
+    description: |
+      You are given a class `Cipher` representing a cipher that can encrypt and decrypt a given message.
+      The cipher is initialized with a given `key` which is a list of integers.
+      The cipher works by shifting each character in the message by the corresponding amount in the key.
+      For example, if the key is `2` and the message is `abc`, the encrypted message will be `cde`.
+    max_time: 1000
+    difficulty: 3.5
+    include:
+      - "CIPHER_MAPPING"
+    init:
+      - name: "x"
+        increment: "lambda x: x + 1"
+        default: "int(1)"
+        hidden: true
+      - name: "key"
+        description: "The key to use for the cipher."
+        increment: "lambda **kwargs: random.randint(1, 100)"
+        default: "2"
+      - name: "message"
+        description: "The message to encrypt."
+        increment: "lambda **kwargs: fake.sentence(3, variable_nb_words=False).lower()"
+        default: "str('the cat is on the table!')"
+    methods:
+      - method_name: "encrypt"
+        description: |
+          Encrypt a given message using the cipher.
+          **NOTE**: This method is already implemented for you!
+        args: [ ]
+        hidden: false
+      - method_name: "decrypt"
+        description: "Decrypt a given message using the cipher."
+        args: [ ]
+      - method_name: "get_message"
+        description: "Return the message currently held by the cypher (encrypted or decrypted)."
+        args: [ ]
+    evaluation:
+      increment: "lambda **kwargs: ['encrypt', 'decrypt', 'get_message']"
+      default: "list(['encrypt', 'decrypt', 'get_message'])"
