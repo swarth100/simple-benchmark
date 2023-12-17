@@ -476,7 +476,7 @@ benchmarks:
   - function_name: "park_cars"
     description: |
       Given a list of `Car` objects (`garage`) and a list of license plates, the `park_cars` function should return the number of cars with the matching license plates that are not parked.
-    max_time: 10000
+    max_time: 15000
     difficulty: 2.0
     include:
       - "Car"

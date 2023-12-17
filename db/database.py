@@ -126,7 +126,7 @@ def get_rankings(benchmarks: list[Benchmark]) -> list[UserRank]:
         # Calculate total score and format results
         results: list[UserRank] = []
         for idx, (username, scores) in enumerate(user_scores.items()):
-            average_score = sum(scores.values()) / len(benchmarks)
+            total_score = sum(scores.values())
 
             results.append(
                 UserRank(
@@ -136,12 +136,12 @@ def get_rankings(benchmarks: list[Benchmark]) -> list[UserRank]:
                         benchmark.name: scores.get(benchmark.name, 0)
                         for benchmark in benchmarks
                     },
-                    average=average_score,
+                    total=total_score,
                 )
             )
 
         # Sort results based on average score
-        results.sort(key=lambda x: x["average"], reverse=True)
+        results.sort(key=lambda x: x["total"], reverse=True)
 
         for idx, data in enumerate(results):
             data["rank"] = idx + 1

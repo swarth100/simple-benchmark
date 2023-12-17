@@ -28,7 +28,7 @@ class UserRank(TypedDict):
     rank: int
     username: str
     scores: dict[str, float]
-    average: float
+    total: float
 
 
 class BenchmarkStatus(NamedTuple):
