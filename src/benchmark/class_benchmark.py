@@ -260,7 +260,9 @@ class ClassBenchmark(Benchmark):
 
     def generate_description_md(self) -> str:
         annotations, _ = get_annotations(self.name)
-        description_md = self.description + "\n<br>" + "Constructor arguments:\n"
+        description_md = (
+            f"{self.description} \n<br>`{self.name}` constructor arguments:\n"
+        )
         description_md += format_arguments_as_md(self.init, annotations, pre_spacing=4)
 
         for method in self.methods:

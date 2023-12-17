@@ -565,9 +565,7 @@ benchmarks:
   - class_name: "Warehouse"
     description: |
       You are given a class `Warehouse` representing a warehouse with number of products.
-      You must implement a `add_products` method that adds a given amount of products to the warehouse.
-      You must also implement a `remove_products` method that removes a given amount of products from the warehouse.
-      You must implement a `get_products` method that returns the number of products in the warehouse.
+      You must implement the three methods `add_products`, `remove_products` and `get_products` to manage the warehouse operations.
     max_time: 200
     difficulty: 1.5
     init:
@@ -606,8 +604,7 @@ benchmarks:
   - class_name: "BookStore"
     description: |
       You are given a class `BookStore` representing a bookstore with a list of `Books`.
-      You must implement a `add_book` method that adds a given `Book` object to the bookstore. You may get duplicate copies of the same `Book`.
-      You must implement a `get_num_copies` method that returns the number of copies of the specified `Book` stored in the bookstore.
+      You must implement the two methods `add_book` and `get_num_copies` to manage the bookstore operations.
     max_time: 3000
     difficulty: 2.0
     include:
