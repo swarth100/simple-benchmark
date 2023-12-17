@@ -39,7 +39,10 @@
             <tbody>
             {% for benchmark, is_hidden, is_frozen, is_archive in benchmark_status %}
             <tr>
-                <td>{{ benchmark }}</td>
+                <td>
+                    <i class="fa-solid">&#x{{ benchmark_icons[benchmark] | safe }};&nbsp;&nbsp;</i>
+                    {{ benchmark }}
+                </td>
                 <td>{{ difficulty_stars[benchmark]|safe }}</td>
                 <td class="{{ 'has-text-danger' if is_hidden else 'has-text-success' }}">
                     {{ 'Hidden' if is_hidden else 'Visible' }}

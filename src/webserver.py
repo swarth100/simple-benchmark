@@ -511,6 +511,10 @@ async def admin_page(request: Request, show_archived: bool = False):
     if not show_archived:
         benchmark_status = [item for item in benchmark_status if not item.is_archive]
 
+    benchmark_icons: dict[str, str] = {
+        benchmark.name: benchmark.icon_unicode for benchmark in get_config().benchmarks
+    }
+
     # Generate difficulty stars HTML for each benchmark
     difficulty_stars: dict[str, str] = {
         benchmark.name: benchmark.generate_difficulty_stars_html()
@@ -522,6 +526,7 @@ async def admin_page(request: Request, show_archived: bool = False):
         {
             "request": request,
             "benchmark_status": benchmark_status,
+            "benchmark_icons": benchmark_icons,
             "difficulty_stars": difficulty_stars,
         },
     )
