@@ -729,5 +729,5 @@ benchmarks:
         description: "Return the message currently held by the cypher (encrypted or decrypted)."
         args: [ ]
     evaluation:
-      increment: "lambda **kwargs: ['encrypt', 'decrypt', 'get_message']"
+      increment: "lambda **kwargs: (['encrypt'] if random.randint(1, 100) < 90 else []) + ['decrypt'] + ['get_message']"
       default: "list(['encrypt', 'decrypt', 'get_message'])"
