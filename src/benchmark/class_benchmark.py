@@ -25,6 +25,9 @@ from src.utils import (
     capture_output,
 )
 
+# Argument name used to inject method evaluation order into argument lists
+MEO_ARG_NAME = "methods"
+
 
 class Method(BaseModel):
     method_name: str
@@ -32,11 +35,33 @@ class Method(BaseModel):
     args: List[Argument]
 
 
+class MethodEvaluationOrder(BaseModel):
+    increment: str
+    default: str
+
+    @property
+    def default_value(self) -> list[str]:
+        include_mapping = _get_reference_benchmark_include_mapping()
+        return eval(self.default, include_mapping)
+
+    @property
+    def evaluation_lambda(self) -> Callable:
+        # Some libraries are required to be available for import by lambdas
+        import random
+
+        include_mapping = _get_reference_benchmark_include_mapping()
+
+        return eval(
+            self.increment,
+            {"random": random, "fake": _FAKE, **include_mapping},
+        )
+
+
 class ClassBenchmark(Benchmark):
     class_name: str
     init: List[Argument]
     methods: List[Method]
-    evaluation: str
+    evaluation: MethodEvaluationOrder
 
     @property
     def name(self) -> str:
@@ -153,25 +178,13 @@ class ClassBenchmark(Benchmark):
     def example_includes(self) -> list[str]:
         return super().example_includes + [self.class_name]
 
-    @property
-    def evaluation_lambda(self) -> Callable:
-        # Some libraries are required to be available for import by lambdas
-        import random
-
-        include_mapping = _get_reference_benchmark_include_mapping()
-
-        return eval(
-            self.evaluation,
-            {"random": random, "fake": _FAKE, **include_mapping},
-        )
-
     def generate_method_evaluation_order(self, arguments: TArgsDict) -> list[Method]:
         """
         Generate the order in which methods should be evaluated and return a list of method objects for each one.
         Method objects might be duplicated as a result of this, in case a method is called more than once.
         """
         method_order: list[Method] = []
-        method_names: list[str] = self.evaluation_lambda(**arguments)
+        method_names: list[str] = self.evaluation.evaluation_lambda(**arguments)
 
         for method_name in method_names:
             for method in self.methods:
