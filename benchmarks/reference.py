@@ -340,6 +340,9 @@ class Book(BaseModel):
     title: str
     pages: int
 
+    def __eq__(self, other):
+        return self.title == other.title
+
 
 def total_num_pages(books: list[Book]) -> int:
     total_pages = 0
@@ -397,3 +400,17 @@ class Warehouse(BaseModel):
 
     def get_products(self) -> int:
         return self.products
+
+
+class BookStore(BaseModel):
+    books: list[Book]
+
+    def add_book(self, book: Book):
+        self.books.append(book)
+
+    def get_num_copies(self, book: Book) -> int:
+        count = 0
+        for b in self.books:
+            if b.title == book.title:
+                count += 1
+        return count

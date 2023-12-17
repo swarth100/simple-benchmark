@@ -600,3 +600,45 @@ benchmarks:
     evaluation:
       increment: "lambda **kwargs: [random.choice(['add_products', 'remove_products']) for _ in range(kwargs['size'])] + ['get_products']"
       default: "list(['add_products', 'remove_products', 'get_products'])"
+
+  - class_name: "BookStore"
+    description: |
+      You are given a class `BookStore` representing a bookstore with a list of `Books`.
+      You must implement a `add_book` method that adds a given `Book` object to the bookstore. You may get duplicate copies of the same book.
+      You must implement a `get_num_copies` method that returns the number of copies of the specified `Book` stored in the bookstore.
+    max_time: 3000
+    difficulty: 1.5
+    include:
+      - "Book"
+    init:
+      - name: "size"
+        increment: "lambda x: x + 1"
+        default: "int(2)"
+        hidden: true
+      - name: "all_books"
+        description: "The universe all all books."
+        increment: "lambda **kwargs: [Book(title=fake.sentence(3), pages=random.randint(100, 1000)) for _ in range(kwargs['size'])]"
+        default: "list([Book(title='The Great Gatsby', pages=200), Book(title='The Catcher in the Rye', pages=300), Book(title='To Kill a Mockingbird', pages=400)])"
+        hidden: true
+      - name: "books"
+        description: "The list of books in the bookstore."
+        increment: "lambda **kwargs: kwargs['all_books'][:kwargs['size'] // 2]"
+        default: "list([Book(title='The Great Gatsby', pages=200), Book(title='The Catcher in the Rye', pages=300)])"
+    methods:
+      - method_name: "add_book"
+        description: "Add a given Book object to the bookstore."
+        args:
+          - name: "book"
+            description: "The Book object to add to the bookstore."
+            increment: "lambda **kwargs: random.choice(kwargs['all_books'])"
+            default: "Book(title='To Kill a Mockingbird', pages=400)"
+      - method_name: "get_num_copies"
+        description: "Get the number of copies of the specified Book stored in the bookstore."
+        args:
+          - name: "book"
+            description: "The Book object to get the number of copies of. **NOTE**: The `Book` object may not be in the bookstore, or there may me duplicates of the same `Book`."
+            increment: "lambda **kwargs: random.choice(kwargs['all_books'])"
+            default: "Book(title='The Great Gatsby', pages=200)"
+    evaluation:
+      increment: "lambda **kwargs: ['add_book'] * (kwargs['size'] * 2) + ['get_num_copies']"
+      default: "list(['add_book', 'get_num_copies'])"
