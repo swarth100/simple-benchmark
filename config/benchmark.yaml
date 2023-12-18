@@ -787,3 +787,49 @@ benchmarks:
       increment: "lambda **kwargs: ['is_parallel', 'intersection', 'contains_point']"
       default: "['is_parallel', 'intersection', 'contains_point']"
 
+  - class_name: "DiceGame"
+    description: |
+      You are given a class `DiceGame` representing a game of dice.
+      The game is initialised with a list of `Player` objects and a single `FairDice` object.
+      The game is divided into two phases: 
+      1) The `play` phase where each player **in the input order** roll the dice and update their scores.
+      2) The `get_winner` phase where the winner is determined by the highest score and then all player scores are reset.
+      There can be multiple `play` and `get_winner` phases back-to-back.
+      In case of a **tie** the winner is the player with the lowest score that comes first in the input order.
+    max_time: 200000
+    difficulty: 3.5
+    include:
+      - "FairDice"
+      - "Player"
+    init:
+      - name: "x"
+        increment: "lambda x: x + 1"
+        default: "int(4)"
+        hidden: true
+      - name: "player_names"
+        increment: "lambda **kwargs: list({fake.first_name() for _ in range(int(kwargs['x'] ** 0.5))})"
+        default: "list(['Alice', 'Bob'])"
+        hidden: true
+      - name: "players"
+        description: "The list of players in the game."
+        increment: "lambda **kwargs: [Player(name=name, score=0) for name in kwargs['player_names']]"
+        default: "list([Player(name='Alice', score=0), Player(name='Bob', score=0)])"
+      - name: "dice"
+        description: "The dice used in the game."
+        increment: "lambda **kwargs: FairDice(random.randint(1, 6))"
+        default: "FairDice(1)"
+    methods:
+      - method_name: "play"
+        description: |
+          Play a single round of the game.
+          Each player rolls the dice and updates their score.
+          **NOTE**: You should use the `roll_and_update` method defined on `Player` objects.
+        args: [ ]
+      - method_name: "get_winner"
+        description: "Get the name of the winning player of the game."
+        args: [ ]
+    evaluation:
+      increment: "lambda **kwargs: ['play'] + [random.choice(['play', 'play', 'play', 'get_winner']) for _ in range(kwargs['x'] // 3)] + ['get_winner']"
+      default: "['play', 'play', 'get_winner']"
+
+

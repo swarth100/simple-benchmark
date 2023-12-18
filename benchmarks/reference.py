@@ -590,3 +590,42 @@ class Line:
 
     def contains_point(self, point: Point) -> bool:
         return self.a * point.x + self.b * point.y == self.c
+
+
+@dataclass
+class FairDice:
+    face: int
+
+    def roll(self) -> int:
+        self.face = (self.face + 5) % 6
+        return self.face
+
+
+@dataclass
+class Player:
+    name: str
+    score: int
+
+    def roll_and_update(self, dice: FairDice):
+        self.score += dice.roll()
+
+
+@dataclass
+class DiceGame:
+    players: list[Player]
+    dice: FairDice
+
+    def play(self):
+        for player in self.players:
+            player.roll_and_update(self.dice)
+
+    def get_winner(self) -> str:
+        winner = self.players[0]
+        for player in self.players:
+            if player.score > winner.score:
+                winner = player
+
+        for player in self.players:
+            player.score = 0
+
+        return winner.name
