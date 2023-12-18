@@ -222,9 +222,9 @@ async def run_sandbox(request: Request):
                 )
                 (ref_output, ref_std_output, _) = ref_result
                 if ref_output is not None:
-                    result_data["output"] = repr(ref_output)
+                    result_data["output"] = ref_result.return_value_repr
                 if (ref_std_output is not None) and (ref_std_output != ""):
-                    result_data["std_output"] = ref_std_output
+                    result_data["std_output"] = ref_result.std_output_repr
 
         except Exception as e:
             print(traceback.format_exc())
@@ -295,9 +295,9 @@ async def fetch_benchmark_details(request: Request, benchmark: str):
 
         result_data: dict[str, str] = dict()
         if example_output is not None:
-            result_data["example_output"] = repr(example_output)
-        if (example_std_output is not None) and (example_std_output != ""):
-            result_data["example_std_output"] = example_std_output
+            result_data["example_output"] = example_result.return_value_repr
+        if (example_std_output is not None) and (example_result.std_output_repr != ""):
+            result_data["example_std_output"] = example_result.std_output_repr
 
         return templates.TemplateResponse(
             "benchmark_details_partial.html",

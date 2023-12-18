@@ -1,5 +1,4 @@
 import importlib
-import importlib
 import multiprocessing
 import random
 from types import ModuleType
@@ -17,9 +16,9 @@ from src.benchmark.core import (
 from src.config import BenchmarkResult, BenchmarkRunInfo
 from src.utils import (
     get_reference_benchmark_include,
-    format_args_as_function_call,
-    is_equal_with_precision,
 )
+
+BENCHMARK_MODULE_INCLUDES: Dict[str, object] = {"Optional": Optional}
 
 
 def get_benchmark_by_name(
@@ -101,7 +100,7 @@ def _run_single_benchmark(
                 f"{function_call}{e}",
             )
 
-        if not is_equal_with_precision(user_output, ref_output):
+        if user_output != ref_output:
             function_call: str = benchmark.generate_python_call(arguments=arg_values)
             return BenchmarkResult(
                 name=run_name,
@@ -109,22 +108,24 @@ def _run_single_benchmark(
                 error=(
                     f"Mismatch in function output for '{run_name}' "
                     f"for function call:\n{function_call}"
-                    f"Expected:\n{ref_output}\n"
-                    f"Got:\n{user_output}\n"
+                    f"Expected:\n{ref_result.return_value_repr}\n"
+                    f"Got:\n{user_result.return_value_repr}\n"
                 ),
                 details=execution_details,
             )
 
-        if not is_equal_with_precision(user_std_output, ref_std_output):
+        if user_std_output != ref_std_output:
             function_call: str = benchmark.generate_python_call(arguments=arg_values)
+            ref_std_output_str: str = "\n".join([repr(x) for x in ref_std_output])
+            user_std_output_str: str = "\n".join([repr(x) for x in user_std_output])
             return BenchmarkResult(
                 name=run_name,
                 result=last_valid_iteration,
                 error=(
                     f"Mismatch in print-statement output for '{run_name}' "
                     f"for function call:\n{function_call}"
-                    f"Expected:\n{ref_std_output}\n"
-                    f"Got:\n{user_std_output}\n"
+                    f"Expected:\n{ref_result.std_output_repr}\n"
+                    f"Got:\n{user_result.std_output_repr}\n"
                 ),
                 details=execution_details,
             )
@@ -148,6 +149,9 @@ def _run_single_benchmark_by_module(
         include_object_name: get_reference_benchmark_include(include_object_name)
         for include_object_name in benchmark.include
     }
+
+    # Add any additional objects that might be required by type signatures
+    extra_objects.update(BENCHMARK_MODULE_INCLUDES)
 
     try:
         if isinstance(target_module, str):

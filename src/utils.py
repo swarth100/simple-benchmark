@@ -13,6 +13,7 @@ from typing import (
     get_origin,
     Annotated,
     get_args,
+    Union,
 )
 
 from black import FileMode, format_str
@@ -209,15 +210,25 @@ def get_reference_benchmark_include(object_name: str) -> Type[BaseModel]:
     return ref_object
 
 
-def _format_type_hint(type_hint: type):
+def _format_type_hint(type_hint):
     """
     Format a type hint into a readable string.
-    Handles complex types like generics.
+    Handles complex types like generics and Optionals.
     """
-    if hasattr(type_hint, "__origin__"):
+    if get_origin(type_hint) is Union:
+        # Special handling for Union types (e.g., Optional[int] -> Union[int, None])
+        args = get_args(type_hint)
+        if len(args) == 2 and type(None) in args:
+            optional_type = next(arg for arg in args if arg is not type(None))
+            return f"Optional[{_format_type_hint(optional_type)}]"
+        else:
+            # Handle other Union types
+            args_formatted = ", ".join(_format_type_hint(arg) for arg in args)
+            return f"Union[{args_formatted}]"
+    elif get_origin(type_hint):
         # Handle generic types (e.g., List[int], Dict[str, int])
-        base = type_hint.__origin__.__name__
-        args = ", ".join(_format_type_hint(arg) for arg in type_hint.__args__)
+        base = get_origin(type_hint).__name__
+        args = ", ".join(_format_type_hint(arg) for arg in get_args(type_hint))
         return f"{base}[{args}]"
     elif isinstance(type_hint, type):
         # Handle simple types (e.g., int, str)
@@ -255,18 +266,4 @@ def capture_output(func, *args, **kwargs) -> BenchmarkRunInfo:
         # Whatever happens, reset standard output to its original value
         sys.stdout = original_stdout
 
-    return BenchmarkRunInfo(output, new_stdout.getvalue().rstrip(), time_diff)
-
-
-def is_equal_with_precision(lhs, rhs, precision=4):
-    """
-    Compare two values with a given precision.
-    :param lhs: LHS value to compare
-    :param rhs: RHS value to compare
-    :param precision: (Optional) Precision to use in case of floats
-    :return: True if the values are equal, False otherwise
-    """
-    if isinstance(lhs, float) and isinstance(rhs, float):
-        return round(lhs, precision) == round(rhs, precision)
-    else:
-        return lhs == rhs
+    return BenchmarkRunInfo([output], [new_stdout.getvalue().rstrip()], time_diff)

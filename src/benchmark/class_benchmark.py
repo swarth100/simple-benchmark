@@ -1,7 +1,7 @@
 import copy
 import time
 from types import ModuleType
-from typing import List, Callable, Type
+from typing import List, Callable, Type, Optional
 
 from pydantic import BaseModel, parse_obj_as
 
@@ -185,7 +185,7 @@ class ClassBenchmark(Benchmark):
         time_diff: float = time.perf_counter() - start_time
 
         # Class initialization time is accounted for in the total time cost
-        res: BenchmarkRunInfo = BenchmarkRunInfo("", "", time_diff)
+        res: BenchmarkRunInfo = BenchmarkRunInfo([], [], time_diff)
 
         # Init arguments are specified via benchmark name, if not present we must raise
         if self.name not in valid_kwargs:
@@ -207,10 +207,17 @@ class ClassBenchmark(Benchmark):
                     latest_res: BenchmarkRunInfo = capture_output(
                         method_func, **valid_func_kwargs
                     )
+
+                    if latest_res.return_value[0] is not None:
+                        res.return_value.extend(latest_res.return_value)
+
+                    if len(latest_res.std_output[0]) > 0:
+                        res.std_output.extend(latest_res.std_output)
+
                     # We must consider all cumulative runtime costs!
                     res = BenchmarkRunInfo(
-                        latest_res.return_value,
-                        latest_res.std_output,
+                        res.return_value,
+                        res.std_output,
                         res.exec_time + latest_res.exec_time,
                     )
 
@@ -295,14 +302,20 @@ class ClassBenchmark(Benchmark):
                     method.args, method_annotations, pre_spacing=8
                 )
 
+            return_type_str: Optional[str] = None
             if method_return_type is PrintsToConsole:
                 return_type_str = "`None` (outputs via `print`)"
             elif method_return_type is not None:
                 return_type_str = f"`{_format_type_hint(method_return_type)}`"
             else:
-                return_type_str = "`None` (does **not** return)"
+                # We currently specifically ignore methods that do not return
+                # Adding a specific None return type does not add value to the user
+                pass
 
-            description_md += f"{TABBED_MD_SPACING}- Return Type: {return_type_str}\n"
+            if return_type_str is not None:
+                description_md += (
+                    f"{TABBED_MD_SPACING}- Return Type: {return_type_str}\n"
+                )
 
         return description_md
 

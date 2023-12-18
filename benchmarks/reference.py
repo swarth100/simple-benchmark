@@ -1,4 +1,5 @@
 import math
+from typing import Optional
 
 from pydantic.dataclasses import dataclass
 
@@ -425,45 +426,45 @@ class BookStore:
 
 
 @dataclass
-class Point:
+class Position:
     x: int
     y: int
 
 
 @dataclass
 class Obstacle:
-    position: Point
+    position: Position
 
 
 @dataclass
 class SimpleCar:
-    position: Point
+    position: Position
     obstacles: list[Obstacle]
 
     def move_up(self):
-        new_position = Point(x=self.position.x, y=self.position.y + 1)
+        new_position = Position(x=self.position.x, y=self.position.y + 1)
         if not self._is_obstacle(new_position):
             self.position = new_position
 
     def move_down(self):
-        new_position = Point(x=self.position.x, y=self.position.y - 1)
+        new_position = Position(x=self.position.x, y=self.position.y - 1)
         if not self._is_obstacle(new_position):
             self.position = new_position
 
     def move_left(self):
-        new_position = Point(x=self.position.x - 1, y=self.position.y)
+        new_position = Position(x=self.position.x - 1, y=self.position.y)
         if not self._is_obstacle(new_position):
             self.position = new_position
 
     def move_right(self):
-        new_position = Point(x=self.position.x + 1, y=self.position.y)
+        new_position = Position(x=self.position.x + 1, y=self.position.y)
         if not self._is_obstacle(new_position):
             self.position = new_position
 
-    def get_position(self) -> Point:
+    def get_position(self) -> Position:
         return self.position
 
-    def _is_obstacle(self, new_position: Point) -> bool:
+    def _is_obstacle(self, new_position: Position) -> bool:
         return any(obstacle.position == new_position for obstacle in self.obstacles)
 
 
@@ -557,3 +558,35 @@ class Cipher:
 
     def get_message(self) -> str:
         return self.message
+
+
+@dataclass
+class Point:
+    x: float
+    y: float
+
+
+@dataclass
+class Line:
+    a: int
+    b: int
+    c: int
+
+    def is_parallel(self, other_line: "Line") -> bool:
+        return self.a * other_line.b == self.b * other_line.a
+
+    def intersection(self, other_line: "Line") -> Optional[Point]:
+        if self.is_parallel(other_line):
+            return None
+
+        x = (self.c * other_line.b - self.b * other_line.c) / (
+            self.a * other_line.b - self.b * other_line.a
+        )
+        y = (self.a * other_line.c - self.c * other_line.a) / (
+            self.a * other_line.b - self.b * other_line.a
+        )
+
+        return Point(x, y)
+
+    def contains_point(self, point: Point) -> bool:
+        return self.a * point.x + self.b * point.y == self.c

@@ -40,6 +40,14 @@ class BenchmarkStatus(NamedTuple):
 
 
 class BenchmarkRunInfo(NamedTuple):
-    return_value: Any
-    std_output: str
+    return_value: list[Any]
+    std_output: list[str]
     exec_time: float
+
+    @property
+    def return_value_repr(self) -> str:
+        return "\n".join([repr(x) for x in self.return_value])
+
+    @property
+    def std_output_repr(self) -> str:
+        return "\n".join(self.std_output)
