@@ -567,7 +567,7 @@ benchmarks:
       You are given a class `Warehouse` representing a warehouse with number of products.
       You must implement the three methods `add_products`, `remove_products` and `get_products` to manage the warehouse operations.
     max_time: 20000
-    difficulty: 1.5
+    difficulty: 2.0
     init:
       - name: "size"
         increment: "lambda x: x + 1"
