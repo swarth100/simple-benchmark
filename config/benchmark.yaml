@@ -477,7 +477,7 @@ benchmarks:
     description: |
       Given a list of `Car` objects (`garage`) and a list of license plates, the `park_cars` function should return the number of cars with the matching license plates that are not parked.
     max_time: 15000
-    difficulty: 2.0
+    difficulty: 1.5
     include:
       - "Car"
     args:
@@ -536,7 +536,7 @@ benchmarks:
       Within a class `Coordinate` representing a point in a 2D plane.
       Implement a `distance` method to calculate the distance from another `Coordinate`.
     max_time: 2000
-    difficulty: 2.0
+    difficulty: 1.5
     init:
       - name: "size"
         increment: "lambda x: x + 1"
@@ -697,9 +697,9 @@ benchmarks:
       You are given a class `Cipher` representing a cipher that can encrypt and decrypt a given message.
       The cipher is initialized with a given `key` which is a list of integers.
       The cipher works by shifting each character in the message by the corresponding amount in the key.
-      For example, if the key is `2` and the message is `abc`, the encrypted message will be `cde`.
+      For example, if the key is `2` and the message is `"abc"`, the encrypted message will be `"cde"`.
     max_time: 10000
-    difficulty: 3.5
+    difficulty: 4.5
     include:
       - "CIPHER_MAPPING"
     init:
@@ -737,7 +737,7 @@ benchmarks:
       A class representing a line in a two-dimensional space, using the implicit formula `ax + by = c`.
       The class provides functionalities to compare lines and to check if points lie on the line.
     max_time: 3000
-    difficulty: 2.5
+    difficulty: 4.0
     include:
       - "Point"
     init:
