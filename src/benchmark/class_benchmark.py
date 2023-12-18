@@ -1,4 +1,5 @@
 import copy
+import time
 from types import ModuleType
 from typing import List, Callable, Type
 
@@ -179,7 +180,12 @@ class ClassBenchmark(Benchmark):
 
         # Step 1 is to construct the object
         init_arguments: TArgsDict = valid_kwargs[self.name]
+        start_time: float = time.perf_counter()
         obj = klass(**init_arguments)
+        time_diff: float = time.perf_counter() - start_time
+
+        # Class initialization time is accounted for in the total time cost
+        res: BenchmarkRunInfo = BenchmarkRunInfo("", "", time_diff)
 
         # Init arguments are specified via benchmark name, if not present we must raise
         if self.name not in valid_kwargs:
@@ -188,7 +194,6 @@ class ClassBenchmark(Benchmark):
             )
 
         # Step 2 is to run the methods in the evaluation order specified
-        res: BenchmarkRunInfo = BenchmarkRunInfo("", "", 0)
         for method_name, method_args in zip(arguments[MEO_NAMES], arguments[MEO_ARGS]):
             for method in self.methods:
                 if method.method_name == method_name:
@@ -199,8 +204,14 @@ class ClassBenchmark(Benchmark):
                     }
 
                     method_func = getattr(obj, method.method_name)
-                    res: BenchmarkRunInfo = capture_output(
+                    latest_res: BenchmarkRunInfo = capture_output(
                         method_func, **valid_func_kwargs
+                    )
+                    # We must consider all cumulative runtime costs!
+                    res = BenchmarkRunInfo(
+                        latest_res.return_value,
+                        latest_res.std_output,
+                        res.exec_time + latest_res.exec_time,
                     )
 
         return res

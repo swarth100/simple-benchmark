@@ -566,7 +566,7 @@ benchmarks:
     description: |
       You are given a class `Warehouse` representing a warehouse with number of products.
       You must implement the three methods `add_products`, `remove_products` and `get_products` to manage the warehouse operations.
-    max_time: 200
+    max_time: 20000
     difficulty: 1.5
     init:
       - name: "size"
@@ -605,7 +605,7 @@ benchmarks:
     description: |
       You are given a class `BookStore` representing a bookstore with a list of `Books`.
       You must implement the two methods `add_book` and `get_num_copies` to manage the bookstore operations.
-    max_time: 3000
+    max_time: 40000
     difficulty: 2.0
     include:
       - "Book"
@@ -650,7 +650,7 @@ benchmarks:
       You are given a class `SimpleCar` representing on a 2D plane.
       The car starts at a given `position` and can move in four directions: `up`, `down`, `left` and `right`.
       There are a list of `Obstacles` on the plane that the car cannot pass through.
-    max_time: 300
+    max_time: 50000
     difficulty: 4.0
     include:
       - "Point"
@@ -698,7 +698,7 @@ benchmarks:
       The cipher is initialized with a given `key` which is a list of integers.
       The cipher works by shifting each character in the message by the corresponding amount in the key.
       For example, if the key is `2` and the message is `abc`, the encrypted message will be `cde`.
-    max_time: 1000
+    max_time: 10000
     difficulty: 3.5
     include:
       - "CIPHER_MAPPING"
