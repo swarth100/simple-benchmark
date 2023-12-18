@@ -223,7 +223,7 @@ async def run_sandbox(request: Request):
                 (ref_output, ref_std_output, _) = ref_result
                 if ref_output is not None:
                     result_data["output"] = ref_result.return_value_repr
-                if (ref_std_output is not None) and (ref_std_output != ""):
+                if (ref_std_output is not None) and (ref_result.std_output_repr != ""):
                     result_data["std_output"] = ref_result.std_output_repr
 
         except Exception as e:
