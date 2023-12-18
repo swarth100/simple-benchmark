@@ -713,7 +713,7 @@ benchmarks:
         default: "2"
       - name: "message"
         description: "The message to encrypt."
-        increment: "lambda **kwargs: fake.sentence(3, variable_nb_words=False).lower()"
+        increment: "lambda **kwargs: fake.sentence(int(kwargs['x'] ** 0.5) + 1, variable_nb_words=False).lower()"
         default: "str('the cat is on the table!')"
     methods:
       - method_name: "encrypt"

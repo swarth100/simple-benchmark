@@ -509,41 +509,49 @@ class Cipher:
 
     def encrypt(self):
         # Convert message to numbers based on the alphabet
-        vector = [CIPHER_MAPPING[char] for char in self.message]
+        vector = []
+        for char in self.message:
+            vector.append(CIPHER_MAPPING[char])
 
         # Calculate shift amount
-        shift = (
-            self.key % len(CIPHER_MAPPING)
-            if self.key > len(CIPHER_MAPPING)
-            else self.key
-        )
+        if self.key > len(CIPHER_MAPPING):
+            shift = self.key % len(CIPHER_MAPPING)
+        else:
+            shift = self.key
 
         # Shift each number in the vector
-        vector = [(num + shift) % len(CIPHER_MAPPING) for num in vector]
+        for i in range(len(vector)):
+            vector[i] = (vector[i] + shift) % len(CIPHER_MAPPING)
 
         # Convert numbers back to letters
         letters = list(CIPHER_MAPPING.keys())
-        encrypted_message = "".join(letters[num] for num in vector)
+        encrypted_message = ""
+        for num in vector:
+            encrypted_message += letters[num]
 
         self.message = encrypted_message
 
     def decrypt(self):
         # Convert encrypted message to numbers
-        vector = [CIPHER_MAPPING[char] for char in self.message]
+        vector = []
+        for char in self.message:
+            vector.append(CIPHER_MAPPING[char])
 
         # Calculate shift amount
-        shift = (
-            self.key % len(CIPHER_MAPPING)
-            if self.key > len(CIPHER_MAPPING)
-            else self.key
-        )
+        if self.key > len(CIPHER_MAPPING):
+            shift = self.key % len(CIPHER_MAPPING)
+        else:
+            shift = self.key
 
         # Reverse shift for each number
-        vector = [(num - shift) % len(CIPHER_MAPPING) for num in vector]
+        for i in range(len(vector)):
+            vector[i] = (vector[i] - shift) % len(CIPHER_MAPPING)
 
         # Convert numbers back to letters
         letters = list(CIPHER_MAPPING.keys())
-        decrypted_message = "".join(letters[num] for num in vector)
+        decrypted_message = ""
+        for num in vector:
+            decrypted_message += letters[num]
 
         self.message = decrypted_message
 
