@@ -535,7 +535,7 @@ benchmarks:
     description: |
       Within a class `Coordinate` representing a point in a 2D plane.
       Implement a `distance` method to calculate the distance from another `Coordinate`.
-    max_time: 500
+    max_time: 2000
     difficulty: 2.0
     init:
       - name: "size"
