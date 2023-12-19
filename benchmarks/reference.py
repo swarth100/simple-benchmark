@@ -629,3 +629,37 @@ class DiceGame:
             player.score = 0
 
         return winner.name
+
+
+@dataclass
+class Candidate:
+    name: str
+    hair_color: str
+    eye_color: str
+    has_glasses: bool
+
+    def __hash__(self):
+        return hash((self.hair_color, self.eye_color, self.has_glasses))
+
+    def __eq__(self, other):
+        if isinstance(other, type(self)):
+            return hash(self) == hash(other)
+        return False
+
+
+@dataclass
+class GuessWhoGame:
+    answer: Candidate
+    candidates: list[Candidate]
+
+    def guess(self, candidate: Candidate) -> bool:
+        return candidate == self.answer
+
+    def ask_hair_color(self, hair_color: str) -> bool:
+        return self.answer.hair_color == hair_color
+
+    def ask_eye_color(self, eye_color: str) -> bool:
+        return self.answer.eye_color == eye_color
+
+    def ask_glasses(self) -> bool:
+        return self.answer.has_glasses

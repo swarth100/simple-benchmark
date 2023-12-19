@@ -832,4 +832,66 @@ benchmarks:
       increment: "lambda **kwargs: ['play'] + [random.choice(['play', 'play', 'play', 'get_winner']) for _ in range(kwargs['x'] // 3)] + ['get_winner']"
       default: "['play', 'play', 'get_winner']"
 
+  - class_name: "GuessWhoGame"
+    description: |
+      You are given a class `GuessWhoGame` representing a game of Guess Who.
+      The game is initialised with a list of `Candidate` objects and an `answer` (i.e. a single `Candidate` object).
+      The game is divided into two phases: 
+      1) The `ask` phase where the player asks a question to the game and the game answers with a `True` or `False` value.
+      2) The `guess` phase where the player can try to guess if the `answer` is a specific `Candidate`.
+      There can be multiple `ask` and `guess` phases back-to-back.
+      The player can ask about three different attributes of the `Candidate`: `hair_color`, `eye_color` and `glasses`.
+    difficulty: 3.0
+    max_time: 20000
+    include:
+      - "Candidate"
+    init:
+      - name: "x"
+        increment: "lambda x: x + 1"
+        default: "int(4)"
+        hidden: true
+      - name: "options"
+        increment: "lambda **kwargs: list({Candidate(name=fake.first_name(), hair_color=random.choice(['black', 'brown', 'blonde', 'red', 'white', 'gray']), eye_color=random.choice(['blue', 'green', 'brown']), has_glasses=random.choice([True, False])) for _ in range(int(kwargs['x'] ** 0.5))})"
+        default: "list([Candidate(name='Bob', hair_color='black', eye_color='blue', has_glasses=True), Candidate(name='Anne', hair_color='red', eye_color='green', has_glasses=False)])"
+        hidden: true
+      - name: "answer"
+        description: "The answer to the game."
+        increment: "lambda **kwargs: random.choice(kwargs['options'])"
+        default: "Candidate(name='Bob', hair_color='black', eye_color='blue', has_glasses=True)"
+      - name: "candidates"
+        description: "The list of candidates in the game."
+        increment: "lambda **kwargs: kwargs['options']"
+        default: "list([Candidate(name='Bob', hair_color='black', eye_color='blue', has_glasses=True), Candidate(name='Anne', hair_color='red', eye_color='green', has_glasses=False)])"
+    methods:
+      - method_name: "guess"
+        description: "Guess if the answer is a specific candidate."
+        args:
+          - name: "candidate"
+            description: "The candidate to guess."
+            increment: "lambda **kwargs: random.choice(kwargs['options'])"
+            default: "Candidate(name='Bob', hair_color='black', eye_color='blue', has_glasses=True)"
+      - method_name: "ask_hair_color"
+        description: "Ask if the answer has a specific hair color."
+        args:
+          - name: "hair_color"
+            description: "The hair color to ask about."
+            increment: "lambda **kwargs: random.choice(['black', 'brown', 'blonde', 'red', 'white', 'gray'])"
+            default: "str('red')"
+      - method_name: "ask_eye_color"
+        description: "Ask if the answer has a specific eye color."
+        args:
+          - name: "eye_color"
+            description: "The eye color to ask about."
+            increment: "lambda **kwargs: random.choice(['blue', 'green', 'brown'])"
+            default: "str('blue')"
+      - method_name: "ask_glasses"
+        description: "Ask if the answer wears glasses."
+        args: [ ]
+    evaluation:
+      increment: "lambda **kwargs: [random.choice(['ask_hair_color', 'ask_eye_color', 'ask_glasses', 'guess']) for _ in range(kwargs['x'] // 4)] + ['guess']"
+      default: "['ask_hair_color', 'ask_eye_color', 'ask_glasses', 'guess']"
+
+
+
+
 
