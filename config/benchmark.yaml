@@ -504,7 +504,8 @@ benchmarks:
 
   - function_name: "calculate_gpa"
     description: |
-      Given a list of `Student` objects and a student's name, calculate their GPA (assuming each grade is a numerical value), and return the GPA.
+      Given a list of `Student` objects and a student's `name`, calculate their GPA (assuming each grade is a numerical value), and return the GPA.
+      GPA stands for "Grade Point Average", that is the arithmetic average (out of `10`) of a student's `grades`.
     max_time: 1000
     difficulty: 2.5
     include:
@@ -588,7 +589,7 @@ benchmarks:
       - method_name: "remove_products"
         description: |
           Remove a given amount of products from the warehouse.
-          **NOTE**: The amount of products may not go negative.
+          **NOTE**: The amount of products cannot go negative.
         args:
           - name: "amount"
             description: "The amount of products to remove."
@@ -650,6 +651,7 @@ benchmarks:
       You are given a class `SimpleCar` representing on a 2D plane.
       The car starts at a given `position` and can move in four directions: `up`, `down`, `left` and `right`.
       There are a list of `Obstacles` on the plane that the car cannot pass through.
+      If the car tries to move through an obstacle, it will instead stay in its current position.
     max_time: 50000
     difficulty: 4.0
     include:
@@ -674,16 +676,16 @@ benchmarks:
         default: "list([Obstacle(position=Position(x=1, y=1)), Obstacle(position=Position(x=-1, y=0))])"
     methods:
       - method_name: "move_up"
-        description: "Move the car up by one unit."
+        description: "Move the car up (y-axis) by one unit."
         args: [ ]
       - method_name: "move_down"
-        description: "Move the car down by one unit."
+        description: "Move the car down (y-axis) by one unit."
         args: [ ]
       - method_name: "move_left"
-        description: "Move the car left by one unit."
+        description: "Move the car left (x-axis) by one unit."
         args: [ ]
       - method_name: "move_right"
-        description: "Move the car right by one unit."
+        description: "Move the car right (x-axis) by one unit."
         args: [ ]
       - method_name: "get_position"
         description: "Get the current position of the car."
@@ -735,7 +737,8 @@ benchmarks:
   - class_name: "Line"
     description: |
       A class representing a line in a two-dimensional space, using the implicit formula `ax + by = c`.
-      The class provides functionalities to compare lines and to check if points lie on the line.
+      The class provides functionalities to compare `Lines` and to check if `Points` lie on the `Line`.
+      You must implement the `is_parallel`, `intersection` and `contains_point` methods to provide this functionality.
     max_time: 3000
     difficulty: 4.0
     include:
@@ -763,21 +766,28 @@ benchmarks:
         default: "int(2)"
     methods:
       - method_name: "is_parallel"
-        description: "Determines if another Line object is parallel to this line."
+        description: |
+          Determines if another `Line` object is parallel to this line.
+          **NOTE**: Two lines are parallel if their coefficients `a` and `b` are proportional.
         args:
           - name: "other_line"
             description: "Another Line object to compare with."
             increment: "lambda **kwargs: Line(random.randint(-kwargs['x'], kwargs['x']), random.randint(-kwargs['x'], kwargs['x']), random.randint(-kwargs['x'], kwargs['x']))"
             default: "Line(1, -1, 3)"
       - method_name: "intersection"
-        description: "Calculates the intersection point with another Line object, if one exists."
+        description: |
+          Calculates the intersection point with another Line object, if one exists.
+          **NOTE**: If the lines are parallel, the method should return `None`.
+          **NOTE 2**: The intersection point is calculated by solving the system of equations formed by the two lines.
         args:
           - name: "other_line"
             description: "Another Line object to find the intersection with."
             increment: "lambda **kwargs: Line(random.randint(-kwargs['x'], kwargs['x']), random.randint(-kwargs['x'], kwargs['x']), random.randint(-kwargs['x'], kwargs['x']))"
             default: "Line(1, 1, 4)"
       - method_name: "contains_point"
-        description: "Checks if a given Point (using a Position object for its position) lies on this line."
+        description: |
+          Checks if a given Point (using a Position object for its position) lies on this line.
+          **NOTE**: A point lies on a line if it satisfies the implicit equation `ax + by = c`.
         args:
           - name: "point"
             description: "A Point object representing the point to check."
@@ -792,7 +802,7 @@ benchmarks:
       You are given a class `DiceGame` representing a game of dice.
       The game is initialised with a list of `Player` objects and a single `FairDice` object.
       The game is divided into two phases: 
-      1) The `play` phase where each player **in the input order** roll the dice and update their scores.
+      1) The `play` phase where each player **in the input order** roll the `dice` and update their scores.
       2) The `get_winner` phase where the winner is determined by the highest score and then all player scores are reset.
       There can be multiple `play` and `get_winner` phases back-to-back.
       In case of a **tie** the winner is the player with the lowest score that comes first in the input order.
@@ -823,7 +833,7 @@ benchmarks:
         description: |
           Play a single round of the game.
           Each player rolls the dice and updates their score.
-          **NOTE**: You should use the `roll_and_update` method defined on `Player` objects.
+          **NOTE**: To roll the dice you **MUST** use the `roll_and_update` method defined on `Player` objects.
         args: [ ]
       - method_name: "get_winner"
         description: "Get the name of the winning player of the game."
@@ -864,28 +874,28 @@ benchmarks:
         default: "list([Candidate(name='Bob', hair_color='black', eye_color='blue', has_glasses=True), Candidate(name='Anne', hair_color='red', eye_color='green', has_glasses=False)])"
     methods:
       - method_name: "guess"
-        description: "Guess if the answer is a specific candidate."
+        description: "Guess if the `answer` is a specific `Candidate`."
         args:
           - name: "candidate"
             description: "The candidate to guess."
             increment: "lambda **kwargs: random.choice(kwargs['options'])"
             default: "Candidate(name='Bob', hair_color='black', eye_color='blue', has_glasses=True)"
       - method_name: "ask_hair_color"
-        description: "Ask if the answer has a specific hair color."
+        description: "Ask if the `answer` has a specific hair color."
         args:
           - name: "hair_color"
             description: "The hair color to ask about."
             increment: "lambda **kwargs: random.choice(['black', 'brown', 'blonde', 'red', 'white', 'gray'])"
             default: "str('red')"
       - method_name: "ask_eye_color"
-        description: "Ask if the answer has a specific eye color."
+        description: "Ask if the `answer` has a specific eye color."
         args:
           - name: "eye_color"
             description: "The eye color to ask about."
             increment: "lambda **kwargs: random.choice(['blue', 'green', 'brown'])"
             default: "str('blue')"
       - method_name: "ask_glasses"
-        description: "Ask if the answer wears glasses."
+        description: "Ask if the `answer` wears glasses."
         args: [ ]
     evaluation:
       increment: "lambda **kwargs: [random.choice(['ask_hair_color', 'ask_eye_color', 'ask_glasses', 'guess']) for _ in range(kwargs['x'] // 4)] + ['guess']"
