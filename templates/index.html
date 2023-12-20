@@ -97,7 +97,17 @@
         <div class="column">
             <form action="/run_benchmark" method="post" id="benchmark-form">
                 <div class="field">
-                    <label class="label" for="code">Submit Your Code:</label>
+                    <div class="columns is-justify-content-space-between is-align-items-center" style="margin-bottom: 0;">
+                        <!-- Left Column for the Label -->
+                        <div class="column is-narrow">
+                            <label class="label" for="code">Submit Your Code:</label>
+                        </div>
+
+                        <!-- Right Column for the Export Button -->
+                        <div class="column is-narrow" style="padding-bottom: 0; padding-top: 0;">
+                            <button type="button" class="button is-info" onclick="exportBenchmarkCode()">Export</button>
+                        </div>
+                    </div>
                     <div class="control">
                         <pre id="benchmark-include" style="border: 1px solid #ddd; border-bottom: none;">
                             <!-- Include text will be loaded here -->
@@ -552,6 +562,13 @@
         localStorage.setItem('editor-by-benchmark', JSON.stringify(savedData));
 
     }
+
+    function exportBenchmarkCode() {
+        var selectedBenchmark = document.getElementById('benchmark-select').value;
+        var exportUrl = '/export/?benchmark=' + encodeURIComponent(selectedBenchmark);
+        window.location.href = exportUrl;
+    }
+
 
     function clearSandboxResult() {
         // Clear the content of the 'sandbox-content' div.

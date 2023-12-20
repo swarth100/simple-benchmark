@@ -367,6 +367,52 @@ async def fetch_benchmark_code(request: Request, benchmark: str):
         )
 
 
+@app.get("/export", response_class=HTMLResponse)
+async def export_benchmark(request: Request, benchmark: str):
+    try:
+        benchmark_name: str = benchmark
+
+        # Fetch the benchmark object by its name
+        benchmark: Optional[Benchmark] = get_benchmark_by_name(
+            benchmark_name, include_archived=True
+        )
+
+        if benchmark is None:
+            return templates.TemplateResponse(
+                "error.html",
+                {
+                    "request": request,
+                    "message": f"Benchmark '{benchmark_name}' not found.",
+                },
+            )
+
+        # Concatenate benchmark details
+        benchmark_details = ""
+        if benchmark.generate_include_code():
+            benchmark_details += benchmark.generate_include_code() + "\n\n"
+        benchmark_details += benchmark.generate_signature() + "\n\n"
+        benchmark_details += (
+            benchmark.generate_python_call(arguments=benchmark.example_args) + "\n"
+        )
+
+        # Render the concatenated details using a Jinja template
+        return templates.TemplateResponse(
+            "export_benchmark.html",
+            {
+                "request": request,
+                "benchmark_name": benchmark_name,
+                "benchmark_details": benchmark_details,
+            },
+        )
+    except Exception as e:
+        # Handle errors gracefully
+        print(traceback.format_exc())
+        return templates.TemplateResponse(
+            "error.html",
+            {"request": request, "message": f"Error while running benchmark: {e}"},
+        )
+
+
 @app.post("/run_benchmark")
 async def run_user_benchmark(request: Request):
     try:
