@@ -16,14 +16,40 @@
                 <p>Benchmark Export: </p>
                 <pre style="display: inline; padding: 5px;">{{ benchmark_name }}</pre>
             </div>
-            <pre>{{ benchmark_details }}</pre>
+            <pre id="benchmarkDetails">{{ benchmark_details }}</pre>
         </article>
     </div>
 </section>
 <footer class="footer">
     <div class="content has-text-centered">
         <a href="/" class="button is-info">Back to Home</a>
+        <button class="button is-success" onclick="copyToClipboard()">Copy to Clipboard</button>
     </div>
 </footer>
+
+<script>
+    function copyToClipboard() {
+        const textToCopy = document.getElementById('benchmarkDetails');
+        if (window.getSelection) {
+            const selection = window.getSelection();
+            const range = document.createRange();
+            range.selectNodeContents(textToCopy);
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                const successful = document.execCommand('copy');
+                const msg = successful ? 'successful' : 'unsuccessful';
+                console.log('Copying text command was ' + msg);
+                alert('Text copied to clipboard');
+            } catch (err) {
+                console.log('Oops, unable to copy', err);
+            }
+            selection.removeAllRanges();
+        } else {
+            console.log('Copy to clipboard not supported');
+        }
+    }
+</script>
+
 </body>
 </html>
