@@ -117,8 +117,8 @@ def get_rankings(benchmarks: list[Benchmark]) -> list[UserRank]:
             if max_score == 0:
                 max_score = 1
 
-            # We allow for a 10% variance across repeated benchmark runs
-            max_score = max_score * 0.90
+            # We allow for a 5% variance across repeated benchmark runs
+            max_score = max_score * 0.95
 
             benchmark_max_scores[benchmark.name] = max_score
 
