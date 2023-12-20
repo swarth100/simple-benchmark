@@ -740,7 +740,7 @@ benchmarks:
       The class provides functionalities to compare `Lines` and to check if `Points` lie on the `Line`.
       You must implement the `is_parallel`, `intersection` and `contains_point` methods to provide this functionality.
     max_time: 3000
-    difficulty: 4.0
+    difficulty: 5.0
     include:
       - "Point"
     init:
