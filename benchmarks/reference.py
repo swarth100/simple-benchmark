@@ -653,7 +653,12 @@ class GuessWhoGame:
     candidates: list[Candidate]
 
     def guess(self, candidate: Candidate) -> bool:
-        return candidate == self.answer
+        return (
+            candidate.name == self.answer.name
+            and candidate.eye_color == self.answer.eye_color
+            and candidate.hair_color == self.answer.hair_color
+            and candidate.has_glasses == self.answer.has_glasses
+        )
 
     def ask_hair_color(self, hair_color: str) -> bool:
         return self.answer.hair_color == hair_color
