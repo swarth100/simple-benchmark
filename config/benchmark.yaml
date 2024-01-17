@@ -947,7 +947,7 @@ benchmarks:
     description: |
       You are given a class `Queue` representing a queue of students (passed as string names).
       You must support functionality to `add` new names to the queue, `remove` names from the **front** of the queue and `get_names` which returns a list with all names in the queue.
-    difficulty: 1.5
+    difficulty: 2.5
     max_time: 20000
     init:
       - name: "x"
@@ -974,8 +974,7 @@ benchmarks:
         description: |
           Remove the **first** student in the queue (should they exist). 
           Return the name of the student removed from the queue.
-          **NOTE**: You **cannot** leave the queue empty.
-          Attempting to remove the last person should return `None`.
+          **NOTE**: You **cannot** leave the queue empty. Attempting to remove *the last person* should return `None`.
         args: [ ]
       - method_name: "get_names"
         description: "Get a list of all names in the register."

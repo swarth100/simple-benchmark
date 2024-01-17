@@ -723,6 +723,7 @@ class Queue:
             self.name = self.next.name
             self.next = self.next.next
             return removed_name
+        return None
 
     def get_names(self) -> list[str]:
         if self.next is None:
