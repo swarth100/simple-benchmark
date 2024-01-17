@@ -901,6 +901,86 @@ benchmarks:
       increment: "lambda **kwargs: [random.choice(['ask_hair_color', 'ask_eye_color', 'ask_glasses', 'guess']) for _ in range(kwargs['x'] // 4)] + ['guess']"
       default: "['ask_hair_color', 'ask_eye_color', 'ask_glasses', 'guess']"
 
+  - class_name: "Register"
+    description: |
+      You are given a class `Register` representing a register of student names (passed as strings).
+      You must support functionality to `add` new names to the register, `remove` names from the register and `get_names` which returns a list with all names in the register.
+      The implementation must follow that of a **Linked List**.
+    difficulty: 4.0
+    max_time: 30000
+    init:
+      - name: "x"
+        increment: "lambda x: x + 1"
+        default: "int(2)"
+        hidden: true
+      - name: "names"
+        increment: "lambda **kwargs: list({fake.first_name() for _ in range(kwargs['x'])})"
+        default: "list(['Charlie'])"
+        hidden: true
+      - name: "name"
+        description: "Initial name in the register."
+        increment: "lambda **kwargs: random.choice(kwargs['names'])"
+        default: "str('Charlie')"
+    methods:
+      - method_name: "add"
+        description: "Add a name to the register."
+        args:
+          - name: "name"
+            description: "The name to add to the register (could be a duplicate!)."
+            increment: "lambda **kwargs: random.choice(kwargs['names'])"
+            default: "str('Alice')"
+      - method_name: "remove"
+        description: "Remove a name from the register."
+        args:
+          - name: "name"
+            description: "The name to remove from the register (if it exists)."
+            increment: "lambda **kwargs: random.choice(kwargs['names'])"
+            default: "str('Charlie')"
+      - method_name: "get_names"
+        description: "Get a list of all names in the register."
+        args: [ ]
+    evaluation:
+      increment: "lambda **kwargs: [random.choice(['add', 'remove']) for _ in range(kwargs['x'] // 2)] + ['get_names']"
+      default: "['add', 'remove', 'get_names']"
+
+  - class_name: "Queue"
+    description: |
+      You are given a class `Queue` representing a queue of students (passed as string names).
+      You must support functionality to `add` new names to the queue, `remove` names from the **front** of the queue and `get_names` which returns a list with all names in the queue.
+    difficulty: 2.5
+    max_time: 20000
+    init:
+      - name: "x"
+        increment: "lambda x: x + 1"
+        default: "int(2)"
+        hidden: true
+      - name: "names"
+        increment: "lambda **kwargs: list({fake.first_name() for _ in range(kwargs['x'])})"
+        default: "list(['Charlie'])"
+        hidden: true
+      - name: "name"
+        description: "Initial name in the queue."
+        increment: "lambda **kwargs: random.choice(kwargs['names'])"
+        default: "str('Charlie')"
+    methods:
+      - method_name: "add"
+        description: "Add a student to the queue."
+        args:
+          - name: "name"
+            description: "The name to add to the queue."
+            increment: "lambda **kwargs: random.choice(kwargs['names'])"
+            default: "str('Alice')"
+      - method_name: "remove"
+        description: |
+          Remove the **first** student in the queue (should they exist). 
+          Return the name of the student removed from the queue.
+        args: [ ]
+      - method_name: "get_names"
+        description: "Get a list of all names in the register."
+        args: [ ]
+    evaluation:
+      increment: "lambda **kwargs: [random.choice(['add', 'remove']) for _ in range(kwargs['x'] // 2)] + ['get_names']"
+      default: "['add', 'remove', 'get_names']"
 
 
 

@@ -118,7 +118,10 @@ def serialize_base_model_to_class(
 
     init_params: str = ", ".join(
         [
-            f"{name}: {get_type_hints(base_model_instance)[name].__name__}"
+            f"{name}: {typ.__name__}"
+            if not type(None)
+            in (args := (get_args(typ := get_type_hints(base_model_instance)[name])))
+            else f"{name}: '{args[0].__name__}' = None"  # TODO: Fix by adding import
             for name in fields
         ]
     )

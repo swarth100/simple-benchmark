@@ -668,3 +668,64 @@ class GuessWhoGame:
 
     def ask_glasses(self) -> bool:
         return self.answer.has_glasses
+
+
+@dataclass
+class Register:
+    name: str
+    prev: Optional["Register"] = None
+    next: Optional["Register"] = None
+
+    def add(self, name: str):
+        if self.name > name:
+            if self.prev is None:
+                self.prev = Register(name=name, next=self)
+            else:
+                self.next = Register(name=self.name, prev=self, next=self.next)
+                self.name = name
+        else:
+            if self.next is None:
+                self.next = Register(name=name, prev=self)
+            else:
+                self.next.add(name)
+
+    def remove(self, name: str):
+        if self.name == name:
+            if self.prev is not None:
+                self.prev.next = self.next
+            if self.next is not None:
+                self.next.prev = self.prev
+        else:
+            if self.next is not None:
+                self.next.remove(name)
+
+    def get_names(self) -> list[str]:
+        if self.next is None:
+            return [self.name]
+        else:
+            return [self.name] + self.next.get_names()
+
+
+@dataclass
+class Queue:
+    name: str
+    next: Optional["Queue"] = None
+
+    def add(self, name: str):
+        if self.next is None:
+            self.next = Queue(name=name)
+        else:
+            self.next.add(name)
+
+    def remove(self) -> str:
+        if self.next is not None:
+            removed_name = self.name
+            self.name = self.next.name
+            self.next = self.next.next
+            return removed_name
+
+    def get_names(self) -> list[str]:
+        if self.next is None:
+            return [self.name]
+        else:
+            return [self.name] + self.next.get_names()
