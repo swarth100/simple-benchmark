@@ -906,7 +906,7 @@ benchmarks:
       You are given a class `Register` representing a register of student names (passed as strings).
       You must support functionality to `add` new names to the register, `remove` names from the register and `get_names` which returns a list with all names in the register.
       The implementation must follow that of a **Linked List**.
-    difficulty: 4.0
+    difficulty: 4.5
     max_time: 30000
     init:
       - name: "x"
@@ -940,7 +940,7 @@ benchmarks:
         description: "Get a list of all names in the register."
         args: [ ]
     evaluation:
-      increment: "lambda **kwargs: [random.choice(['add', 'remove']) for _ in range(kwargs['x'] // 2)] + ['get_names']"
+      increment: "lambda **kwargs: [random.choice(['add', 'add', 'remove']) for _ in range(kwargs['x'] // 2)] + ['get_names']"
       default: "['add', 'remove', 'get_names']"
 
   - class_name: "Queue"
@@ -974,6 +974,8 @@ benchmarks:
         description: |
           Remove the **first** student in the queue (should they exist). 
           Return the name of the student removed from the queue.
+          **NOTE**: You **cannot** leave the queue empty.
+          Attempting to remove the last person should return `None`.
         args: [ ]
       - method_name: "get_names"
         description: "Get a list of all names in the register."
@@ -981,6 +983,48 @@ benchmarks:
     evaluation:
       increment: "lambda **kwargs: [random.choice(['add', 'remove']) for _ in range(kwargs['x'] // 2)] + ['get_names']"
       default: "['add', 'remove', 'get_names']"
+
+  - class_name: "Stack"
+    description: |
+      You are given a class `Stack` representing a stack of parenthesis (passed as string names) such as `['(', '(', ')', '(']`.
+      You must support functionality to `add` new parenthesis to the **top** of the stack and to `match` parenthesis from the **top** of the stack.
+    difficulty: 3.0
+    max_time: 20000
+    init:
+      - name: "x"
+        increment: "lambda x: x + 1"
+        default: "int(2)"
+        hidden: true
+      - name: "parentheses"
+        increment: "lambda **kwargs: list({random.choice(['(', ')']) for _ in range(kwargs['x'])})"
+        default: "list(['('])"
+        hidden: true
+      - name: "parenthesis"
+        description: "Initial parenthesis in the queue."
+        increment: "lambda **kwargs: random.choice(kwargs['parentheses'])"
+        default: "str('(')"
+    methods:
+      - method_name: "add"
+        description: "Add a parenthesis to the **top** of the stack."
+        args:
+          - name: "parenthesis"
+            description: "The parenthesis to add to the stack."
+            increment: "lambda **kwargs: random.choice(kwargs['parentheses'])"
+            default: "str('(')"
+      - method_name: "match"
+        description: |
+          Remove the parenthesis at the **top** of the stack.
+          If the parenthesis at the top of the stack as a `(` and the parenthesis to match is a `)`, then the parenthesis are matched and you should return `True`.
+          Otherwise, the parenthesis are not matched and you should return `False`.
+          **NOTE**: You **cannot** leave the stack empty it must have always at least one element.
+        args:
+          - name: "parenthesis"
+            description: "The parenthesis to add to the stack."
+            increment: "lambda **kwargs: random.choice(kwargs['parentheses'])"
+            default: "str(')')"
+    evaluation:
+      increment: "lambda **kwargs: [random.choice(['add', 'match']) for _ in range(kwargs['x'] // 2)]"
+      default: "['add', 'match', 'match']"
 
 
 

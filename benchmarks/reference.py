@@ -729,3 +729,23 @@ class Queue:
             return [self.name]
         else:
             return [self.name] + self.next.get_names()
+
+
+@dataclass
+class Stack:
+    parenthesis: str
+    prev: Optional["Stack"] = None
+
+    def add(self, parenthesis: str):
+        next_parenthesis = self.parenthesis
+        self.parenthesis = parenthesis
+        self.prev = Stack(parenthesis=next_parenthesis, prev=self)
+
+    def match(self, parenthesis: str) -> bool:
+        cur_parenthesis = self.parenthesis
+        if cur_parenthesis == "(" and parenthesis == ")":
+            if self.prev is not None:
+                self.parenthesis = self.prev.parenthesis
+                self.prev = self.prev.prev
+            return True
+        return False
