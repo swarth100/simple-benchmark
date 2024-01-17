@@ -733,13 +733,14 @@ class Queue:
 
 @dataclass
 class Stack:
-    parenthesis: str
+    parenthesis: Optional[str]
     prev: Optional["Stack"] = None
 
     def add(self, parenthesis: str):
         next_parenthesis = self.parenthesis
         self.parenthesis = parenthesis
-        self.prev = Stack(parenthesis=next_parenthesis, prev=self)
+        if next_parenthesis is not None:
+            self.prev = Stack(parenthesis=next_parenthesis, prev=self)
 
     def match(self, parenthesis: str) -> bool:
         cur_parenthesis = self.parenthesis
@@ -747,5 +748,7 @@ class Stack:
             if self.prev is not None:
                 self.parenthesis = self.prev.parenthesis
                 self.prev = self.prev.prev
+            else:
+                self.parenthesis = None
             return True
         return False

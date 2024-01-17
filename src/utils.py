@@ -82,6 +82,13 @@ def _retrieve_name(var):
     return [var_name for var_name, var_val in callers_local_vars if var_val is var]
 
 
+def _escape_if_match(type_name: str, ref_name: str) -> str:
+    if type_name == ref_name:
+        return f"'{type_name}'"
+    else:
+        return type_name
+
+
 def serialize_base_model_to_class(
     base_model_instance: Type[BaseModel],
     *,
@@ -121,7 +128,7 @@ def serialize_base_model_to_class(
             f"{name}: {typ.__name__}"
             if not type(None)
             in (args := (get_args(typ := get_type_hints(base_model_instance)[name])))
-            else f"{name}: '{args[0].__name__}' = None"  # TODO: Fix by adding import
+            else f"{name}: {_escape_if_match(args[0].__name__, class_name)} = None"  # TODO: Fix by adding import
             for name in fields
         ]
     )

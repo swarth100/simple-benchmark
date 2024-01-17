@@ -947,7 +947,7 @@ benchmarks:
     description: |
       You are given a class `Queue` representing a queue of students (passed as string names).
       You must support functionality to `add` new names to the queue, `remove` names from the **front** of the queue and `get_names` which returns a list with all names in the queue.
-    difficulty: 2.5
+    difficulty: 1.5
     max_time: 20000
     init:
       - name: "x"
@@ -1016,14 +1016,14 @@ benchmarks:
           Remove the parenthesis at the **top** of the stack.
           If the parenthesis at the top of the stack as a `(` and the parenthesis to match is a `)`, then the parenthesis are matched and you should return `True`.
           Otherwise, the parenthesis are not matched and you should return `False`.
-          **NOTE**: You **cannot** leave the stack empty it must have always at least one element.
+          **NOTE**: Be aware that the stack *could remain empty* if you remove the last element.
         args:
           - name: "parenthesis"
             description: "The parenthesis to add to the stack."
             increment: "lambda **kwargs: random.choice(kwargs['parentheses'])"
             default: "str(')')"
     evaluation:
-      increment: "lambda **kwargs: [random.choice(['add', 'match']) for _ in range(kwargs['x'] // 2)]"
+      increment: "lambda **kwargs: [random.choice(['add', 'match']) for _ in range(kwargs['x'])]"
       default: "['add', 'match', 'match']"
 
 
