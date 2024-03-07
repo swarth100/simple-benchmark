@@ -213,6 +213,10 @@ def can_visit_all_rooms(unlocked: str, rooms: dict[str, list[str]]) -> bool:
     return len(visited) == len(rooms)
 
 
+def biggest_pair(x: int, y: int) -> int:
+    return max(x, y)
+
+
 def smallest_number(x: int, y: int, z: int) -> int:
     return min(x, y, z)
 
@@ -231,6 +235,14 @@ def calculate_discount(shopping: list[float], discount: int) -> float:
 
 def even_numbers(numbers: list[int]) -> list[int]:
     return [number for number in numbers if number % 2 == 0]
+
+
+def odd_numbers(numbers: list[int]) -> list[int]:
+    return [number for number in numbers if number % 2 == 1]
+
+
+def add_items(numbers: list[int], x: int, y: int) -> list[int]:
+    return numbers + [x, y]
 
 
 def city_life(turin: set[str], milan: set[str]) -> set[str]:
@@ -672,14 +684,14 @@ class GuessWhoGame:
 
 @dataclass
 class Register:
-    name: str
+    name: Optional[str]
     prev: Optional["Register"] = None
     next: Optional["Register"] = None
 
     def add(self, name: str):
         if self.name > name:
             if self.prev is None:
-                self.prev = Register(name=name, next=self)
+                self.prev = Register(name=name, prev=self.prev, next=self)
             else:
                 self.next = Register(name=self.name, prev=self, next=self.next)
                 self.name = name
@@ -691,18 +703,19 @@ class Register:
 
     def remove(self, name: str):
         if self.name == name:
-            if self.prev is not None:
-                self.prev.next = self.next
-            if self.next is not None:
-                self.next.prev = self.prev
+            self.name = None
         else:
             if self.next is not None:
                 self.next.remove(name)
 
     def get_names(self) -> list[str]:
         if self.next is None:
+            if self.name is None:
+                return []
             return [self.name]
         else:
+            if self.name is None:
+                return self.next.get_names()
             return [self.name] + self.next.get_names()
 
 

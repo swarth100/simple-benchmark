@@ -237,6 +237,21 @@ benchmarks:
                     ]"
         default: "list(['doctor', 'professor', 'artist', 'professor', 'professor', 'artist'])"
 
+  - function_name: "biggest_pair"
+    description: |
+      Create a function that given two numbers returns the largest number of the two.
+    max_time: 1000
+    difficulty: 1.5
+    args:
+      - name: "x"
+        increment: "lambda **kwargs: random.randint(-100, 100)"
+        description: "The first number."
+        default: "int(12)"
+      - name: "y"
+        increment: "lambda **kwargs: random.randint(-100, 100)"
+        description: "The second number."
+        default: "int(4)"
+
   - function_name: "smallest_number"
     description: |
       Create a function that given three numbers returns the smallest number of the three.
@@ -306,6 +321,44 @@ benchmarks:
         description: "The list of integers to filter."
         increment: "lambda **kwargs: [random.randint(1, 100) for _ in range(kwargs['x'])]"
         default: "list([1, 2, 3, 4, 5])"
+
+  - function_name: "odd_numbers"
+    description: |
+      Create a function that given a list of integers, returns a new list containing only the odd numbers from the original list.
+    max_time: 4000
+    difficulty: 2.5
+    args:
+      - name: "x"
+        increment: "lambda x: x + 1"
+        default: "int(0)"
+        hidden: true
+      - name: "numbers"
+        description: "The list of integers to filter."
+        increment: "lambda **kwargs: [random.randint(1, 100) for _ in range(kwargs['x'])]"
+        default: "list([1, 2, 3, 4, 5])"
+
+  - function_name: "add_items"
+    description: |
+      Create a function that given a list of integers, and two new items to add, adds the two new items to the list.
+    max_time: 4000
+    difficulty: 2.0
+    args:
+      - name: "x"
+        increment: "lambda x: x + 1"
+        default: "int(0)"
+        hidden: true
+      - name: "numbers"
+        description: "The list of integers to filter."
+        increment: "lambda **kwargs: [random.randint(1, 100) for _ in range(kwargs['x'])]"
+        default: "list([1, 2, 3, 4, 5])"
+      - name: "x"
+        increment: "lambda **kwargs: random.randint(-100, 100)"
+        description: "The first number."
+        default: "int(12)"
+      - name: "y"
+        increment: "lambda **kwargs: random.randint(-100, 100)"
+        description: "The second number."
+        default: "int(4)"
 
   - function_name: "city_life"
     description: |
