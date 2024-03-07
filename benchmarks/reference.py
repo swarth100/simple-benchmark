@@ -245,6 +245,14 @@ def add_items(numbers: list[int], x: int, y: int) -> list[int]:
     return numbers + [x, y]
 
 
+def get_key(items: dict[str, int], key: str) -> int:
+    return items[key]
+
+
+def frequency_in_list(items: list[str], item: str) -> int:
+    return items.count(item)
+
+
 def city_life(turin: set[str], milan: set[str]) -> set[str]:
     return turin.intersection(milan)
 

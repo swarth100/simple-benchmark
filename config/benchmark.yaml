@@ -360,6 +360,45 @@ benchmarks:
         description: "The second number."
         default: "int(4)"
 
+  - function_name: "get_key"
+    description: |
+      Create a function that given a dictionary of items and a given key, returns the value in the dictionary at the given key.
+    max_time: 200
+    difficulty: 1.5
+    args:
+      - name: "x"
+        increment: "lambda x: x + 1"
+        default: "int(0)"
+        hidden: true
+      - name: "items"
+        description: "The dictionary of items."
+        increment: "lambda **kwargs: {fake.first_name(): random.randint(1, 100) for _ in range(kwargs['x'])}"
+        default: "dict({'Alice': 12, 'Bob': 34, 'Charlie': 56})"
+      - name: "key"
+        description: "The key to get the value from."
+        increment: "lambda **kwargs: random.choice(list(kwargs['items'].keys()))"
+        default: "str('Alice')"
+
+  - function_name: "frequency_in_list"
+    description: |
+      Create a function that given a list of items and a specific item, returns the frequency of the specific item in the list.
+    max_time: 4000
+    difficulty: 2.0
+    args:
+      - name: "x"
+        increment: "lambda x: x + 1"
+        default: "int(0)"
+        hidden: true
+      - name: "items"
+        description: "The list of items."
+        increment: "lambda **kwargs: [random.randint(0, int(kwargs['x'] ** 0.5)) for _ in range(kwargs['x'])]"
+        default: "list([1, 2, 3, 1, 2, 3, 2])"
+      - name: "item"
+        description: "The specific item to count the frequency of."
+        increment: "lambda **kwargs: random.choice(kwargs['items'])"
+        default: "int(3)"
+
+
   - function_name: "city_life"
     description: |
       Create a function that given two sets of people, the set of people that live in `turin` and the set of people that live in `milan`, returns the `set` of people that live both in `turin` and `milan`.
