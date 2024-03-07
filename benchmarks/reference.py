@@ -253,6 +253,14 @@ def frequency_in_list(items: list[str], item: str) -> int:
     return items.count(item)
 
 
+def set_membership(items: set[str], item: str) -> bool:
+    return item in items
+
+
+def dictionary_creation(keys: list[str], values: list[int]) -> dict[str, int]:
+    return dict(zip(keys, values))
+
+
 def city_life(turin: set[str], milan: set[str]) -> set[str]:
     return turin.intersection(milan)
 

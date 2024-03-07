@@ -292,7 +292,7 @@ benchmarks:
     description: |
       Create a function that calculates the final price after applying a discount percentage to all the items in the `shopping` list. The function should return the final price which is the sum of all the discounted items in `shopping`.
     max_time: 3000
-    difficulty: 2.5
+    difficulty: 3.5
     args:
       - name: "x"
         increment: "lambda x: x + 1"
@@ -398,6 +398,43 @@ benchmarks:
         increment: "lambda **kwargs: random.choice(kwargs['items'])"
         default: "int(3)"
 
+  - function_name: "set_membership"
+    description: |
+      Create a function that given a set of items and a specific item, returns `True` if the item is in the set, or `False` otherwise.
+    max_time: 2000
+    difficulty: 1.5
+    args:
+      - name: "x"
+        increment: "lambda x: x + 1"
+        default: "int(0)"
+        hidden: true
+      - name: "items"
+        description: "The set of items."
+        increment: "lambda **kwargs: {random.randint(0, int(kwargs['x'] ** 0.5)) for _ in range(kwargs['x'])}"
+        default: "set([1, 2, 3, 1, 2, 3, 2])"
+      - name: "item"
+        description: "The specific item to check membership for."
+        increment: "lambda **kwargs: random.randint(0, int(kwargs['x']))"
+        default: "int(4)"
+
+  - function_name: "dictionary_creation"
+    description: |
+      Create a function that given two lists of items, returns a dictionary where the first list is the keys and the second list is the values.
+    max_time: 1000
+    difficulty: 4.0
+    args:
+      - name: "x"
+        increment: "lambda x: x + 1"
+        default: "int(0)"
+        hidden: true
+      - name: "keys"
+        description: "The list of keys."
+        increment: "lambda **kwargs: [fake.first_name() for _ in range(kwargs['x'])]"
+        default: "list(['Alice', 'Bob', 'Charlie'])"
+      - name: "values"
+        description: "The list of values."
+        increment: "lambda **kwargs: [random.randint(1, 100) for _ in range(kwargs['x'])]"
+        default: "list([12, 34, 56])"
 
   - function_name: "city_life"
     description: |
